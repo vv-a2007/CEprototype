@@ -104,13 +104,13 @@ export default {
             drawer: false,
             leftLinks :[
                 {icon:'home', title:'Home', link:'/', checkLog:false},
-                {icon:null, title:'Shopping', link:'/shopping', checkLog:true},
-                {icon:null, title:'Trading', link:'/trading', checkLog:true}
+                {icon:'shopping_cart', title:'Shopping', link:'/shopping', checkLog:true},
+                {icon:'monetization_on', title:'Trading', link:'/trading', checkLog:true}
             ],
             rightLinks :[
-                {icon:null, title:'Login', link:'/login', checkLog:false},
-                {icon:null, title:'Registration', link:'/registration', checkLog:false},
-                {icon:'build', title:'', link:'/options', checkLog:true}
+                {icon:'face', title:'Login', link:'/login', checkLog:false},
+                {icon:'perm_identity', title:'Registration', link:'/registration', checkLog:false},
+                {icon:'build', title:'tools', link:'/tools', checkLog:true}
             ],
         }
     },
