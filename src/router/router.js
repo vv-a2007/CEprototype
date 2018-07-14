@@ -8,7 +8,8 @@ import tradingPage from '../components/Trading.vue'
 import newAd from '../components/newAd.vue'
 import loginPage from '../components/Auth/Login.vue'
 import registrationPage from '../components/Auth/Registration.vue'
-
+import toolsPage from '../components/Admin/Tools.vue'
+import adListPage from '../components/Admin/tools/adList.vue'
 
 Vue.use(VueRouter);
 Vue.use(Vuelidate);
@@ -43,6 +44,14 @@ export default new VueRouter ({
             path:'/registration',
             component: registrationPage
         },
+        {
+            path:'/tools',
+            component: toolsPage,
+        },
+        {
+            path:'/adlist',
+            component: adListPage,
+        }
 
     ],
     mode: 'history'
