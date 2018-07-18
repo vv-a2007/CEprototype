@@ -10,11 +10,11 @@
         <v-spacer></v-spacer>
         <v-container grid-list-md>
             <v-layout row wrap>
-                <v-flex xs12 sm6 md4 lg3 v-for="ad in adsList" :key="ad.title">
+                <v-flex xs12 sm6 md4 lg3 v-for="ad in this.adsList" :key="ad.title">
                     <v-card>
                         <v-card-media
-                                :src="ad.src"
-                                height="150px"
+                                :src="ad.imgSrc"
+                                height="250px"
                         >
                         </v-card-media>
 
@@ -71,7 +71,7 @@
             adsList (){ return this.$store.getters.ads}
         },
         created() {
-
+            this.$store.dispatch('fetchAds');
         },
         methods : {
             newAd(){

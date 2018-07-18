@@ -1,7 +1,7 @@
 import * as fb from 'firebase'
 
 class Ad {
-    constructor(title, campaign, description, ownerId, imgSrc, promo = false, id = null, ){
+    constructor(title, campaign, description, ownerId, imgSrc, id = null, promo = false ){
         this.title = title;
         this.campaign = campaign;
         this.description = description;
@@ -31,13 +31,15 @@ export default {
             commit('setLoading', true);
             const image = payload.image;
             try {
-                const newAd = new Ad(payload.title, payload.campaign, payload.description,  this.getters.user.id, "", payload.promo);
+                const newAd = new Ad(payload.title, payload.campaign, payload.description,  this.getters.user.id, "", null, payload.promo);
                 const ad = await fb.database().ref('ads').push(newAd);
                 const imageExt = image.name.slice(image.name.lastIndexOf('.'));
-                const fileData = await fb.storage().ref(`ads/${ad.key}.${imageExt}`).put(image);
-                const imgSrc = fileData.metadata.fullPath;
+                const fileData = await fb.storage().ref(`ads/${ad.key}${imageExt}`).put(image);
+                newAd.imgSrc = fileData.downloadURL;
+                newAd.id = ad.key;
+                const adNew = await fb.database().ref(`ads/${ad.key}`).update(newAd);
+                commit('createAd', newAd);
                 commit('setLoading', false);
-                commit('createAd',{...newAd, id: ad.key, imgSrc})
             }
             catch (error) {
                 commit('setError',error.message);
@@ -51,13 +53,19 @@ export default {
             commit('setLoading', true);
             const resultAds = [];
             try{
-                const fbVal = await fb.database.ref('ads').once('value');
+                const fbVal = await fb.database().ref('ads').once('value');
                 const ads = fbVal.val();
-                Object.keys(ads).forEach((key => {
+                if (ads !== null) {
+                  Object.keys(ads).forEach((key => {
                     const ad = ads[key];
                     resultAds.push(new Ad(ad.title, ad.campaign, ad.description, ad.ownerId, ad.imgSrc, key, ad.promo))
                     }));
-                commit('loadAds', resultAds)
+                  commit('loadAds', resultAds);
+                  commit('setLoading', false);
+                } else
+                {
+                    commit('setLoading', false);
+                }
             }
             catch(error){
                 commit('setError',error.message);

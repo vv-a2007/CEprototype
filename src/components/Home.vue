@@ -7,7 +7,7 @@
                 <v-carousel-item
                         v-for="(ad,i) in ads"
                         :key="i"
-                        :src="ad.src"
+                        :src="ad.imgSrc"
                 >
                  <div class="car-link">
                      <v-btn class="primary" :to="'/ad/'+ad.id">{{ad.title}}</v-btn>
