@@ -45,17 +45,12 @@
     export default {
         data() { return {
                name: "homePage",
-               slide: 0,
-               ads: [
-                      {title:'1', description:'111111', promo:false, src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg', id:'123'},
-                      {title:'2', description:'222222', promo:false,src: 'https://cdn.vuetifyjs.com/images/carousel/sky.jpg', id:'1234'},
-                      {title:'3', description:'333333', promo:false,src: 'https://cdn.vuetifyjs.com/images/carousel/bird.jpg', id:'12345'},
-                      {title:'4', description:'444444', promo:false,src: 'https://cdn.vuetifyjs.com/images/carousel/planet.jpg', id:'123456'}
-                    ]
+               slide: 0
                }
         },
         computed : {
-            loading() {return this.$store.getters.loading}
+            loading () {return this.$store.getters.loading},
+            ads () { return this.$store.getters.promoAds}
         },
         created () {
           if (this.$route.query['loginError']) {

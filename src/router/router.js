@@ -5,11 +5,12 @@ import AuthGuard from './auth-guard'
 import homePage from '../components/Home.vue'
 import shoppingPage from '../components/Shopping.vue'
 import tradingPage from '../components/Trading.vue'
-import newAd from '../components/newAd.vue'
+import newAd from '../components/Admin/tools/newAd.vue'
 import loginPage from '../components/Auth/Login.vue'
 import registrationPage from '../components/Auth/Registration.vue'
 import toolsPage from '../components/Admin/Tools.vue'
 import adListPage from '../components/Admin/tools/adList.vue'
+import newAdPage from '../components/Admin/tools/newAd.vue'
 
 Vue.use(VueRouter);
 Vue.use(Vuelidate);
@@ -24,17 +25,12 @@ export default new VueRouter ({
         {
             path:'/shopping',
             component: shoppingPage,
-            beforeEnter: AuthGuard
+ //           beforeEnter: AuthGuard
         },
         {
             path:'/trading',
             component: tradingPage,
-            beforeEnter: AuthGuard
-        },
-        {
-            path:'/newad',
-            component: newAd,
-            beforeEnter: AuthGuard
+//            beforeEnter: AuthGuard
         },
         {
             path:'/login',
@@ -47,10 +43,17 @@ export default new VueRouter ({
         {
             path:'/tools',
             component: toolsPage,
+ //           beforeEnter: AuthGuard
         },
         {
             path:'/adlist',
             component: adListPage,
+  //          beforeEnter: AuthGuard
+        },
+        {
+            path:'/newad',
+            component: newAdPage,
+  //          beforeEnter: AuthGuard
         }
 
     ],

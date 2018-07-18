@@ -42,7 +42,20 @@
                     </v-card>
                 </v-flex>
             </v-layout>
+            <v-layout row wrap >
+                <v-flex xs12 sm6 md4 lg3 >
+                    <v-card>
+                        <v-card-title primary-title>
+                            <div>
+                                <div class="headline">Click for new ad</div>
+                                <v-btn class="success" @click="newAd"> ADD NEW </v-btn>
+                            </div>
+                        </v-card-title>
+                    </v-card>
+                </v-flex>
+            </v-layout>
         </v-container>
+
     </div>
 </template>
 
@@ -51,17 +64,19 @@
         name: "adList",
         data() {
             return {
-                adsList:[
-                    {title:'1', description:'111111', campaign:"dffer", promo:false, src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg', id:'123'},
-                    {title:'2', description:'222222', campaign:"dfdfdg", promo:false, src: 'https://cdn.vuetifyjs.com/images/carousel/sky.jpg', id:'1234'},
-                    {title:'3', description:'333333', campaign:"dsfds", promo:false, src: 'https://cdn.vuetifyjs.com/images/carousel/bird.jpg', id:'12345'},
-                    {title:'4', description:'444444', campaign:"ryrrtr", promo:false, src: 'https://cdn.vuetifyjs.com/images/carousel/planet.jpg', id:'123456'}
-                    ],
                 show:false
             }
         },
+        computed : {
+            adsList (){ return this.$store.getters.ads}
+        },
         created() {
 
+        },
+        methods : {
+            newAd(){
+                this.$router.push('/newad')
+            }
         }
     }
 </script>

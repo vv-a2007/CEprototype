@@ -6,20 +6,17 @@ import store from './store'
 import App from './App.vue'
 import Vuex from 'vuex'
 
-import axios from 'axios'
-import VueAxios from 'vue-axios'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import './plugins/vuetify'
+
 import * as fb from 'firebase'
 
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 Vue.use(Vuex);
-Vue.use(VueAxios, axios);
 Vue.use(Vuetify);
-
 
 /* eslint-disable no-new */
 new Vue({
@@ -42,7 +39,7 @@ new Vue({
             }
         });
 
-  //      this.$store.dispatch('fetchAds')
+        this.$store.dispatch('fetchAds');
 
     }
 

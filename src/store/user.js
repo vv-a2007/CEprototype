@@ -3,7 +3,7 @@ import * as fb from 'firebase'
 
 class User {
     constructor(id){
-        this.id=id
+        this.id = id
     }
 }
 
