@@ -23,6 +23,14 @@ export default {
         },
         loadAds (state, payload){
             state.ads = payload
+        },
+        updateAd (state,{title, campaign, description, id}){
+
+            const ad = state.ads.find( a => {return a.id === id} );
+            ad.title = title;
+            ad.campaign = campaign;
+            ad.description = description;
+
         }
     },
     actions : {
@@ -72,6 +80,33 @@ export default {
                 commit('setLoading', false);
                 throw error
             }
+        },
+        async delAd ({commit}, payload) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                const delAd = await fb.database().ref('ads/'+payload).remove();
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async updateAd ({commit},{title, campaign, description, id}) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                await await fb.database().ref(`ads/${id}`).update({title, campaign, description});
+                commit('updateAd',{title, campaign, description, id});
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
         }
     },
     getters : {
@@ -81,7 +116,8 @@ export default {
         adById (state){
             return adId => {return state.ads.find(ad => ad.id === adId)}
         },
-        promoAds (state){ return state.ads.filter(ad => {return ad.promo})}
+        promoAds (state){ return state.ads.filter(ad => {return ad.promo})
+        }
     }
 
 }

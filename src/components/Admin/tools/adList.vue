@@ -10,7 +10,7 @@
         <v-spacer></v-spacer>
         <v-container grid-list-md>
             <v-layout row wrap>
-                <v-flex xs12 sm6 md4 lg3 v-for="ad in this.adsList" :key="ad.title">
+                <v-flex xs12 sm6 md4 lg3 v-for="ad in this.adsList" :key="ad.title" :href="`/ad/`+ad.id">
                     <v-card>
                         <v-card-media
                                 :src="ad.imgSrc"
@@ -26,9 +26,10 @@
                         </v-card-title>
 
                         <v-card-actions>
-                            <v-btn flat color="red" >Delete</v-btn>
+                            <v-btn flat color="red"
+                                   @click="delAd(ad.id)" >Delete</v-btn>
                             <v-spacer></v-spacer>
-                            <v-btn flat color="green">Edit</v-btn>
+                            <v-btn flat color="green" :to="`/ad/`+ad.id">Open</v-btn>
                             <v-btn icon @click="show = !show">
                                 <v-icon>{{ show ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</v-icon>
                             </v-btn>
@@ -41,18 +42,15 @@
                         </v-slide-y-transition>
                     </v-card>
                 </v-flex>
-            </v-layout>
-            <v-layout row wrap >
-                <v-flex xs12 sm6 md4 lg3 >
-                    <v-card>
-                        <v-card-title primary-title>
-                            <div>
-                                <div class="headline">Click for new ad</div>
-                                <v-btn class="success" @click="newAd"> ADD NEW </v-btn>
-                            </div>
-                        </v-card-title>
+
+                <v-flex xs12 sm6 md4 lg3>
+                    <v-card style="height: 100%">
+                        <v-card-actions style="justify-content:center; align-items:center ">
+                                <v-btn large class="success text-xs-center" @click="newAd"> ADD NEW </v-btn>
+                        </v-card-actions>
                     </v-card>
                 </v-flex>
+
             </v-layout>
         </v-container>
 
@@ -76,6 +74,11 @@
         methods : {
             newAd(){
                 this.$router.push('/newad')
+            },
+            delAd(event){
+                this.$store.dispatch('delAd', event);
+                this.$store.dispatch('fetchAds');
+                this.$router.push('/adlist');
             }
         }
     }

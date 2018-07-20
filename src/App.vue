@@ -12,11 +12,11 @@
                  :key="item.title"
                  :to="item.link"
          >
-           <v-list-tile-action>
-             <v-icon v-if="item.icon" >{{item.icon}}</v-icon>
+           <v-list-tile-action  >
+             <v-icon v-if="item.icon">{{item.icon}}</v-icon>
            </v-list-tile-action>
 
-           <v-list-tile-content>
+           <v-list-tile-content  >
              <v-list-tile-title v-text="item.title"></v-list-tile-title>
            </v-list-tile-content>
 
@@ -29,11 +29,11 @@
                  :key="item.title"
                  :to="item.link"
          >
-           <v-list-tile-action>
+           <v-list-tile-action >
              <v-icon v-if="item.icon" >{{item.icon}}</v-icon>
            </v-list-tile-action>
 
-           <v-list-tile-content>
+           <v-list-tile-content >
              <v-list-tile-title v-text="item.title"></v-list-tile-title>
            </v-list-tile-content>
 
@@ -58,6 +58,7 @@
                v-for="item in leftLinks"
                :key="item.title"
                :to="item.link"
+               v-show="showMenuItem(item.showNotUser,item.showUser)"
         >
           <v-icon left
                   v-if="item.icon"
@@ -74,6 +75,7 @@
               v-for="item in rightLinks"
               :key="item.title"
               :to="item.link"
+              v-show="showMenuItem(item.showNotUser,item.showUser)"
        >
          <v-icon left
                  v-if="item.icon"
@@ -89,6 +91,28 @@
         <router-view></router-view>
      </v-content>
 
+    <template v-if="error">
+       <v-snackbar
+               :timeout="10000"
+               :multi-line="true"
+               color="error"
+               @input="closeError"
+               :value="true"
+               bottom
+               auto-height
+               vertical
+       >
+         {{ error }}
+         <v-btn
+                 dark
+                 flat
+                 @click="closeError"
+         >
+           Close
+         </v-btn>
+       </v-snackbar>
+    </template>
+
      <v-footer app></v-footer>
      </v-layout>
    </v-container>
@@ -103,14 +127,17 @@ export default {
             user:null,
             drawer: false,
             leftLinks :[
-                {icon:'home', title:'Home', link:'/', checkLog:false},
-                {icon:'shopping_cart', title:'Shopping', link:'/shopping', checkLog:true},
-                {icon:'monetization_on', title:'Trading', link:'/trading', checkLog:true}
+                {icon:'home', title:'Home', link:'/', showNotUser:true, showUser:true},
+                {icon:'shopping_cart', title:'Shopping', link:'/shopping', showNotUser:false, showUser:true},
+                {icon:'monetization_on', title:'Trading', link:'/trading', showNotUser:false, showUser:true},
+
             ],
             rightLinks :[
-                {icon:'face', title:'Login', link:'/login', checkLog:false},
-                {icon:'perm_identity', title:'Registration', link:'/registration', checkLog:false},
-                {icon:'build', title:'tools', link:'/tools', checkLog:true}
+                {icon:'build', title:'tools', link:'/tools', showNotUser:false, showUser:true},
+                {icon:'face', title:'Login', link:'/login', showNotUser:true,showUser:false },
+                {icon:'perm_identity', title:'Registration', link:'/registration', showNotUser:true, showUser:false},
+                {icon:'perm_identity', title:'Account', link:'/account', showNotUser:false, showUser:true},
+                {icon:'exit_to_app', title:'Log Out', link:'/logout', showNotUser:false, showUser:true}
             ],
         }
     },
@@ -121,6 +148,8 @@ export default {
         else { return null}},
 
         isUserLogin () {return this.$store.getters.isUserLogin}
+
+
     },
     methods: {
         closeError(){
@@ -129,8 +158,12 @@ export default {
         logOut (){
             this.$store.dispatch('logOutUser');
             this.$router.push('/')
-        }
+        },
+        showMenuItem (showNotUser, showUser) { return ( (showNotUser && (!this.isUserLogin)) || (showUser && this.isUserLogin))}
     },
+    closeError () {
+        this.$store.dispatch('clearError')
+    }
 }
 </script>
 <style scoped>

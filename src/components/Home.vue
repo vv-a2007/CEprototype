@@ -3,11 +3,12 @@
   <v-container fluid>
     <v-layout row>
         <v-flex xs-12>
-            <v-carousel>
+            <v-carousel hide-delimiters interval="8000">
                 <v-carousel-item
                         v-for="(ad,i) in ads"
                         :key="i"
                         :src="ad.imgSrc"
+                        @click="this.hidecontrols=!this.hidecontrols"
                 >
                  <div class="car-link">
                      <v-btn class="primary" :to="'/ad/'+ad.id">{{ad.title}}</v-btn>
@@ -45,24 +46,19 @@
     export default {
         data() { return {
                name: "homePage",
-               slide: 0
+               slide: 0,
+               hidecontrols: true
                }
         },
         computed : {
             loading () {return this.$store.getters.loading},
             ads () { return this.$store.getters.promoAds}
         },
-        created () {
-          if (this.$route.query['loginError']) {
-              this.$store.dispatch('setError','Please log in to access this page.')
-          }
-        },
         methods :{
-
         }
     }
 </script>
 
 <style scoped>
- .car-link {position: absolute; bottom:50px; left: 50%; background: rgba(0,0,0,5); transform: translate(-50%,0); padding: 5px 15px; border-top-right-radius: 5px; border-top-left-radius: 5px }
+ .car-link {position: absolute; bottom:2px; left: 50%; background: rgba(0,0,0,5); transform: translate(-50%,0); padding: 1px 1px; border-top-right-radius: 1px; border-top-left-radius: 1px }
 </style>

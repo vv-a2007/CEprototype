@@ -1,8 +1,11 @@
 import store from '../store'
 
 export default function (to, from, next) {
-  if (store.getters.user) { next()}
+
+  const isUser = store.getters.isUserLogin;
+
+  if (isUser) { next()}
   else {
-      next('/?loginError=true')
+      next('/login/?loginError=true')
   }
 }

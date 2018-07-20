@@ -5,12 +5,14 @@ import AuthGuard from './auth-guard'
 import homePage from '../components/Home.vue'
 import shoppingPage from '../components/Shopping.vue'
 import tradingPage from '../components/Trading.vue'
-import newAd from '../components/Admin/tools/newAd.vue'
 import loginPage from '../components/Auth/Login.vue'
+import logoutPage from '../components/Auth/Logout.vue'
 import registrationPage from '../components/Auth/Registration.vue'
 import toolsPage from '../components/Admin/Tools.vue'
 import adListPage from '../components/Admin/tools/adList.vue'
 import newAdPage from '../components/Admin/tools/newAd.vue'
+import AdPage from '../components/Admin/tools/Ad.vue'
+import AccountPage from '../components/Admin/tools/Account.vue'
 
 Vue.use(VueRouter);
 Vue.use(Vuelidate);
@@ -25,16 +27,21 @@ export default new VueRouter ({
         {
             path:'/shopping',
             component: shoppingPage,
- //           beforeEnter: AuthGuard
+            beforeEnter: AuthGuard
         },
         {
             path:'/trading',
             component: tradingPage,
-//            beforeEnter: AuthGuard
+            beforeEnter: AuthGuard
         },
         {
             path:'/login',
             component: loginPage
+        },
+        {
+            path:'/logout',
+            component: logoutPage,
+            beforeEnter: AuthGuard
         },
         {
             path:'/registration',
@@ -43,18 +50,31 @@ export default new VueRouter ({
         {
             path:'/tools',
             component: toolsPage,
- //           beforeEnter: AuthGuard
+            beforeEnter: AuthGuard
         },
         {
             path:'/adlist',
             component: adListPage,
-  //          beforeEnter: AuthGuard
+            beforeEnter: AuthGuard
         },
         {
             path:'/newad',
             component: newAdPage,
-  //          beforeEnter: AuthGuard
+            beforeEnter: AuthGuard
+        },
+        {
+            path:'/ad/:id',
+            props: true,
+            component: AdPage,
+            beforeEnter: AuthGuard
+        },
+        {
+            path:'/account/:id',
+            props: true,
+            component: AccountPage,
+            beforeEnter: AuthGuard
         }
+
 
     ],
     mode: 'history'

@@ -12,7 +12,7 @@
                                         type="text"
                                         v-model="title"
                                         :rules="titleRules"
-                                        placeholder="Enter titlel"
+                                        placeholder="Enter title"
                                 ></v-text-field>
                                 <v-text-field
                                         name="campaign"
@@ -33,7 +33,7 @@
                                 ></v-textarea>
                             </v-form>
                             <v-layout mb-1 row wrap>
-                                <v-flex xs-12>
+                                <v-flex xs-12 ml0>
                                     <v-btn
                                             class="warning"
                                             @click="uploadAd"
@@ -54,20 +54,23 @@
                                     <v-card-media
                                             v-if="imgSrc"
                                             :src="imgSrc"
-                                            height="100px"
+                                            height="200px"
                                     >
                                     </v-card-media>
                                 </v-flex>
                             </v-layout>
-                            <v-layout>
-                                <v-flex row>
-                                    <div>
+                            <v-layout row wrap>
+                                <v-flex xs-6>
                                       <v-switch label="Add to promo" v-model="promo"></v-switch>
                                       <v-spacer></v-spacer>
-                                      <v-btn mr-1 class="secondary" @click="cancelAd">Cancel</v-btn>
-                                      <v-btn :loading="loading" :disabled="!valid || !image || loading" class="success" @click="createAd">Add new ad</v-btn>
-                                    </div>
                                 </v-flex>
+                            </v-layout>
+                            <v-layout row wrap >
+                                 <v-flex xs-12>
+                                       <v-btn mr-1 xs-6 class="secondary" @click="cancelAd">Cancel</v-btn>
+                                       <v-spacer></v-spacer>
+                                        <v-btn xs-6  :loading="loading" :disabled="!valid || !image || loading" class="success" @click="createAd">Add new ad</v-btn>
+                                  </v-flex>
                             </v-layout>
                 </v-flex>
             </v-layout>

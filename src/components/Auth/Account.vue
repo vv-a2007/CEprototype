@@ -1,0 +1,120 @@
+<template>
+    <v-container>
+        <v-layout row>
+            <v-flex xs12 md6  justify-center wrap >
+                <v-card>
+                    <v-card-title primary-title >
+                        <div class="headline">Personal and contact information</div>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-form v-model="valid" ref="form" lazy-validation>
+                            <v-text-field
+                                    :name="firstName"
+                                    label="First name"
+                                    type="text"
+                                    v-model="firstName"
+                                    :rules="nameRules"
+                                    placeholder="Enter your first name"
+                                    autocomplete="given-name"
+                                    @change="change=true"
+                            ></v-text-field>
+                            <v-text-field
+                                    :name="lastName"
+                                    label="Last name"
+                                    type="text"
+                                    v-model="lastName"
+                                    :rules="nameRules"
+                                    placeholder="Enter your lastname"
+                                    autocomplete="family-name"
+                                    @change="change=true"
+                            ></v-text-field>
+                            <!--добавить валидацию тел номера -->
+                            <v-text-field
+                                    :name="phone"
+                                    label="Phone"
+                                    type="text"
+                                    v-model="Phone"
+                                    :rules="nameRules"
+                                    placeholder="Enter your phone number"
+                                    autocomplete="tel"
+                                    @change="change=true"
+                            ></v-text-field>
+                            <v-text-field
+                                    :name="emailBasic"
+                                    label="Basic e-mail"
+                                    type="text"
+                                    v-model="emailBasic"
+                                    :rules="emailRules"
+                                    placeholder="Enter your basic e-mail"
+                                    @change="change=true"
+                            ></v-text-field>
+                            <v-text-field
+                                    :name="emailReserve"
+                                    label="Reserve e-mail"
+                                    type="text"
+                                    v-model="emailReserve"
+                                    :rules="emailRules"
+                                    placeholder="Enter your reserve e-mail"
+                                    @change="change=true"
+                            ></v-text-field>
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                                color="success"
+                                @click="savePersonalData"
+                                :disabled="(!valid) && (!change)"
+                        >Save personal data</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-flex>
+        </v-layout>
+    </v-container>
+</template>
+
+<script>
+    export default {
+        name: "Account",
+        props: ['uid'],
+        data () {
+            return {
+                valid:false,
+                change:false,
+                uidUser: this.uid,
+                firstName: "",
+                lastName: "",
+                phone: "",
+                emailBasic: "",
+                emailReserve: "",
+                emailRules: [
+                    v => !!v || 'E-mail is required',
+                    v => /.+@.+/.test(v) || 'E-mail must be valid'
+                ],
+                nameRules: [
+                    v => !!v || 'Title is required'
+                ]
+            }
+        },
+
+        savePersonalData (evt) {
+            if (this.$refs.form.validate()) {
+                const user = {
+                    firstName: this.firstName,
+                    lastName: this.lastName,
+                    phone: this.phone,
+                    emailBasic: this.emailBasic,
+                    emailReserve: this.emailReserve
+                };
+                this.$store.dispatch('savePersonalData',user)
+                    .then (() => { this.$router.push('/')})
+                    .catch((error) => {return error})
+            }
+        }
+
+    }
+</script>
+
+<style scoped>
+
+</style>

@@ -16,6 +16,7 @@
                                 v-model="e_mail"
                                 :rules="emailRules"
                                 placeholder="Enter your e-mail"
+                                autocomplete="username"
                         ></v-text-field>
                         <v-text-field
                                 prepend-icon="lock"
@@ -25,6 +26,7 @@
                                 v-model="passw"
                                 :rules="passwRules"
                                 placeholder="Enter your password"
+                                autocomplete="current-password"
                         ></v-text-field>
                     </v-form>
                 </v-card-text>
@@ -67,6 +69,11 @@
                 return this.$store.getters.loading
             }
         },
+        mounted () {
+        if (this.$route.query['loginError']) {
+            this.$store.dispatch('setError', 'Please log in to access this page.')
+        }
+    },
         methods: {
             clearName() {
                 this.e_mail = '';
