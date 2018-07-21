@@ -12,7 +12,7 @@ import toolsPage from '../components/Admin/Tools.vue'
 import adListPage from '../components/Admin/tools/adList.vue'
 import newAdPage from '../components/Admin/tools/newAd.vue'
 import AdPage from '../components/Admin/tools/Ad.vue'
-import AccountPage from '../components/Admin/tools/Account.vue'
+import AccountPage from '../components/Auth/Account.vue'
 
 Vue.use(VueRouter);
 Vue.use(Vuelidate);
@@ -69,7 +69,7 @@ export default new VueRouter ({
             beforeEnter: AuthGuard
         },
         {
-            path:'/account/:id',
+            path:'/account/:uid',
             props: true,
             component: AccountPage,
             beforeEnter: AuthGuard

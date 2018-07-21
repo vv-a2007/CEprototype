@@ -54,11 +54,14 @@ export default {
         }
     },
     getters:{
-        user(state){
+        user (state) {
             return state.user
         },
         isUserLogin (state) {
             return (state.user !== null)
+        },
+        userId (state) {
+            if (state.user !== null) {return state.user.id}
         }
     }
 }

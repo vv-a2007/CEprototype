@@ -136,7 +136,7 @@ export default {
                 {icon:'build', title:'tools', link:'/tools', showNotUser:false, showUser:true},
                 {icon:'face', title:'Login', link:'/login', showNotUser:true,showUser:false },
                 {icon:'perm_identity', title:'Registration', link:'/registration', showNotUser:true, showUser:false},
-                {icon:'perm_identity', title:'Account', link:'/account', showNotUser:false, showUser:true},
+                {icon:'perm_identity', title:'Account', link: this.userAccount, showNotUser:false, showUser:true},
                 {icon:'exit_to_app', title:'Log Out', link:'/logout', showNotUser:false, showUser:true}
             ],
         }
@@ -147,7 +147,9 @@ export default {
             return this.$store.getters.error}
         else { return null}},
 
-        isUserLogin () {return this.$store.getters.isUserLogin}
+        isUserLogin () {return this.$store.getters.isUserLogin},
+
+        userAccount () { if (isUserLogin()) {return ('/account/'+this.$store.getters.userId)} else {return '/'}}
 
 
     },
