@@ -124,7 +124,6 @@ export default {
     data () {
         return {
             name: 'App',
-            user:null,
             drawer: false,
             leftLinks :[
                 {icon:'home', title:'Home', link:'/', showNotUser:true, showUser:true},
@@ -162,9 +161,6 @@ export default {
             this.$router.push('/')
         },
         showMenuItem (showNotUser, showUser) { return ( (showNotUser && (!this.isUserLogin)) || (showUser && this.isUserLogin))}
-    },
-    closeError () {
-        this.$store.dispatch('clearError')
     }
 }
 </script>

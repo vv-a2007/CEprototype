@@ -18,32 +18,34 @@ Vue.use(VueRouter);
 Vue.use(Vuex);
 Vue.use(Vuetify);
 
-/* eslint-disable no-new */
-new Vue({
-    el: "#app",
-    render: h => h(App),
-    store,
-    router,
-    created() {
-        fb.initializeApp({
-            apiKey: "AIzaSyDPFj5DyA8_uB4jblmD3eRGfK8242P6c7M",
-            authDomain: "betace-bfeb6.firebaseapp.com",
-            databaseURL: "https://betace-bfeb6.firebaseio.com",
-            projectId: "betace-bfeb6",
-            storageBucket: "betace-bfeb6.appspot.com",
-            messagingSenderId: "24362690064"
-        });
+ new Vue({
+            el: "#app",
+            render: h => h(App),
+            store,
+            router,
+            created() {
+
+             fb.initializeApp({
+                    apiKey: "AIzaSyDPFj5DyA8_uB4jblmD3eRGfK8242P6c7M",
+                    authDomain: "betace-bfeb6.firebaseapp.com",
+                    databaseURL: "https://betace-bfeb6.firebaseio.com",
+                    projectId: "betace-bfeb6",
+                    storageBucket: "betace-bfeb6.appspot.com",
+                    messagingSenderId: "24362690064"
+                });
+
+             fb.auth().onAuthStateChanged(user => {
+                    if (user) {
+                         this.$store.dispatch('autoLoginUser', user);
+                     }
+             });
+
+              this.$store.dispatch('fetchAds');
 
 
-
-        fb.auth().onAuthStateChanged(user => {
-            if (user) {
-                this.$store.dispatch('autoLoginUser', user);
-            }
-        });
-
-        this.$store.dispatch('fetchAds');
     }
 
 });
+
+
 

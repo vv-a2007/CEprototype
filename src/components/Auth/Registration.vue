@@ -53,6 +53,22 @@
 
 <script>
 
+
+
+    function handleVerifyEmail(auth, actionCode, user) {
+        auth.applyActionCode(actionCode).then(function(resp) {
+            // Email address has been verified.
+            // TODO: Display a confirmation message to the user.
+            // You could also provide the user with a link back to the app.
+
+
+        }).catch(function(error) {
+            // Code is invalid or expired. Ask the user to verify their email address
+            // again.
+        });
+    }
+
+
     export default {
         data() {
             return {
@@ -61,6 +77,7 @@
                 passw: '',
                 confirmPassw:'',
                 valid: false,
+                confirmEmail:false,
                 emailRules: [
                     v => !!v || 'E-mail is required',
                     v => /.+@.+/.test(v) || 'E-mail must be valid'
@@ -90,10 +107,16 @@
             },
 
             addUser :  function (user) {
+                               document.addEventListener('DOMContentLoaded', function() {
+                                   let actionCode = randomBytes;
+                                   let auth = fb.auth();
+                                   // Display email verification handler and UI.
+                                   handleVerifyEmail(auth, actionCode, user);}, false);
 
-                          this.$store.dispatch('registerUser',user)
-                              .then (() => { this.$router.push('/')})
-                              .catch((error) => {return error})
+                this.$store.dispatch('registerUser',user)
+                    .then (() => { this.$router.push('/')})
+                    .catch((error) => {return error})
+
 
             },
             handleOk (evt) {
