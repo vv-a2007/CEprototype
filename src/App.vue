@@ -120,11 +120,15 @@
 </template>
 
 <script>
+
+import * as fb from 'firebase';
+
 export default {
     data () {
         return {
             name: 'App',
             drawer: false,
+            userpath: '',
             leftLinks :[
                 {icon:'home', title:'Home', link:'/', showNotUser:true, showUser:true},
                 {icon:'shopping_cart', title:'Shopping', link:'/shopping', showNotUser:false, showUser:true},
@@ -135,21 +139,54 @@ export default {
                 {icon:'build', title:'tools', link:'/tools', showNotUser:false, showUser:true},
                 {icon:'face', title:'Login', link:'/login', showNotUser:true,showUser:false },
                 {icon:'perm_identity', title:'Registration', link:'/registration', showNotUser:true, showUser:false},
-                {icon:'perm_identity', title:'Account', link: this.userAccount, showNotUser:false, showUser:true},
+                {icon:'perm_identity', title:'Account', link: `/account/{{userpath}}`, showNotUser:false, showUser:true},
                 {icon:'exit_to_app', title:'Log Out', link:'/logout', showNotUser:false, showUser:true}
             ],
         }
     },
+
+    created () {
+
+        fb.initializeApp({
+            apiKey: "AIzaSyDPFj5DyA8_uB4jblmD3eRGfK8242P6c7M",
+            authDomain: "betace-bfeb6.firebaseapp.com",
+            databaseURL: "https://betace-bfeb6.firebaseio.com",
+            projectId: "betace-bfeb6",
+            storageBucket: "betace-bfeb6.appspot.com",
+            messagingSenderId: "24362690064"
+        });
+
+        fb.auth().onAuthStateChanged(user => {
+            if (user) {
+                this.$store.dispatch('autoLoginUser', user);
+            }
+        });
+
+
+    },
+
+    mounted (){
+
+        this.$store.dispatch('fetchAds');
+
+
+    },
+
     computed : {
 
-        error () { if (this.$store.getters.error) {
-            return this.$store.getters.error}
-        else { return null}},
+        error () {
+            if (this.$store.getters.error) {
+                return this.$store.getters.error
+            }
+            else {
+                return null
+            }
+        },
 
-        isUserLogin () {return this.$store.getters.isUserLogin},
-
-        userAccount () { if (isUserLogin()) {return ('/account/'+this.$store.getters.userId)} else {return '/'}}
-
+        isUserLogin () {
+            this.userpath = this.$store.getters.userPath;
+            return this.$store.getters.isUserLogin
+        },
 
     },
     methods: {

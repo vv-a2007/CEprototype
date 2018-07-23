@@ -3,7 +3,8 @@ import * as fb from 'firebase'
 
 class User {
     constructor(id){
-        this.id = id
+        this.id = id;
+        this.path = '/account/'+id;
     }
 }
 
@@ -13,7 +14,7 @@ export default {
     },
     mutations:{
         setUser (state, payload) {
-            state.user = payload
+            state.user = payload;
         }
     },
     actions:{
@@ -62,6 +63,11 @@ export default {
         },
         userId (state) {
             if (state.user !== null) {return state.user.id}
+        },
+        userPath (state) {
+            if (state.user !== null) {
+                return state.user.path
+            } else {return ""}
         }
     }
 }
