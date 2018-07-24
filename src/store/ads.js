@@ -98,7 +98,7 @@ export default {
             commit('clearError');
             commit('setLoading', true);
             try {
-                await await fb.database().ref(`ads/${id}`).update({title, campaign, description});
+                await fb.database().ref(`ads/${id}`).update({title, campaign, description});
                 commit('updateAd',{title, campaign, description, id});
                 commit('setLoading', false);
             }

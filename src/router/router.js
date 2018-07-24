@@ -69,8 +69,7 @@ export default new VueRouter ({
             beforeEnter: AuthGuard
         },
         {
-            path:'/account/:uid',
-            props: true,
+            path:'/account',
             component: AccountPage,
             beforeEnter: AuthGuard
         }

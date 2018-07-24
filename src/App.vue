@@ -139,7 +139,7 @@ export default {
                 {icon:'build', title:'tools', link:'/tools', showNotUser:false, showUser:true},
                 {icon:'face', title:'Login', link:'/login', showNotUser:true,showUser:false },
                 {icon:'perm_identity', title:'Registration', link:'/registration', showNotUser:true, showUser:false},
-                {icon:'perm_identity', title:'Account', link: `/account/{{userpath}}`, showNotUser:false, showUser:true},
+                {icon:'perm_identity', title:'Account', link: '/account', showNotUser:false, showUser:true},
                 {icon:'exit_to_app', title:'Log Out', link:'/logout', showNotUser:false, showUser:true}
             ],
         }
@@ -157,8 +157,9 @@ export default {
         });
 
         fb.auth().onAuthStateChanged(user => {
-            if (user) {
+            if (user && !this.$store.getters.isUserLogin) {
                 this.$store.dispatch('autoLoginUser', user);
+                this.$router.push('/')
             }
         });
 
@@ -184,7 +185,6 @@ export default {
         },
 
         isUserLogin () {
-            this.userpath = this.$store.getters.userPath;
             return this.$store.getters.isUserLogin
         },
 

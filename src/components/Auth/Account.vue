@@ -33,7 +33,7 @@
                                     :name="phone"
                                     label="Phone"
                                     type="text"
-                                    v-model="Phone"
+                                    v-model="phone"
                                     :rules="nameRules"
                                     placeholder="Enter your phone number"
                                     autocomplete="tel"
@@ -64,7 +64,7 @@
                         <v-btn
                                 color="success"
                                 @click="savePersonalData"
-                                :disabled="(!valid) && (!change)"
+                                :disabled="(!valid) || (!change)"
                         >Save personal data</v-btn>
                     </v-card-actions>
                 </v-card>
@@ -76,17 +76,18 @@
 <script>
     export default {
         name: "Account",
-        props: ['uid'],
+
         data () {
             return {
                 valid:false,
                 change:false,
-                uidUser: this.uid,
+
                 firstName: "",
                 lastName: "",
                 phone: "",
                 emailBasic: "",
                 emailReserve: "",
+
                 emailRules: [
                     v => !!v || 'E-mail is required',
                     v => /.+@.+/.test(v) || 'E-mail must be valid'
@@ -97,21 +98,46 @@
             }
         },
 
-        savePersonalData (evt) {
-            if (this.$refs.form.validate()) {
-                const user = {
-                    firstName: this.firstName,
-                    lastName: this.lastName,
-                    phone: this.phone,
-                    emailBasic: this.emailBasic,
-                    emailReserve: this.emailReserve
-                };
-                this.$store.dispatch('savePersonalData',user)
-                    .then (() => { this.$router.push('/')})
-                    .catch((error) => {return error})
-            }
-        }
+        computed : { idUser () {return this.$store.getters.userId} },
 
+        created () {
+            if (this.idUser) {
+                this.firstName = this.$store.getters.user.firstName;
+                this.lastName = this.$store.getters.user.lastName;
+                this.phone = this.$store.getters.user.phone;
+                this.emailBasic = this.$store.getters.user.emailBasic;
+                this.emailReserve = this.$store.getters.user.emailReserve;
+            }
+        },
+
+        methods : {
+          savePersonalData() {
+              if (this.$refs.form.validate()) {
+                  const user = {
+                      id: this.idUser,
+                      firstName: this.firstName,
+                      lastName: this.lastName,
+                      phone: this.phone,
+                      emailBasic: this.emailBasic,
+                      emailReserve: this.emailReserve
+                  };
+                  this.$store.dispatch('savePersonalData', user)
+                      .then(() => {
+                          this.$store.dispatch('loadPersonalData', user).
+                          then(()=>{
+                              this.change = false;
+                          }).
+                          catch((error) => {
+                              return error
+                          });
+
+                      })
+                      .catch((error) => {
+                          return error
+                      })
+              }
+          }
+      }
     }
 </script>
 
