@@ -62,7 +62,6 @@ export default {
 
             commit('setLoading',true);
             try {
-
                 const fbVal = await fb.database().ref(`users/${payload.uid}`).once('value');
                 const user = fbVal.val();
                 if (user !== null) {
