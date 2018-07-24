@@ -57,7 +57,7 @@ export default {
         },
 
         async fetchAds ({commit}) {
-            commit('clearError');
+
             commit('setLoading', true);
             const resultAds = [];
             try{

@@ -164,15 +164,9 @@ export default {
             }
         });
 
-
-    },
-
-    mounted (){
-
         this.$store.dispatch('fetchAds');
-
-
     },
+
 
     computed : {
 

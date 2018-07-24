@@ -2,14 +2,20 @@ import store from '../store'
 
 export default function (to, from, next) {
 
+    let isUser;
 
-    const isUser = store.state.user;
+    if (store.state.user.user) {
+       isUser = store.state.user.user.id;
+    }
+    else { isUser = false}
 
-    if (isUser) {
+    if (isUser !== false) {
       next()
     }
     else {
-      next('/login/?loginError=true')
+      store.dispatch('setError', 'Please log in to access this page.');
+      next('/login/?loginError=true');
+
     }
 }
 

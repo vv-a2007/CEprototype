@@ -69,7 +69,7 @@
                 return this.$store.getters.loading
             }
         },
-        mounted () {
+        beforeMount () {
         if (this.$route.query['loginError']) {
             this.$store.dispatch('setError', 'Please log in to access this page.')
         }

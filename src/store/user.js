@@ -59,12 +59,14 @@ export default {
             commit('setUser', new User(payload.user.uid));
             if ( payload.curPath === '/login/') {router.push('/')} else {router.push(payload.curPath)}
 
-            commit('clearError');
+
             commit('setLoading',true);
             try {
+
                 const fbVal = await fb.database().ref(`users/${payload.user.uid}`).once('value');
                 const user = fbVal.val();
                 if (user !== null) {
+                    commit('clearError');
                     commit('loadPersonalData', user)
                 }
                 commit('setLoading',false);
@@ -79,12 +81,13 @@ export default {
               commit('setUser',null)
         },
         async readPersonalData ({commit},{id}){
-            commit('clearError');
+
             commit('setLoading',true);
             try {
                 const fbVal = await fb.database().ref(`users/${id}`).once('value');
                 const user = fbVal.val();
                 if (user !== null) {
+                        commit('clearError');
                         commit('loadPersonalData', user)
                     }
                 commit('setLoading',false);
@@ -95,10 +98,11 @@ export default {
             }
         },
         async savePersonalData({commit},{id, firstName, lastName, phone, emailBasic, emailReserve}){
-            commit('clearError');
+
             commit('setLoading', true);
             try {
                 await fb.database().ref(`users/${id}`).update({firstName, lastName, phone, emailBasic, emailReserve});
+                commit('clearError');
                 commit('setLoading', false);
             }
             catch (error) {
