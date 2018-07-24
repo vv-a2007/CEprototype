@@ -14,7 +14,8 @@ export default function (to, from, next) {
     }
     else {
       store.dispatch('setError', 'Please log in to access this page.');
-      next('/login/?loginError=true');
+      const path = `/login/?loginError=`+to.path;
+      next(path);
 
     }
 }

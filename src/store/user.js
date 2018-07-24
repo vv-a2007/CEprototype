@@ -56,14 +56,14 @@ export default {
             }
         },
         async autoLoginUser({commit}, payload) {
-            commit('setUser', new User(payload.user.uid));
-            if ( payload.curPath === '/login/') {router.push('/')} else {router.push(payload.curPath)}
+            commit('setUser', new User(payload.uid));
+ //           if ( payload.curPath === '/login/') {router.push('/')} else {router.push(payload.curPath)}
 
 
             commit('setLoading',true);
             try {
 
-                const fbVal = await fb.database().ref(`users/${payload.user.uid}`).once('value');
+                const fbVal = await fb.database().ref(`users/${payload.uid}`).once('value');
                 const user = fbVal.val();
                 if (user !== null) {
                     commit('clearError');

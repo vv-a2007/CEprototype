@@ -87,7 +87,13 @@
                     };
                     this.$store.dispatch('loginUser', user)
                         .then(() => {
-                            this.$router.push("/")
+                            const invalidPath = this.$route.query['loginError'];
+                            if (invalidPath) {
+                                this.$router.push(invalidPath)
+                            } else
+                            {
+                                this.$router.push("/")
+                            }
                         })
                         .catch((error) => {
                             return error

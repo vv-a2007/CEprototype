@@ -156,10 +156,12 @@ export default {
             messagingSenderId: "24362690064"
         });
 
+        this.$store.commit('setUser', null);
+
         fb.auth().onAuthStateChanged(user => {
             if (user && !this.isUserLogin) {
                 const curPath = this.$route.path;
-                this.$store.dispatch('autoLoginUser', {user, curPath});
+                this.$store.dispatch('autoLoginUser', {uid: user.uid, curPath});
 
             }
         });
