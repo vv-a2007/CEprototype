@@ -128,7 +128,7 @@ export default {
         return {
             name: 'App',
             drawer: false,
-            userpath: '',
+
             leftLinks :[
                 {icon:'home', title:'Home', link:'/', showNotUser:true, showUser:true},
                 {icon:'shopping_cart', title:'Shopping', link:'/shopping', showNotUser:false, showUser:true},
@@ -158,8 +158,9 @@ export default {
 
         fb.auth().onAuthStateChanged(user => {
             if (user && !this.$store.getters.isUserLogin) {
+                const curPath = this.$route.path;
                 this.$store.dispatch('autoLoginUser', user);
-                this.$router.push('/')
+                if ( curPath === '/login/') {this.$router.push('/')}
             }
         });
 
