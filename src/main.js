@@ -10,7 +10,6 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import './plugins/vuetify'
 
-import * as fb from 'firebase'
 
 Vue.config.productionTip = false;
 

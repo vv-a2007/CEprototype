@@ -1,5 +1,8 @@
 import * as fb from 'firebase'
-
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import router from '../router/router'
+Vue.use(VueRouter);
 
 class User {
     constructor(id){
@@ -53,12 +56,13 @@ export default {
             }
         },
         async autoLoginUser({commit}, payload) {
-            commit('setUser', new User(payload.uid));
+            commit('setUser', new User(payload.user.uid));
+            if ( payload.curPath === '/login/') {router.push('/')} else {router.push(payload.curPath)}
 
             commit('clearError');
             commit('setLoading',true);
             try {
-                const fbVal = await fb.database().ref(`users/${payload.uid}`).once('value');
+                const fbVal = await fb.database().ref(`users/${payload.user.uid}`).once('value');
                 const user = fbVal.val();
                 if (user !== null) {
                     commit('loadPersonalData', user)
@@ -110,7 +114,7 @@ export default {
             return state.user
         },
         isUserLogin (state) {
-            return (state.user !== null)
+            return state.user !== null;
         },
         userId (state) {
             if (state.user !== null) {return state.user.id}

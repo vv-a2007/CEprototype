@@ -7,6 +7,7 @@ import ads from './ads'
 Vue.use(Vuex);
 
 export default new Vuex.Store ({
+    strict: process.env.NODE_ENV !== 'production',
     modules:{
         user, share, ads
     }

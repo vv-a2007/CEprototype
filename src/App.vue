@@ -145,7 +145,7 @@ export default {
         }
     },
 
-    created () {
+    beforeCreate () {
 
         fb.initializeApp({
             apiKey: "AIzaSyDPFj5DyA8_uB4jblmD3eRGfK8242P6c7M",
@@ -157,10 +157,10 @@ export default {
         });
 
         fb.auth().onAuthStateChanged(user => {
-            if (user && !this.$store.getters.isUserLogin) {
+            if (user && !this.isUserLogin) {
                 const curPath = this.$route.path;
-                this.$store.dispatch('autoLoginUser', user);
-                if ( curPath === '/login/') {this.$router.push('/')}
+                this.$store.dispatch('autoLoginUser', {user, curPath});
+
             }
         });
 
@@ -187,7 +187,7 @@ export default {
 
         isUserLogin () {
             return this.$store.getters.isUserLogin
-        },
+        }
 
     },
     methods: {

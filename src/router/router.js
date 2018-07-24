@@ -13,6 +13,7 @@ import adListPage from '../components/Admin/tools/adList.vue'
 import newAdPage from '../components/Admin/tools/newAd.vue'
 import AdPage from '../components/Admin/tools/Ad.vue'
 import AccountPage from '../components/Auth/Account.vue'
+import store from "../store";
 
 Vue.use(VueRouter);
 Vue.use(Vuelidate);
