@@ -1,7 +1,7 @@
 <template>
     <v-container fluid fill-height>
         <v-layout align-center justify-center>
-            <v-flex xs12 sm8 md6>
+            <v-flex xs12 sm8 md6 v-if="!emailApproveWaiting" >
                 <v-card class="elevation-12">
                     <v-toolbar dark color="primary">
                         <v-toolbar-title>Registration with e-mail</v-toolbar-title>
@@ -47,27 +47,28 @@
                     </v-card-actions>
                 </v-card>
             </v-flex>
+            <v-flex xs12 sm8 md6 v-if="emailApproveWaiting">
+                <v-card >
+                    <v-card-text>
+                        <h3>We sent to your e-mail verify link. </h3>
+                        <h3>Check your e-mail and go to link for verify, please.</h3>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                                color="warning"
+                                @click="close"
+                        >Close</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-flex>
         </v-layout>
     </v-container>
 </template>
 
 <script>
 
-
-
-    function handleVerifyEmail(auth, actionCode, user) {
-        auth.applyActionCode(actionCode).then(function(resp) {
-            // Email address has been verified.
-            // TODO: Display a confirmation message to the user.
-            // You could also provide the user with a link back to the app.
-
-
-        }).catch(function(error) {
-            // Code is invalid or expired. Ask the user to verify their email address
-            // again.
-        });
-    }
-
+    import * as fb from 'firebase';
 
     export default {
         data() {
@@ -78,6 +79,8 @@
                 confirmPassw:'',
                 valid: false,
                 confirmEmail:false,
+                emailApproveWaiting: false,
+
                 emailRules: [
                     v => !!v || 'E-mail is required',
                     v => /.+@.+/.test(v) || 'E-mail must be valid'
@@ -106,18 +109,22 @@
                 this.confirmPassw=''
             },
 
-            addUser :  function (user) {
-                               document.addEventListener('DOMContentLoaded', function() {
-                                   let actionCode = randomBytes;
-                                   let auth = fb.auth();
-                                   // Display email verification handler and UI.
-                                   handleVerifyEmail(auth, actionCode, user);}, false);
+            addUser :  async function (user) {
 
-                this.$store.dispatch('registerUser',user)
-                    .then (() => { this.$router.push('/')})
-                    .catch((error) => {return error})
+                    await this.$store.dispatch('registerUser', user)
+                        .then(async () => {
+                           await fb.auth().currentUser.sendEmailVerification().
+                            then(() => {
+                                this.emailApproveWaiting = true;
+                            }).
+                            catch((error) => {
+                                return error
+                            });
 
-
+                        })
+                        .catch((error) => {
+                            return error
+                        })
             },
             handleOk (evt) {
                 if (this.$refs.form.validate()) {
@@ -127,6 +134,9 @@
                     };
                     this.addUser(user);
                 }
+            },
+            close(){
+                this.$router.push('/login')
             }
         }
     }

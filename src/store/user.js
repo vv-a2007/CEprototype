@@ -46,7 +46,7 @@ export default {
             commit('setLoading',true);
             try {
                 const user = await fb.auth().signInWithEmailAndPassword(email,passw);
-                commit('setUser', user);
+                commit('setUser', new User(user.uid));
                 commit('setLoading',false);
             }
             catch(error) {
@@ -57,9 +57,6 @@ export default {
         },
         async autoLoginUser({commit}, payload) {
             commit('setUser', new User(payload.uid));
-
-
-
             commit('setLoading',true);
             try {
                 const fbVal = await fb.database().ref(`users/${payload.uid}`).once('value');
