@@ -160,9 +160,12 @@ export default {
 
         fb.auth().onAuthStateChanged(user => {
             if (user && !this.isUserLogin) {
-                const curPath = this.$route.path;
+                let curPath = this.$route.path;
+                const invalidPath = this.$route.query['loginError'];
+                if (invalidPath !== undefined) {
+                    curPath = invalidPath
+                }
                 this.$store.dispatch('autoLoginUser', {uid: user.uid, curPath});
-
             }
         });
 

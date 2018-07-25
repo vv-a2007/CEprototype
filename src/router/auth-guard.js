@@ -7,7 +7,9 @@ export default function (to, from, next) {
     if (store.state.user.user) {
        isUser = store.state.user.user.id;
     }
-    else { isUser = false}
+    else {
+            isUser = false
+        }
 
     if (isUser !== false) {
       next()

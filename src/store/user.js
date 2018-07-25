@@ -57,7 +57,7 @@ export default {
         },
         async autoLoginUser({commit}, payload) {
             commit('setUser', new User(payload.uid));
- //           if ( payload.curPath === '/login/') {router.push('/')} else {router.push(payload.curPath)}
+
 
 
             commit('setLoading',true);
@@ -66,7 +66,8 @@ export default {
                 const user = fbVal.val();
                 if (user !== null) {
                     commit('clearError');
-                    commit('loadPersonalData', user)
+                    commit('loadPersonalData', user);
+                    router.push(payload.curPath);
                 }
                 commit('setLoading',false);
             } catch (error) {

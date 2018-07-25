@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <v-layout row>
-            <v-flex xs12 md6  justify-center wrap >
+            <v-flex xs12 md5  justify-center wrap >
                 <v-card>
                     <v-card-title primary-title >
                         <div class="headline">Personal and contact information</div>
@@ -67,6 +67,14 @@
                                 :disabled="(!valid) || (!change)"
                         >Save personal data</v-btn>
                     </v-card-actions>
+                </v-card>
+            </v-flex>
+            <v-spacer></v-spacer>
+            <v-flex xs12 md5  justify-center wrap >
+                <v-card>
+                    <v-card-title primary-title >
+                        <div class="headline">Delivery addreses</div>
+                    </v-card-title>
                 </v-card>
             </v-flex>
         </v-layout>
