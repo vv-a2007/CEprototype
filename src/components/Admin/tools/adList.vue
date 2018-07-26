@@ -10,7 +10,7 @@
         <v-spacer></v-spacer>
         <v-container grid-list-md>
             <v-layout row wrap>
-                <v-flex xs12 sm6 md4 lg3 v-for="ad in this.adsList" :key="ad.title" :href="`/ad/`+ad.id">
+                <v-flex xs6 sm4 md3 lg2 v-for="ad in this.adsList" :key="ad.title" :href="`/ad/`+ad.id">
                     <v-card>
                         <v-card-media
                                 :src="ad.imgSrc"
@@ -43,7 +43,7 @@
                     </v-card>
                 </v-flex>
 
-                <v-flex xs12 sm6 md4 lg3>
+                <v-flex xs6 sm4 md3 lg2>
                     <v-card style="height: 100%">
                         <v-card-actions style="justify-content:center; align-items:center ">
                                 <v-btn large class="success text-xs-center" @click="newAd"> ADD NEW </v-btn>

@@ -123,8 +123,9 @@
             beforeMount () {
                 if (this.$route.query['loginError']) {
                       this.$store.dispatch('setError', 'Please log in to access this page.')
-                 } else {if (this.isUserLogin) {this.emailVerifyCheck()}
-                         if (this.emailVerify) {this.$router.push("/")}
+                 } else {if (this.isUserLogin) { this.emailVerifyCheck();
+                                                 if (this.emailVerify) {this.$router.push("/")}
+                                               }
                         }
     },
         methods: {

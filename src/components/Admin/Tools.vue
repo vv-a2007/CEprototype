@@ -3,7 +3,7 @@
     <v-container>
         <v-layout row>
             <v-flex xs-12 sm3 offset-sm4>
-              <h1 class="text--secondary mb3 " >Administrated tools</h1>
+              <h1 class="text--secondary mb3 " >Admin tools</h1>
             </v-flex>
         </v-layout>
     </v-container>
@@ -40,7 +40,7 @@
                     {icon:'art_track', title:'Users', link:"/users"},
                     {icon:'art_track', title:'Shop automation', link:"/shop-automation"},
                     {icon:'art_track', title:'Delivery points', link:"/delivery-points"},
-                    {icon:'art_track', title:'Geography structure', link:"/geography-structure"}
+                    {icon:'art_track', title:'Geography structure', link:"/geostructure"}
                     ]
             }
         }

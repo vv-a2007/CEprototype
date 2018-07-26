@@ -81,13 +81,12 @@
                  v-if="item.icon"
                  >{{item.icon}}
          </v-icon>
-         {{item.title}}
+           {{item.title}}
        </v-btn>
        </v-toolbar-items>
-
      </v-toolbar>
 
-     <v-content>
+         <v-content>
         <router-view></router-view>
      </v-content>
 
@@ -128,18 +127,18 @@ export default {
         return {
             name: 'App',
             drawer: false,
-
             leftLinks :[
                 {icon:'home', title:'Home', link:'/', showNotUser:true, showUser:true},
                 {icon:'shopping_cart', title:'Shopping', link:'/shopping', showNotUser:false, showUser:true},
                 {icon:'monetization_on', title:'Trading', link:'/trading', showNotUser:false, showUser:true},
+                {icon:'monetization_on', title:'Buyers', link:'/buyers', showNotUser:false, showUser:true}
 
             ],
             rightLinks :[
                 {icon:'build', title:'tools', link:'/tools', showNotUser:false, showUser:true},
                 {icon:'face', title:'Login', link:'/login', showNotUser:true,showUser:false },
                 {icon:'perm_identity', title:'Registration', link:'/registration', showNotUser:true, showUser:false},
-                {icon:'perm_identity', title:'Account', link: '/account', showNotUser:false, showUser:true},
+                {icon:'perm_identity', title: 'this.userLogin', link: '/account', showNotUser:false, showUser:true},
                 {icon:'exit_to_app', title:'Log Out', link:'/logout', showNotUser:false, showUser:true}
             ],
         }
@@ -165,7 +164,8 @@ export default {
                 if (invalidPath !== undefined) {
                     curPath = invalidPath
                 }
-                this.$store.dispatch('autoLoginUser', {uid: user.uid, curPath});
+
+                this.$store.dispatch('autoLoginUser', {uid: user.uid, email:user.email, curPath});
             }
         });
 
@@ -186,7 +186,9 @@ export default {
 
         isUserLogin () {
             return this.$store.getters.isUserLogin
-        }
+        },
+
+        userLogin () {return this.$store.getters.userLogin}
 
     },
     methods: {

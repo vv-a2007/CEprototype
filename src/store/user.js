@@ -5,8 +5,9 @@ import router from '../router/router'
 Vue.use(VueRouter);
 
 class User {
-    constructor(id){
+    constructor(id,email){
         this.id = id;
+        this.emailLogin = email;
     }
 }
 
@@ -32,7 +33,7 @@ export default {
           commit('setLoading',true);
           try {
           const user = await fb.auth().createUserWithEmailAndPassword(email,passw);
-                  commit('setUser', new User(user.uid));
+                  commit('setUser', new User(user.uid, email));
                   commit('setLoading',false);
               }
           catch(error) {
@@ -46,7 +47,8 @@ export default {
             commit('setLoading',true);
             try {
                 const user = await fb.auth().signInWithEmailAndPassword(email,passw);
-                commit('setUser', new User(user.uid));
+                commit('setUser', new User(user.uid, email));
+
                 commit('setLoading',false);
             }
             catch(error) {
@@ -56,7 +58,7 @@ export default {
             }
         },
         async autoLoginUser({commit}, payload) {
-            commit('setUser', new User(payload.uid));
+            commit('setUser', new User(payload.uid, payload.email));
             commit('setLoading',true);
             try {
                 const fbVal = await fb.database().ref(`users/${payload.uid}`).once('value');
@@ -119,6 +121,7 @@ export default {
         },
         userId (state) {
             if (state.user !== null) {return state.user.id}
-        }
+        },
+        userLogin (state) {if (state.user !== null) {return state.user.emailLogin} }
     }
 }
