@@ -10,6 +10,12 @@ class GeoType {
     }
 
 }
+class GeoValue {
+    constructor(id,name) {
+        this.id = id;
+        this.name = name;
+    }
+}
 export default {
     state:{
         geoTypes: [],
@@ -31,6 +37,9 @@ export default {
         },
         setDefChild(state, payload) {
             state.geoTypes[state.geoTypes.findIndex(i => i.id === payload.idParent)].defaultChildId=payload.id;
+        },
+        addGeoValue(state,payload) {
+            state.valuesCurGeo.push(payload);
         }
     },
     actions: {
@@ -89,17 +98,16 @@ export default {
             }
             },
         async getAllValuesOfGeo({commit}, payload) {
-            let name = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === payload)].name;
             commit('clearError');
             commit('setLoading', true);
             const allValuesGeo = [];
             try {
-                const fbVal = await fb.database().ref(name).once('value');
+                const fbVal = await fb.database().ref(payload).once('value');
                 const geoValues = fbVal.val();
                 if (geoValues !== null) {
                     Object.keys(geoValues).forEach((key => {
                         const geoValue = geoValues[key];
-                        allValuesGeo.push(new geoValue(key, geoValue.name))
+                        allValuesGeo.push(new GeoValue(key, geoValue.name))
                     }));
                     commit('loadValuesCurGeo', allValuesGeo);
                     commit('setLoading', false);
@@ -119,6 +127,22 @@ export default {
             try {
                 await fb.database().ref(`geotypes/${payload.idParent}`).update({defaultChildId:payload.id});
                 commit('setDefChild',payload);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async addGeoValue({commit},payload){
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                const geoValue = new GeoValue(null, payload.value);
+                const newValue = await fb.database().ref(payload.parentId).push(geoValue);
+                geoValue.id = newValue.key;
+                commit('addGeoValue',geoValue);
                 commit('setLoading', false);
             }
             catch (error) {

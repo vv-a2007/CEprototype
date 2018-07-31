@@ -1,13 +1,14 @@
 <template>
     <v-container>
-        <v-layout row>
-            <v-flex>
+
+         <v-layout>
+            <v-flex row>
                 <h2>Geostructure</h2>
             </v-flex>
-        </v-layout>
-
-        <v-layout row>
-            <v-flex xs3 justify-center wrap>
+         </v-layout>
+        <v-container>
+         <v-layout row justify-space-between m-5>
+            <v-flex xs3 >
                 <v-card>
                     <v-card-text>
                         <h3>Geotypes</h3>
@@ -19,8 +20,8 @@
                               :key="geoType.id"
                               @click="selectGeo(geoType.id)"
                       >
-                          <v-list-tile-content>
-                              <v-list-tile-title>{{ geoType.name }}</v-list-tile-title>
+                          <v-list-tile-content @click="style='color:blue'">
+                              <v-list-tile-title  >{{ geoType.name }}</v-list-tile-title>
                           </v-list-tile-content>
 
                           <v-list-tile-action>
@@ -32,91 +33,143 @@
                   </v-list>
                         <v-form v-model="valid" ref="form" lazy-validation>
                             <v-layout row>
-                                <v-flex xs12 justify-center wrap>
-                           <v-text-field
-                             type="text"
-                             v-model="newGeo"
-                             :rules="geoRules"
-                             placeholder="Enter new Geo type"
-                           ></v-text-field>
-                         <v-spacer></v-spacer>
-                         <v-btn class="success" @click="newGeoType">Add new</v-btn>
+                                <v-flex xs12 justify-space-between>
+                                  <v-text-field
+                                     type="text"
+                                     v-model="newGeo"
+                                     :rules="geoRules"
+                                     placeholder="Enter new Geo type"
+                                  ></v-text-field>
+                                  <v-spacer></v-spacer>
+                                  <v-btn class="success" @click="newGeoType">Add new</v-btn>
                                 </v-flex>
                             </v-layout>
                         </v-form>
                 </v-card>
             </v-flex>
-              <v-spacer></v-spacer>
-            <v-flex xs6 justify-center wrap v-show="this.curGeoId">
+            <v-spacer></v-spacer>
+            <v-flex xs8 row justify-space-between v-show="this.curGeoId">
                 <v-card >
                     <v-card-text>
-                        <h3>Default Geo children</h3>
-                        <v-flex xs12 d-flex wrap justify-center >
-                            <v-select
+                    <v-layout row justify-space-around >
+                        <v-flex xs5>
+                            <div >
+                                <h3>Geo type</h3>
+                                <v-text-field
+                                        v-model="curGeoName"
+                                        solo
+                                ></v-text-field>
+                            </div>
+                        </v-flex>
+                        <v-flex xs5>
+                            <div >
+                              <h3>Default Geo children</h3>
+                                <v-select
                                     :items="geoTypes"
                                     item-value="id"
                                     item-text="name"
-                                    box
+                                    solo
                                     v-model="defaultChildId"
                                     @change="setDefChild"
-                            ></v-select>
+                                    autofocus
+                                  ></v-select>
+                            </div>
                         </v-flex>
+                    </v-layout>
 
-
-                    <h3>Custom Geo Children</h3>
-                    <v-list >
-                        <v-list-tile
+                    <v-layout row justify-space-between>
+                      <v-flex  xs12>
+                          <h3>Custom Geo Children</h3>
+                           <v-list >
+                               <v-list-tile
                                 v-for="child in customChildren"
                                 :key="child.id"
                                 @click=""
-                        >
-                            <v-list-tile-content>
-                                <v-list-tile-title>{{ child.name }}</v-list-tile-title>
-                            </v-list-tile-content>
 
-                            <v-list-tile-action>
+                        >
+                               <v-list-tile-content>
+                                <v-list-tile-title>{{ child.name }}</v-list-tile-title>
+                               </v-list-tile-content>
+
+                               <v-list-tile-action>
                                 <v-btn icon ripple>
                                     <v-icon color="grey lighten-1"  @click="delChild(child.id)">backspace</v-icon>
                                 </v-btn>
-                            </v-list-tile-action>
-                        </v-list-tile>
-                    </v-list>
+                               </v-list-tile-action>
+                            </v-list-tile>
+                          </v-list>
+                      </v-flex>
+                    </v-layout>
 
-                        <v-form v-model="valid" ref="form" lazy-validation>
-                        <v-layout row>
-                            <v-flex xs12 wrap justify-center >
-                                <h4>You can add some custom choise</h4>
+
+                     <v-form v-model="valid" ref="form" lazy-validation>
+                         <v-layout row justify-space-between >
+                           <v-flex xs4 >
+                              <div>
                                 <v-select
                                         :items="curGeoValues"
                                         item-value="id"
                                         item-text="name"
-                                        box
+                                        solo
                                         label="For custom value"
                                         @change="curCustValue = value"
                                 ></v-select>
-                                <v-spacer></v-spacer>
-                                <v-select ml3
+                              </div>
+                           </v-flex>
+                           <v-flex xs4>
+                                <v-select
                                         :items="geoTypes"
                                         item-value="id"
                                         item-text="name"
-                                        box
+                                        solo
                                         label="Custom child"
                                         @change="newCustChildId = value"
                                 ></v-select>
-
-                                <v-spacer></v-spacer>
-                                <v-btn ml3 class="success" @click="addCustChild">Add custom</v-btn>
-                            </v-flex>
-                        </v-layout>
-                    </v-form>
-
+                           </v-flex>
+                             <v-flex xs2 >
+                                <v-btn ml3 class="success" @click="addCustChild">Add</v-btn>
+                             </v-flex>
+                      </v-layout>
+                     </v-form>
                     </v-card-text>
-
                 </v-card>
               </v-flex>
-            <v-spacer></v-spacer>
         </v-layout>
     </v-container>
+     <v-container v-show="this.curGeoId">
+        <v-layout row justify-space-between m-5>
+            <v-flex xs12 >
+                <v-card>
+                    <v-card-text>
+                        <h3>Geo values</h3>
+                        <v-container  grid-list-xs>
+                            <v-layout row wrap>
+                                <v-flex xs6 sm4 md2 lg1 v-for="val in this.curGeoValues" :key="val.name">
+                                    <v-text-field
+                                            :value="val.name"
+                                            solo
+                                    ></v-text-field>
+                                </v-flex>
+                                <v-flex xs6 sm4 md2 lg1>
+                                    <div>
+                                        <v-text-field
+                                                type="text"
+                                                v-model="newGeoValue"
+                                                :rules="geoRules"
+                                                placeholder="new value"
+                                        ></v-text-field>
+                                       <v-btn small class="success text-xs-center" @click="addGeoValue"> NEW </v-btn>
+                                    </div>
+                                </v-flex>
+                            </v-layout>
+                        </v-container>
+
+                    </v-card-text>
+                </v-card>
+            </v-flex>
+        </v-layout>
+     </v-container>
+ </v-container>
 </template>
 
 <script>
@@ -126,8 +179,10 @@ export default {
         data () {
             return {
                newGeo:"",
+               newGeoValue:"",
                newCustChildId:null,
                curGeoId:null,
+               curGeoName:null,
                curGeoValues:[],
                curCustValue:null,
                defaultChildId:null,
@@ -155,6 +210,7 @@ export default {
             selectGeo (key) {
                 this.curGeoId = key;
                 let num = this.geoTypes.findIndex(i => i.id === key);
+                this.curGeoName = this.geoTypes[num].name;
                 this.defaultChildId = this.geoTypes[num].defaultChildId;
                 if (this.defaultChildId !== null) {
                     let ind = this.geoTypes.findIndex(i => i.id === this.defaultChildId);
@@ -173,6 +229,10 @@ export default {
             },
             addCustChild () {
 
+            },
+            addGeoValue () {
+                this.$store.dispatch('addGeoValue',{parentId:this.curGeoId, value:this.newGeoValue});
+                this.newGeoValue="";
             }
         }
 
