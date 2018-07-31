@@ -82,18 +82,26 @@
                           <h3>Custom Geo Children</h3>
                            <v-list >
                                <v-list-tile
-                                v-for="child in customChildren"
-                                :key="child.id"
+                                v-for="item in customChildren"
+                                :key="item.id"
                                 @click=""
-
+                                solo
                         >
                                <v-list-tile-content>
-                                <v-list-tile-title>{{ child.name }}</v-list-tile-title>
+                                <v-list-tile-title>
+                                <v-layout row justify-space-between>
+                                  <v-flex  xs6 >
+                                      <div><p>{{item.custValue}}</p></div>
+                                  </v-flex>
+                                    <v-flex  xs6 >
+                                      <div><p>{{item.custChild}}</p></div>
+                                  </v-flex>
+                                </v-layout>
+                                </v-list-tile-title>
                                </v-list-tile-content>
-
                                <v-list-tile-action>
                                 <v-btn icon ripple>
-                                    <v-icon color="grey lighten-1"  @click="delChild(child.id)">backspace</v-icon>
+                                    <v-icon color="grey lighten-1"  @click="delChild(item.id)">backspace</v-icon>
                                 </v-btn>
                                </v-list-tile-action>
                             </v-list-tile>
@@ -110,9 +118,9 @@
                                         :items="curGeoValues"
                                         item-value="id"
                                         item-text="name"
+                                        v-model="curCustValue"
                                         solo
                                         label="For custom value"
-                                        @change="curCustValue = value"
                                 ></v-select>
                               </div>
                            </v-flex>
@@ -121,9 +129,9 @@
                                         :items="geoTypes"
                                         item-value="id"
                                         item-text="name"
+                                        v-model="newCustChildId"
                                         solo
                                         label="Custom child"
-                                        @change="newCustChildId = value"
                                 ></v-select>
                            </v-flex>
                              <v-flex xs2 >
@@ -180,14 +188,16 @@ export default {
             return {
                newGeo:"",
                newGeoValue:"",
-               newCustChildId:null,
+
                curGeoId:null,
                curGeoName:null,
-               curGeoValues:[],
+
                curCustValue:null,
+               newCustChildId:null,
+
                defaultChildId:null,
                defaultChildName:'',
-               customChildren:[],
+
                valid: false,
                geoRules: [
                     v => !!v || 'Name is required'
@@ -198,7 +208,9 @@ export default {
             return this.$store.dispatch('loadGeoTypes')
         },
         computed : {
-            geoTypes () { return this.$store.getters.getGeoTypes}
+            geoTypes () { return this.$store.getters.getGeoTypes},
+            curGeoValues () { return this.$store.getters.getAllValuesOfGeo},
+            customChildren () { return this.$store.getters.getCustomChild}
         },
         methods : {
             newGeoType () {
@@ -209,16 +221,23 @@ export default {
             },
             selectGeo (key) {
                 this.curGeoId = key;
+
                 let num = this.geoTypes.findIndex(i => i.id === key);
                 this.curGeoName = this.geoTypes[num].name;
                 this.defaultChildId = this.geoTypes[num].defaultChildId;
+
                 if (this.defaultChildId !== null) {
                     let ind = this.geoTypes.findIndex(i => i.id === this.defaultChildId);
                     this.defaultChildName = this.geoTypes[ind].name;
-                }
-                this.customChildrenID = this.geoTypes[num].customChildrenId;
+                } else { this.defaultChildName=""}
+
+
                 this.$store.dispatch('getAllValuesOfGeo', this.curGeoId);
-                this.curGeoValues = this.$store.getters.getValuesCurGeo;
+
+                this.$store.dispatch('getCustomChild', this.curGeoId);
+
+
+
             },
             delGeo (key) {
                 this.$store.dispatch('delGeoType', key);
@@ -228,10 +247,11 @@ export default {
                 this.$store.dispatch('setDefChild', {id:this.defaultChildId, idParent:this.curGeoId})
             },
             addCustChild () {
-
+                this.$store.dispatch('addCustChild',{idParent:this.curGeoId, custValueId:this.curCustValue, custChildId:this.newCustChildId});
+                this.curCustValue=null; this.newCustChildId=null;
             },
             addGeoValue () {
-                this.$store.dispatch('addGeoValue',{parentId:this.curGeoId, value:this.newGeoValue});
+                this.$store.dispatch('addGeoValue',{idParent:this.curGeoId, value:this.newGeoValue});
                 this.newGeoValue="";
             }
         }

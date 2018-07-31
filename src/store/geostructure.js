@@ -2,24 +2,34 @@ import * as fb from 'firebase'
 
 
 class GeoType {
-    constructor(id, name, defaultChildId = null, customChildrenId = null) {
+    constructor(id, name, defaultChildId = null) {
         this.id = id;
         this.name = name;
         this.defaultChildId = defaultChildId;
-        this.customChildrenId = customChildrenId;
     }
 
 }
+
 class GeoValue {
     constructor(id,name) {
         this.id = id;
         this.name = name;
     }
 }
+
+class CustomChild {
+    constructor(id, custValue, custChild){
+        this.id = id;
+        this.custValue = custValue;
+        this.custChild = custChild;
+    }
+}
+
 export default {
     state:{
         geoTypes: [],
-        valuesCurGeo: []
+        valuesCurGeo: [],
+        custChild: []
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -33,14 +43,21 @@ export default {
            state.geoTypes.splice(num,1)
        },
         loadValuesCurGeo(state, payload) {
-           state.valuesCurGeo = payload;
+           state.valuesCurGeo = payload
         },
         setDefChild(state, payload) {
             state.geoTypes[state.geoTypes.findIndex(i => i.id === payload.idParent)].defaultChildId=payload.id;
         },
-        addGeoValue(state,payload) {
-            state.valuesCurGeo.push(payload);
+        addGeoValue(state, payload) {
+            state.valuesCurGeo.push(payload)
+        },
+        addCustChild(state, payload) {
+            state.custChild.push(payload)
+        },
+        loadCustChild(state, payload){
+            state.custChild = payload
         }
+
     },
     actions: {
         async loadGeoTypes({commit}) {
@@ -52,7 +69,7 @@ export default {
                 if (geoTypes !== null) {
                     Object.keys(geoTypes).forEach((key => {
                         const geoType = geoTypes[key];
-                        resultGeoTypes.push(new GeoType(key, geoType.name, geoType.defaultChildId, geoType.customChildrenId))
+                        resultGeoTypes.push(new GeoType(key, geoType.name, geoType.defaultChildId))
                     }));
                     commit('loadGeoTypes', resultGeoTypes);
                     commit('setLoading', false);
@@ -102,7 +119,7 @@ export default {
             commit('setLoading', true);
             const allValuesGeo = [];
             try {
-                const fbVal = await fb.database().ref(payload).once('value');
+                const fbVal = await fb.database().ref(payload+'/values').once('value');
                 const geoValues = fbVal.val();
                 if (geoValues !== null) {
                     Object.keys(geoValues).forEach((key => {
@@ -112,6 +129,7 @@ export default {
                     commit('loadValuesCurGeo', allValuesGeo);
                     commit('setLoading', false);
                 } else {
+                    commit('loadValuesCurGeo', []);
                     commit('setLoading', false);
                 }
             }
@@ -140,7 +158,7 @@ export default {
             commit('setLoading', true);
             try {
                 const geoValue = new GeoValue(null, payload.value);
-                const newValue = await fb.database().ref(payload.parentId).push(geoValue);
+                const newValue = await fb.database().ref(payload.idParent+'/values').push(geoValue);
                 geoValue.id = newValue.key;
                 commit('addGeoValue',geoValue);
                 commit('setLoading', false);
@@ -150,12 +168,64 @@ export default {
                 commit('setLoading', false);
                 throw error
             }
+        },
+        async addCustChild({commit}, payload) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+
+                const newCust = await fb.database().ref(payload.idParent+'/custChild').push({id:null, custValueId:payload.custValueId, custChildId:payload.custChildId});
+
+                const custValue = this.getters.getAllValuesOfGeo[this.getters.getAllValuesOfGeo.findIndex(i => i.id === payload.custValueId)].name;
+                const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === payload.custChildId)].name;
+
+                const newCustChild = new CustomChild(newCust.key, custValue, custChild);
+
+                commit('addCustChild',newCustChild);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async getCustomChild ({commit}, payload){
+            commit('clearError');
+            commit('setLoading', true);
+            const allCustChild = [];
+            try {
+                const fbVal = await fb.database().ref(payload+'/custChild').once('value');
+                const custList = fbVal.val();
+                if (custList !== null) {
+                    Object.keys(custList).forEach((key => {
+                        const custValueId = custList[key].custValueId;
+                        const custChildId = custList[key].custChildId;
+                        const custValue = this.getters.getAllValuesOfGeo[this.getters.getAllValuesOfGeo.findIndex(i => i.id === custValueId)].name;
+                        const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === custChildId)].name;
+                        allCustChild.push(new CustomChild(key, custValue, custChild))
+                    }));
+                    commit('loadCustChild', allCustChild);
+                    commit('setLoading', false);
+                } else {
+                    commit('loadCustChild', []);
+                    commit('setLoading', false);
+                }
+            }
+            catch (error) {
+                commit('setError', error.message);
+                commit('setLoading', false);
+                throw error
+            }
         }
      },
 
     getters: {
         getGeoTypes(state) { return state.geoTypes },
-        getGeoItems(state) { return state.geoItems },
-        getValuesCurGeo (state) { return state.valuesCurGeo }
+        getAllValuesOfGeo(state) { return state.valuesCurGeo },
+        getCustomChild(state) {
+
+            return state.custChild
+        }
      }
 }
