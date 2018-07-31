@@ -51,7 +51,7 @@
             <v-flex xs8 row justify-space-between v-show="this.curGeoId">
                 <v-card >
                     <v-card-text>
-                    <v-layout row justify-space-around >
+                    <v-layout row justify-space-around>
                         <v-flex xs5>
                             <div >
                                 <h3>Geo type</h3>
@@ -77,38 +77,31 @@
                         </v-flex>
                     </v-layout>
 
-                    <v-layout row justify-space-between>
-                      <v-flex  xs12>
-                          <h3>Custom Geo Children</h3>
-                           <v-list >
-                               <v-list-tile
+                   <div>
+                         <h3>Custom Geo Children</h3>
+                       <div
                                 v-for="item in customChildren"
                                 :key="item.id"
                                 @click=""
                                 solo
                         >
-                               <v-list-tile-content>
-                                <v-list-tile-title>
-                                <v-layout row justify-space-between>
-                                  <v-flex  xs6 >
-                                      <div><p>{{item.custValue}}</p></div>
+                                <v-layout row justify-space-around>
+                                  <v-flex xs5>
+                                   <div><p>{{item.custValue}}</p></div>
                                   </v-flex>
-                                    <v-flex  xs6 >
-                                      <div><p>{{item.custChild}}</p></div>
+                                    <v-flex xs5>
+                                   <div><p>{{item.custChild}}</p></div>
+                                  </v-flex>
+                                  <v-flex xs2>
+                                   <v-btn icon ripple>
+                                       <v-icon color="grey lighten-1"  @click="delChild(item.id)">backspace</v-icon>
+                                      </v-btn>
                                   </v-flex>
                                 </v-layout>
-                                </v-list-tile-title>
-                               </v-list-tile-content>
-                               <v-list-tile-action>
-                                <v-btn icon ripple>
-                                    <v-icon color="grey lighten-1"  @click="delChild(item.id)">backspace</v-icon>
-                                </v-btn>
-                               </v-list-tile-action>
-                            </v-list-tile>
-                          </v-list>
-                      </v-flex>
-                    </v-layout>
+                               </div>
+                      </div>
 
+                        <v-spacer></v-spacer>
 
                      <v-form v-model="valid" ref="form" lazy-validation>
                          <v-layout row justify-space-between >
@@ -184,7 +177,8 @@
 
 export default {
         name: "GeoStructure",
-        data () {
+
+    data () {
             return {
                newGeo:"",
                newGeoValue:"",
