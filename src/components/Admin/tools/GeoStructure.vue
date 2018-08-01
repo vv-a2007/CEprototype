@@ -21,8 +21,8 @@
                               @click="selectGeo(geoType.id)"
                       >
                           <v-list-tile-content>
-                              <v-list-tile-title v-if="curGeoName === geoType.name" style="color:blue" >{{ geoType.name }}</v-list-tile-title>
-                              <v-list-tile-title v-else >{{ geoType.name }}</v-list-tile-title>
+                              <v-list-tile-title v-if="curGeoName === geoType.geoname" style="color:blue" >{{ geoType.geoname }}</v-list-tile-title>
+                              <v-list-tile-title v-else >{{ geoType.geoname }}</v-list-tile-title>
                           </v-list-tile-content>
 
                           <v-list-tile-action>
@@ -68,7 +68,7 @@
                                 <v-select ml-3
                                     :items="geoTypes"
                                     item-value="id"
-                                    item-text="name"
+                                    item-text="geoname"
                                     solo
                                     v-model="defaultChildId"
                                     @change="setDefChild"
@@ -117,7 +117,7 @@
                                 <v-select ml-3
                                         :items="geoTypes"
                                         item-value="id"
-                                        item-text="name"
+                                        item-text="geoname"
                                         v-model="newCustChildId"
                                         solo
                                         label="Custom child"
@@ -134,16 +134,16 @@
         </v-layout>
     </v-container>
      <v-container v-show="this.curGeoId">
-        <v-layout row justify-space-between m-5 >
+        <v-layout row justify-space-between >
             <v-flex xs12 >
                 <v-card>
                     <v-card-text>
                         <h3>Geo values for : {{curGeoName}}</h3>
                         <v-container  grid-list-xs>
-                            <v-layout row wrap>
+                            <v-layout row wrap justify-space-between>
                                 <v-flex xs6 sm4 md2 lg1 v-for="val in this.curGeoValues" :key="val.name">
-                                    <v-btn small  v-if="val.name === defValue" color="info" class="text-xs-center" :id="val.id"  @click="setDefValue">{{val.name}}</v-btn>
-                                    <v-btn small  v-else class="text-xs-center" :id="val.id"  @click="setDefValue">{{val.name}}</v-btn>
+                                    <v-btn small  v-if="val.name === defValue" color="info" class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
+                                    <v-btn small  v-else class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
                                 </v-flex>
                                 <v-flex xs6 sm4 md2 lg1>
                                     <div>
@@ -165,26 +165,58 @@
         </v-layout>
      </v-container>
         <v-container v-show="this.defValueId">
-            <v-layout row justify-space-between m-5 >
+            <v-layout row justify-space-between >
                 <v-flex xs12 >
                     <v-card>
                         <v-card-text>
-                            <h3>Location in the : {{defValue}}</h3>
+                            <v-layout row justify-space-between>
+                               <v-flex xs2>
+                                   <v-select
+                                     :items="listAllowedGeo"
+                                     item-value="custChildId"
+                                     item-text="custChild"
+                                     v-model="curAllowedLocId"
+                                     readonly
+                                     solo
+                                     @change="setDefLoc"
+                                     label="Select child geo type">
+                                   </v-select>
+                               </v-flex>
+                                <v-flex xs1 ml-2 >
+                                    <v-text-field
+                                            value=" in the "
+                                            dark
+                                            solo
+                                            readonly
+                                            style="text-align: center"
+                                    ></v-text-field>
+                                </v-flex>
+                                <v-flex xs2 ml-2 >
+                                    <v-text-field
+                                            v-model="defValue"
+                                            solo
+                                            readonly
+                                            style="color: blue"
+                                    ></v-text-field>
+                                 </v-flex>
+                                <v-flex xs8>
+                                   <v-spacer></v-spacer>
+                               </v-flex>
+                            </v-layout>
                             <v-container  grid-list-xs>
                                 <v-layout row wrap>
                                     <v-flex xs6 sm4 md2 lg1 v-for="val in this.curChildLoc" :key="val.name">
-                                        <v-btn small  v-if="val.name === defValue" color="info" class="text-xs-center" :id="val.id"  @click="setDefLoc">{{val.name}}</v-btn>
-                                        <v-btn small  v-else class="text-xs-center" :id="val.id"  @click="setDefLoc">{{val.name}}</v-btn>
+                                        <v-btn small class="text-xs-center" :id="val.custChildId"  >{{val.custChild}}</v-btn>
                                     </v-flex>
                                     <v-flex xs6 sm4 md2 lg1>
-                                        <div>
+                                        <div v-if="curAllowedLocId">
                                             <v-text-field
                                                     type="text"
                                                     v-model="newChildloc"
                                                     :rules="geoRules"
                                                     placeholder="new value"
                                             ></v-text-field>
-                                            <v-btn small class="success text-xs-center" @click="addChildLoc"> NEW </v-btn>
+                                            <v-btn small class="success text-xs-center" @click="addChildLoc"> new </v-btn>
                                         </div>
                                     </v-flex>
                                 </v-layout>
@@ -211,7 +243,7 @@ export default {
             return {
                newGeo:"",
                newGeoValue:"",
-                newChildloc:"",
+               newChildloc:"",
 
                curGeoId:null,
                curGeoName:null,
@@ -224,6 +256,8 @@ export default {
 
                defValue:"",
                defValueId:null,
+
+               curAllowedLocId:null,
 
                defLoc:"",
                defLocId:null,
@@ -247,20 +281,24 @@ export default {
         methods : {
             newGeoType () {
                 if (this.$refs.form.validate()) {
-                    this.$store.dispatch('addGeoType', {name: this.newGeo});
+                    this.$store.dispatch('addGeoType', {geoname: this.newGeo});
                     this.newGeo = '';
                 }
             },
             selectGeo (key) {
+                this.defValue = "";
+                this.defValueId = null;
+                this.curAllowedLocId = null;
+
                 this.curGeoId = key;
 
                 let num = this.geoTypes.findIndex(i => i.id === key);
-                this.curGeoName = this.geoTypes[num].name;
+                this.curGeoName = this.geoTypes[num].geoname;
                 this.defaultChildId = this.geoTypes[num].defaultChildId;
 
                 if (this.defaultChildId !== null) {
                     let ind = this.geoTypes.findIndex(i => i.id === this.defaultChildId);
-                    this.defaultChildName = this.geoTypes[ind].name;
+                    this.defaultChildName = this.geoTypes[ind].geoname;
                 } else { this.defaultChildName=""}
 
 
@@ -291,12 +329,11 @@ export default {
                 this.defValueId = event.currentTarget.id;
                 this.$store.dispatch('getListAllowedGeo', {geoId:this.curGeoId, valId:this.defValueId});
             },
-            setDefLoc (event) {
-                this.defLoc = event.target.textContent;
-                this.defLocId = event.currentTarget.id;
+            setDefLoc () {
+                this.$store.dispatch('getChildLoc',{parentId:this.curAllowedLocId})
             },
             addChildLoc () {
-                this.$store.dispatch('addChildLoc',{idParent:this.defValueId, value:this.newChildloc});
+                this.$store.dispatch('addChildLoc',{parentGeoTypeId:this.curGeoId, itemGeoType:this.curAllowedLocId, idParent:this.defValueId, value:this.newChildloc});
                 this.newChildloc="";
             }
         }

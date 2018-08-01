@@ -2,9 +2,9 @@ import * as fb from 'firebase'
 
 
 class GeoType {
-    constructor(id, name, defaultChildId = null) {
+    constructor(id, geoname, defaultChildId = null) {
         this.id = id;
-        this.name = name;
+        this.geoname = geoname;
         this.defaultChildId = defaultChildId;
     }
 
@@ -76,6 +76,9 @@ export default {
         },
         loadAllowedGeo(state, payload){
            state.listAllowedGeo = payload
+        },
+        addChildLoc(state, payload) {
+           state.childCurLoc = payload
         }
 
     },
@@ -89,7 +92,7 @@ export default {
                 if (geoTypes !== null) {
                     Object.keys(geoTypes).forEach((key => {
                         const geoType = geoTypes[key];
-                        resultGeoTypes.push(new GeoType(key, geoType.name, geoType.defaultChildId))
+                        resultGeoTypes.push(new GeoType(key, geoType.geoname, geoType.defaultChildId))
                     }));
                     commit('loadGeoTypes', resultGeoTypes);
                     commit('setLoading', false);
@@ -108,7 +111,7 @@ export default {
             commit('setLoading', true);
 
             try {
-                const newGeoType = new GeoType(null, payload.name);
+                const newGeoType = new GeoType(null, payload.geoname);
                 const geoType = await fb.database().ref('geotypes').push(newGeoType);
                 newGeoType.id = geoType.key;
                 commit('addGeoType', newGeoType);
@@ -124,6 +127,7 @@ export default {
             commit('clearError');
             commit('setLoading', true);
             try {
+
                 const delGeo = await fb.database().ref('geotypes/'+payload).remove();
                 commit('delGeoType', payload);
                 commit('setLoading', false);
@@ -139,11 +143,12 @@ export default {
             commit('setLoading', true);
             const allValuesGeo = [];
             try {
-                const fbVal = await fb.database().ref(payload+'/values').once('value');
+                const fbVal = await fb.database().ref('geotypes/'+payload+'/values').once('value');
                 const geoValues = fbVal.val();
                 if (geoValues !== null) {
                     Object.keys(geoValues).forEach((key => {
                         const geoValue = geoValues[key];
+                        const item = fb.database().ref('geoitems/'+key).set({geoType:payload});
                         allValuesGeo.push(new GeoValue(key, geoValue.name))
                     }));
                     commit('loadValuesCurGeo', allValuesGeo);
@@ -178,7 +183,7 @@ export default {
             commit('setLoading', true);
             try {
                 const geoValue = new GeoValue(null, payload.value);
-                const newValue = await fb.database().ref(payload.idParent+'/values').push(geoValue);
+                const newValue = await fb.database().ref('geotypes/'+payload.idParent+'/values').push(geoValue);
                 geoValue.id = newValue.key;
                 commit('addGeoValue',geoValue);
                 commit('setLoading', false);
@@ -194,7 +199,7 @@ export default {
             commit('setLoading', true);
             try {
 
-                const newCust = await fb.database().ref(payload.idParent+'/custChild').push({id:null, custValueId:payload.custValueId, custChildId:payload.custChildId});
+                const newCust = await fb.database().ref('geotypes/'+payload.idParent+'/custChild').push({id:null, custValueId:payload.custValueId, custChildId:payload.custChildId});
 
                 const custValue = this.getters.getAllValuesOfGeo[this.getters.getAllValuesOfGeo.findIndex(i => i.id === payload.custValueId)].name;
                 const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === payload.custChildId)].name;
@@ -215,14 +220,14 @@ export default {
             commit('setLoading', true);
             const allCustChild = [];
             try {
-                const fbVal = await fb.database().ref(payload+'/custChild').once('value');
+                const fbVal = await fb.database().ref('geotypes/'+payload+'/custChild').once('value');
                 const custList = fbVal.val();
                 if (custList !== null) {
                     Object.keys(custList).forEach((key => {
                         const custValueId = custList[key].custValueId;
                         const custChildId = custList[key].custChildId;
                         const custValue = this.getters.getAllValuesOfGeo[this.getters.getAllValuesOfGeo.findIndex(i => i.id === custValueId)].name;
-                        const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === custChildId)].name;
+                        const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === custChildId)].geoname;
                         allCustChild.push(new CustomChild(key, custValue, custChild))
                     }));
                     commit('loadCustChild', allCustChild);
@@ -243,7 +248,7 @@ export default {
             commit('setLoading', true);
             const listAllowedGeo = [];
             try {
-                const fbVal = await fb.database().ref(payload.geoId+'/custChild').once('value');
+                const fbVal = await fb.database().ref('geotypes/'+payload.geoId+'/custChild').once('value');
                 const custList = fbVal.val();
                 let count = 0;
                 if (custList !== null) {
@@ -251,7 +256,7 @@ export default {
                         const custValueId = custList[key].custValueId;
                         if (custValueId === payload.valId) {
                             const custChildId = custList[key].custChildId;
-                            const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === custChildId)].name;
+                            const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === custChildId)].geoname;
                             listAllowedGeo.push(new AllowedLoc(custChildId, custChild));
                             count++;
                        }
@@ -259,10 +264,10 @@ export default {
                 }
 
                 if (count === 0) {
-                    const fbVal1 = await fb.database().ref('/geotypes/'+payload.geoId + '/defaultChildId').once('value');
+                    const fbVal1 = await fb.database().ref('geotypes/'+payload.geoId + '/defaultChildId').once('value');
                     const defChildId = fbVal1.val();
                     if (defChildId !== null) {
-                        const defChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === defChildId)].name;
+                        const defChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === defChildId)].geoname;
                         listAllowedGeo.push(new AllowedLoc(defChildId, defChild))
                     }
                 }
@@ -276,8 +281,31 @@ export default {
                 throw error
             }
         },
+
         async getChildLoc ({commit}, payload) {
 
+        },
+
+        async addChildLoc ({commit}, {parentGeoTypeId, itemGeoType, idParent, value}) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                const geoValue = new GeoValue(null, value);
+                const newValue = await fb.database().ref('geotypes/'+itemGeoType+'/values').push(geoValue);
+                geoValue.id = newValue.key;
+
+                await fb.database().ref('geoitems/'+geoValue.id).set({geoType:itemGeoType});
+                await fb.database().ref('geoitems/'+geoValue.id+'/parents').set({key:idParent});
+                await fb.database().ref('geoitems/'+parentGeoTypeId+'/children').set({key:geoValue.id});
+
+                commit('addChildLoc',geoValue);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
         }
      },
 
