@@ -20,8 +20,9 @@
                               :key="geoType.id"
                               @click="selectGeo(geoType.id)"
                       >
-                          <v-list-tile-content @click="style='color:blue'">
-                              <v-list-tile-title  >{{ geoType.name }}</v-list-tile-title>
+                          <v-list-tile-content>
+                              <v-list-tile-title v-if="curGeoName === geoType.name" style="color:blue" >{{ geoType.name }}</v-list-tile-title>
+                              <v-list-tile-title v-else >{{ geoType.name }}</v-list-tile-title>
                           </v-list-tile-content>
 
                           <v-list-tile-action>
@@ -48,11 +49,11 @@
                 </v-card>
             </v-flex>
             <v-spacer></v-spacer>
-            <v-flex xs8 row justify-space-between v-show="this.curGeoId">
-                <v-card >
+            <v-flex row xs8 justify-space-between v-show="this.curGeoId">
+                <v-card>
                     <v-card-text>
-                    <v-layout row justify-space-around>
-                        <v-flex xs5>
+                    <v-layout row wrap justify-space-between  >
+                        <v-flex xs6 d-flex>
                             <div >
                                 <h3>Geo type</h3>
                                 <v-text-field
@@ -61,10 +62,10 @@
                                 ></v-text-field>
                             </div>
                         </v-flex>
-                        <v-flex xs5>
-                            <div >
+                        <v-flex xs6 d-flex>
+                            <div>
                               <h3>Default Geo children</h3>
-                                <v-select
+                                <v-select ml-3
                                     :items="geoTypes"
                                     item-value="id"
                                     item-text="name"
@@ -75,37 +76,32 @@
                                   ></v-select>
                             </div>
                         </v-flex>
-                    </v-layout>
 
-                   <div>
-                         <h3>Custom Geo Children</h3>
-                       <div
+                        <v-flex xs12><h3>Custom Geo Children</h3></v-flex>
+                        <v-flex xs12 d-flex justify-space-between ml-3
                                 v-for="item in customChildren"
                                 :key="item.id"
                                 @click=""
-                                solo
-                        >
-                                <v-layout row justify-space-around>
-                                  <v-flex xs5>
-                                   <div><p>{{item.custValue}}</p></div>
-                                  </v-flex>
-                                    <v-flex xs5>
-                                   <div><p>{{item.custChild}}</p></div>
-                                  </v-flex>
-                                  <v-flex xs2>
-                                   <v-btn icon ripple>
+                            >
+                            <v-flex xs5>
+                            <p >{{item.custValue}}</p>
+                            </v-flex>
+                            <v-flex xs5>
+                            <p>{{item.custChild}}</p>
+                            </v-flex>
+                            <v-flex xs2>
+                            <v-btn icon ripple>
                                        <v-icon color="grey lighten-1"  @click="delChild(item.id)">backspace</v-icon>
                                       </v-btn>
-                                  </v-flex>
-                                </v-layout>
-                               </div>
-                      </div>
+                            </v-flex>
+                        </v-flex>
+                    </v-layout>
 
                         <v-spacer></v-spacer>
 
                      <v-form v-model="valid" ref="form" lazy-validation>
-                         <v-layout row justify-space-between >
-                           <v-flex xs4 >
+                         <v-layout row justify-space-between>
+                           <v-flex xs5>
                               <div>
                                 <v-select
                                         :items="curGeoValues"
@@ -117,8 +113,8 @@
                                 ></v-select>
                               </div>
                            </v-flex>
-                           <v-flex xs4>
-                                <v-select
+                           <v-flex xs5 >
+                                <v-select ml-3
                                         :items="geoTypes"
                                         item-value="id"
                                         item-text="name"
@@ -128,7 +124,7 @@
                                 ></v-select>
                            </v-flex>
                              <v-flex xs2 >
-                                <v-btn ml3 class="success" @click="addCustChild">Add</v-btn>
+                                <v-btn ml-3 class="success" @click="addCustChild">Add</v-btn>
                              </v-flex>
                       </v-layout>
                      </v-form>
@@ -138,18 +134,16 @@
         </v-layout>
     </v-container>
      <v-container v-show="this.curGeoId">
-        <v-layout row justify-space-between m-5>
+        <v-layout row justify-space-between>
             <v-flex xs12 >
                 <v-card>
                     <v-card-text>
-                        <h3>Geo values</h3>
+                        <h3>Geo values for : {{curGeoName}}</h3>
                         <v-container  grid-list-xs>
                             <v-layout row wrap>
                                 <v-flex xs6 sm4 md2 lg1 v-for="val in this.curGeoValues" :key="val.name">
-                                    <v-text-field
-                                            :value="val.name"
-                                            solo
-                                    ></v-text-field>
+                                    <v-btn small  v-if="val.name === defValue" color="info" class="text-xs-center" :id="val.id"  @click="setDefValue">{{val.name}}</v-btn>
+                                    <v-btn small  v-else class="text-xs-center" :id="val.id"  @click="setDefValue">{{val.name}}</v-btn>
                                 </v-flex>
                                 <v-flex xs6 sm4 md2 lg1>
                                     <div>
@@ -191,6 +185,9 @@ export default {
 
                defaultChildId:null,
                defaultChildName:'',
+
+               defValue:"",
+               defValueId:null,
 
                valid: false,
                geoRules: [
@@ -247,6 +244,10 @@ export default {
             addGeoValue () {
                 this.$store.dispatch('addGeoValue',{idParent:this.curGeoId, value:this.newGeoValue});
                 this.newGeoValue="";
+            },
+            setDefValue (event) {
+                this.defValue = event.target.textContent;
+                this.defValueId = event.currentTarget.id;
             }
         }
 
