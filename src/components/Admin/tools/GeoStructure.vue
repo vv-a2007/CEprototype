@@ -134,7 +134,7 @@
         </v-layout>
     </v-container>
      <v-container v-show="this.curGeoId">
-        <v-layout row justify-space-between>
+        <v-layout row justify-space-between m-5 >
             <v-flex xs12 >
                 <v-card>
                     <v-card-text>
@@ -164,6 +164,41 @@
             </v-flex>
         </v-layout>
      </v-container>
+        <v-container v-show="this.defValueId">
+            <v-layout row justify-space-between m-5 >
+                <v-flex xs12 >
+                    <v-card>
+                        <v-card-text>
+                            <h3>Location in the : {{defValue}}</h3>
+                            <v-container  grid-list-xs>
+                                <v-layout row wrap>
+                                    <v-flex xs6 sm4 md2 lg1 v-for="val in this.curChildLoc" :key="val.name">
+                                        <v-btn small  v-if="val.name === defValue" color="info" class="text-xs-center" :id="val.id"  @click="setDefLoc">{{val.name}}</v-btn>
+                                        <v-btn small  v-else class="text-xs-center" :id="val.id"  @click="setDefLoc">{{val.name}}</v-btn>
+                                    </v-flex>
+                                    <v-flex xs6 sm4 md2 lg1>
+                                        <div>
+                                            <v-text-field
+                                                    type="text"
+                                                    v-model="newChildloc"
+                                                    :rules="geoRules"
+                                                    placeholder="new value"
+                                            ></v-text-field>
+                                            <v-btn small class="success text-xs-center" @click="addChildLoc"> NEW </v-btn>
+                                        </div>
+                                    </v-flex>
+                                </v-layout>
+                            </v-container>
+
+                        </v-card-text>
+                    </v-card>
+                </v-flex>
+            </v-layout>
+        </v-container>
+
+
+
+
  </v-container>
 </template>
 
@@ -176,6 +211,7 @@ export default {
             return {
                newGeo:"",
                newGeoValue:"",
+                newChildloc:"",
 
                curGeoId:null,
                curGeoName:null,
@@ -189,6 +225,9 @@ export default {
                defValue:"",
                defValueId:null,
 
+               defLoc:"",
+               defLocId:null,
+
                valid: false,
                geoRules: [
                     v => !!v || 'Name is required'
@@ -201,7 +240,9 @@ export default {
         computed : {
             geoTypes () { return this.$store.getters.getGeoTypes},
             curGeoValues () { return this.$store.getters.getAllValuesOfGeo},
-            customChildren () { return this.$store.getters.getCustomChild}
+            customChildren () { return this.$store.getters.getCustomChild},
+            listAllowedGeo () { return this.$store.getters.getListAllowedGeo},
+            curChildLoc () { return this.$store.getters.getCurChildLoc}
         },
         methods : {
             newGeoType () {
@@ -248,6 +289,15 @@ export default {
             setDefValue (event) {
                 this.defValue = event.target.textContent;
                 this.defValueId = event.currentTarget.id;
+                this.$store.dispatch('getListAllowedGeo', {geoId:this.curGeoId, valId:this.defValueId});
+            },
+            setDefLoc (event) {
+                this.defLoc = event.target.textContent;
+                this.defLocId = event.currentTarget.id;
+            },
+            addChildLoc () {
+                this.$store.dispatch('addChildLoc',{idParent:this.defValueId, value:this.newChildloc});
+                this.newChildloc="";
             }
         }
 

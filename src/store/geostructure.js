@@ -18,10 +18,25 @@ class GeoValue {
 }
 
 class CustomChild {
-    constructor(id, custValue, custChild){
-        this.id = id;
+    constructor(key, custValue, custChild){
+        this.id = key;
         this.custValue = custValue;
         this.custChild = custChild;
+    }
+}
+
+class AllowedLoc {
+    constructor(custChildId, custChild){
+        this.custChildId = custChildId;
+        this.custChild = custChild;
+    }
+}
+
+class ChildLoc {
+    constructor(id, parent, location){
+        this.id = id;
+        this.parent = parent;
+        this.location = location;
     }
 }
 
@@ -29,7 +44,9 @@ export default {
     state:{
         geoTypes: [],
         valuesCurGeo: [],
-        custChild: []
+        custChild: [],
+        listAllowedGeo: [],
+        childCurLoc: []
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -56,6 +73,9 @@ export default {
         },
         loadCustChild(state, payload){
             state.custChild = payload
+        },
+        loadAllowedGeo(state, payload){
+           state.listAllowedGeo = payload
         }
 
     },
@@ -217,15 +237,55 @@ export default {
                 commit('setLoading', false);
                 throw error
             }
+        },
+        async getListAllowedGeo ({commit}, payload){
+            commit('clearError');
+            commit('setLoading', true);
+            const listAllowedGeo = [];
+            try {
+                const fbVal = await fb.database().ref(payload.geoId+'/custChild').once('value');
+                const custList = fbVal.val();
+                let count = 0;
+                if (custList !== null) {
+                    Object.keys(custList).forEach((key => {
+                        const custValueId = custList[key].custValueId;
+                        if (custValueId === payload.valId) {
+                            const custChildId = custList[key].custChildId;
+                            const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === custChildId)].name;
+                            listAllowedGeo.push(new AllowedLoc(custChildId, custChild));
+                            count++;
+                       }
+                    }));
+                }
+
+                if (count === 0) {
+                    const fbVal1 = await fb.database().ref('/geotypes/'+payload.geoId + '/defaultChildId').once('value');
+                    const defChildId = fbVal1.val();
+                    if (defChildId !== null) {
+                        const defChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === defChildId)].name;
+                        listAllowedGeo.push(new AllowedLoc(defChildId, defChild))
+                    }
+                }
+
+                commit('loadAllowedGeo', listAllowedGeo);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError', error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async getChildLoc ({commit}, payload) {
+
         }
      },
 
     getters: {
         getGeoTypes(state) { return state.geoTypes },
         getAllValuesOfGeo(state) { return state.valuesCurGeo },
-        getCustomChild(state) {
-
-            return state.custChild
-        }
+        getCustomChild(state) {return state.custChild},
+        getListAllowedGeo(state){return state.listAllowedGeo},
+        getCurChildLoc (state) {return state.childCurLoc}
      }
 }
