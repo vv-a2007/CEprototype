@@ -11,44 +11,52 @@
             <v-flex xs3 >
                 <v-card>
                     <v-card-text>
-                        <h3>Geotypes</h3>
-                    </v-card-text>
-
-                  <v-list >
-                      <v-list-tile
+                        <v-layout row wrap justify-space-between  >
+                            <v-flex xs12>
+                                <h3>Geotypes</h3>
+                            </v-flex>
+                          <v-flex xs12>
+                           <v-list >
+                            <v-list-tile
                               v-for="geoType in geoTypes"
                               :key="geoType.id"
                               @click="selectGeo(geoType.id)"
                       >
-                          <v-list-tile-content>
-                              <v-list-tile-title v-if="curGeoName === geoType.geoname" style="color:blue" >{{ geoType.geoname }}</v-list-tile-title>
-                              <v-list-tile-title v-else >{{ geoType.geoname }}</v-list-tile-title>
-                          </v-list-tile-content>
+                              <v-list-tile-content>
+                                <v-list-tile-title v-if="curGeoName === geoType.geoname" style="color:blue" >{{ geoType.geoname }}</v-list-tile-title>
+                                <v-list-tile-title v-else >{{ geoType.geoname }}</v-list-tile-title>
+                              </v-list-tile-content>
 
-                          <v-list-tile-action>
-                              <v-btn icon ripple>
-                                  <v-icon color="grey lighten-1"  @click="delGeo(geoType.id)">backspace</v-icon>
-                              </v-btn>
-                          </v-list-tile-action>
-                      </v-list-tile>
-                  </v-list>
-                        <v-form v-model="valid" ref="form" lazy-validation>
-                            <v-layout row>
-                                <v-flex xs12 justify-space-between>
+                              <v-list-tile-action>
+                                  <v-btn icon ripple>
+                                     <v-icon color="grey lighten-1"  @click="delGeo(geoType.id)">backspace</v-icon>
+                                  </v-btn>
+                               </v-list-tile-action>
+                             </v-list-tile>
+                           </v-list>
+                          </v-flex>
+
+                           <v-form v-model="valid" ref="form" lazy-validation>
+                                <v-flex xs12 justify-space-between ml-2>
                                   <v-text-field
                                      type="text"
                                      v-model="newGeo"
                                      :rules="geoRules"
                                      placeholder="Enter new Geo type"
                                   ></v-text-field>
-                                  <v-spacer></v-spacer>
-                                  <v-btn class="success" @click="newGeoType">Add new</v-btn>
                                 </v-flex>
-                            </v-layout>
+                                  <v-flex xs12>
+                                     <v-btn class="success" @click="newGeoType" :disabled="!valid">Add new</v-btn>
+                                  </v-flex>
+
                         </v-form>
+                        </v-layout>
+                    </v-card-text>
                 </v-card>
             </v-flex>
+
             <v-spacer></v-spacer>
+
             <v-flex row xs8 justify-space-between v-show="this.curGeoId">
                 <v-card>
                     <v-card-text>
@@ -91,7 +99,7 @@
                             </v-flex>
                             <v-flex xs2>
                             <v-btn icon ripple>
-                                       <v-icon color="grey lighten-1"  @click="delChild(item.id)">backspace</v-icon>
+                                       <v-icon color="grey lighten-1"  @click="delCustomChild(item.id)">backspace</v-icon>
                                       </v-btn>
                             </v-flex>
                         </v-flex>
@@ -99,7 +107,7 @@
 
                         <v-spacer></v-spacer>
 
-                     <v-form v-model="valid" ref="form" lazy-validation>
+                     <v-form v-model="valid1" ref="form1" lazy-validation>
                          <v-layout row justify-space-between>
                            <v-flex xs5>
                               <div>
@@ -108,6 +116,7 @@
                                         item-value="id"
                                         item-text="name"
                                         v-model="curCustValue"
+                                        :rules="geoRules"
                                         solo
                                         label="For custom value"
                                 ></v-select>
@@ -119,12 +128,13 @@
                                         item-value="id"
                                         item-text="geoname"
                                         v-model="newCustChildId"
+                                        :rules="geoRules"
                                         solo
                                         label="Custom child"
                                 ></v-select>
                            </v-flex>
                              <v-flex xs2 >
-                                <v-btn ml-3 class="success" @click="addCustChild">Add</v-btn>
+                                <v-btn ml-3 class="success" @click="addCustChild" :disabled="!valid1">Add</v-btn>
                              </v-flex>
                       </v-layout>
                      </v-form>
@@ -265,6 +275,7 @@ export default {
                defLocId:null,
 
                valid: false,
+               valid1: false,
                geoRules: [
                     v => !!v || 'Name is required'
                 ],
@@ -312,16 +323,27 @@ export default {
 
             },
             delGeo (key) {
-                this.$store.dispatch('delGeoType', key);
-
+                    this.$store.dispatch('delGeoType', key);
             },
             setDefChild () {
                 this.$store.dispatch('setDefChild', {id:this.defaultChildId, idParent:this.curGeoId})
             },
             addCustChild () {
-                this.$store.dispatch('addCustChild',{idParent:this.curGeoId, custValueId:this.curCustValue, custChildId:this.newCustChildId});
-                this.curCustValue=null; this.newCustChildId=null;
+                if (this.$refs.form1.validate()) {
+                    this.$store.dispatch('addCustChild', {
+                        idParent: this.curGeoId,
+                        custValueId: this.curCustValue,
+                        custChildId: this.newCustChildId
+                    });
+                    this.curCustValue = null;
+                    this.newCustChildId = null;
+                }
             },
+
+            delCustomChild (key) {
+                this.$store.dispatch('delCustomChild', {id:key, idParent:this.curGeoId})
+            },
+
             addGeoValue () {
                 this.$store.dispatch('addGeoValue',{idParent:this.curGeoId, value:this.newGeoValue});
                 this.newGeoValue="";
