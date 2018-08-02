@@ -29,14 +29,15 @@
 
                               <v-list-tile-action>
                                   <v-btn icon ripple>
-                                     <v-icon color="grey lighten-1"  @click="delGeo(geoType.id)">backspace</v-icon>
+                                     <v-icon color="grey darken-2"  @click.stop="delGeo(geoType.id)" v-if="curGeoName === geoType.geoname">backspace</v-icon>
+                                      <v-icon color="grey lighten-1"  @click.stop="" v-else :disabled="true">backspace</v-icon>
                                   </v-btn>
                                </v-list-tile-action>
                              </v-list-tile>
                            </v-list>
                           </v-flex>
 
-                           <v-form v-model="valid" ref="form" lazy-validation>
+                           <v-form v-model="valid" ref="form" lazy-validation prevent>
                                 <v-flex xs12 justify-space-between ml-2>
                                   <v-text-field
                                      type="text"
@@ -152,8 +153,17 @@
                         <v-container  grid-list-xs>
                             <v-layout row wrap >
                                 <v-flex xs6 sm4 md2 lg1 v-for="val in this.curGeoValues" :key="val.name">
-                                    <v-btn small  v-if="val.name === defValue" color="info" class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
-                                    <v-btn small  v-else class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
+                                        <v-badge rigth color="yellow" v-model="val.name === defValue" >
+                                        <v-icon slot="badge" dark small  @click="editGeoValue">edit</v-icon>
+                                        <v-btn small  v-if="val.name === defValue" color="info" class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
+                                        <v-btn small  v-else class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
+                                    </v-badge>
+
+
+
+
+
+
                                 </v-flex>
                                 <v-flex xs6 sm4 md2 lg1>
                                     <div>
@@ -323,7 +333,11 @@ export default {
 
             },
             delGeo (key) {
-                    this.$store.dispatch('delGeoType', key);
+                if (this.curGeoValues.length === 0) {
+                          this.$store.dispatch('delGeoType', key);}
+                    else {
+                    this.$store.dispatch('setError', {message:'Geo type have child, not allowed to delete !'});
+                }
             },
             setDefChild () {
                 this.$store.dispatch('setDefChild', {id:this.defaultChildId, idParent:this.curGeoId})
@@ -353,6 +367,12 @@ export default {
                 this.defValueId = event.currentTarget.id;
                 this.$store.dispatch('getListAllowedGeo', {geoId:this.curGeoId, valId:this.defValueId});
             },
+            editGeoValue () {
+
+
+                this.$store.dispatch('editGeoValue', {id:this.defValueId, idParent:this.curGeoId, newValue:newValue})
+            },
+
             getChildLoc () {
                 this.$store.dispatch('getChildLoc',{itemGeoType:this.curAllowedLocId, idParent:this.defValueId})
             },
