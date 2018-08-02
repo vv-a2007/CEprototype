@@ -33,10 +33,10 @@ class AllowedLoc {
 }
 
 class ChildLoc {
-    constructor(id, parent, location){
+    constructor(id, name){
         this.id = id;
-        this.parent = parent;
-        this.location = location;
+        this.name = name;
+
     }
 }
 
@@ -78,6 +78,9 @@ export default {
            state.listAllowedGeo = payload
         },
         addChildLoc(state, payload) {
+           state.childCurLoc = payload
+        },
+        loadChildLoc(state, payload) {
            state.childCurLoc = payload
         }
 
@@ -148,7 +151,6 @@ export default {
                 if (geoValues !== null) {
                     Object.keys(geoValues).forEach((key => {
                         const geoValue = geoValues[key];
-                        const item = fb.database().ref('geoitems/'+key).set({geoType:payload});
                         allValuesGeo.push(new GeoValue(key, geoValue.name))
                     }));
                     commit('loadValuesCurGeo', allValuesGeo);
@@ -185,6 +187,7 @@ export default {
                 const geoValue = new GeoValue(null, payload.value);
                 const newValue = await fb.database().ref('geotypes/'+payload.idParent+'/values').push(geoValue);
                 geoValue.id = newValue.key;
+                await fb.database().ref('geoitems/'+geoValue.id).set({name:payload.value, geoType:payload.idParent});
                 commit('addGeoValue',geoValue);
                 commit('setLoading', false);
             }
@@ -282,21 +285,58 @@ export default {
             }
         },
 
-        async getChildLoc ({commit}, payload) {
+        async getChildLoc ({commit}, {itemGeoType, idParent}) {
 
+            commit('clearError');
+            commit('setLoading', true);
+            const allChildLoc = [];
+            const selectChildLoc = [];
+
+            async function getName (id) {
+
+                    let fbVal = await fb.database().ref('geoitems/'+id).once('value');
+                    if (fbVal.val() !== null ) {
+                             const name = fbVal.val().name;
+                             const loc = new ChildLoc(id,name);
+                             selectChildLoc.push(loc);
+                     } else {selectChildLoc.push("Wrong DATA!")}
+                   }
+
+            try {
+                const fbVal = await fb.database().ref('geoitems/'+idParent+'/children').once('value');
+                const childVal= fbVal.val();
+                if (childVal !== null) {
+                    Object.keys(childVal).forEach((key => {
+                        allChildLoc.push(childVal[key])
+                    }));
+                    await Promise.all(allChildLoc.map(f => getName(f)));
+
+                    commit('loadChildLoc', selectChildLoc);
+                    commit('setLoading', false);
+                 }
+                 else {
+                    commit('loadChildLoc', []);
+                    commit('setLoading', false);
+                }
+            }
+            catch (error) {
+                commit('setError', error.message);
+                commit('setLoading', false);
+                throw error
+            }
         },
 
-        async addChildLoc ({commit}, {parentGeoTypeId, itemGeoType, idParent, value}) {
+        async addChildLoc ({commit}, {itemGeoType, idParent, name}) {
             commit('clearError');
             commit('setLoading', true);
             try {
-                const geoValue = new GeoValue(null, value);
+                const geoValue = new GeoValue(null, name );
                 const newValue = await fb.database().ref('geotypes/'+itemGeoType+'/values').push(geoValue);
                 geoValue.id = newValue.key;
 
-                await fb.database().ref('geoitems/'+geoValue.id).set({geoType:itemGeoType});
+                await fb.database().ref('geoitems/'+geoValue.id).set({geoType:itemGeoType, name:name});
                 await fb.database().ref('geoitems/'+geoValue.id+'/parents').set({key:idParent});
-                await fb.database().ref('geoitems/'+parentGeoTypeId+'/children').set({key:geoValue.id});
+                await fb.database().ref('geoitems/'+idParent+'/children').set({key:geoValue.id});
 
                 commit('addChildLoc',geoValue);
                 commit('setLoading', false);
