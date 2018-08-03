@@ -171,7 +171,7 @@
                                     </v-badge>
 
                                 </v-flex>
-                                <v-flex xs6 sm4 md2 lg1 v-show="geoValueEdit === false">
+                                <v-flex xs6 sm4 md2 lg1 v-show="geoValueEdit === false && curGeoName ==='World region'">
                                     <div>
                                         <v-text-field
                                                 type="text"
@@ -203,28 +203,20 @@
                                      item-text="custChild"
                                      v-model="curAllowedLocId"
                                      readonly
+                                     small
                                      solo
                                      @change="getChildLoc"
                                      label="Select child geo type">
                                    </v-select>
-                               </v-flex>
-                                <v-flex xs1 ml-2 >
-                                    <v-text-field
-                                            value=" in the "
-                                            dark
-                                            solo
-                                            readonly
-                                            style="text-align: center"
-                                    ></v-text-field>
+                               </v-flex >
+                                <v-flex xs1 justify-center >
+                                        <v-chip wigth="100%" label outline color="blue" class="text-xs-center"> SELECTED FOR ---> </v-chip>
                                 </v-flex>
-                                <v-flex xs2 ml-2 >
-                                    <v-text-field
-                                            v-model="defValue"
-                                            solo
-                                            readonly
-                                    ></v-text-field>
+                                <v-flex xs2>
+                                    <v-btn small class="info text-xs-center" @click=""  >{{defValue}}</v-btn>
                                  </v-flex>
-                                <v-flex xs8>
+
+                                <v-flex xs8 >
                                    <v-spacer></v-spacer>
                                </v-flex>
                             </v-layout>
@@ -234,7 +226,7 @@
                                             v-for="val in this.curChildLoc"
                                             :key="val.id"
                                     >
-                                        <v-btn small class="text-xs-center" :id="val.id"  >{{val.name}}</v-btn>
+                                        <v-btn small class="text-xs-center" :id="val.id" @click="" >{{val.name}}</v-btn>
                                     </v-flex>
                                     <v-flex xs6 sm4 md2 lg1>
                                         <div v-if="curAllowedLocId">

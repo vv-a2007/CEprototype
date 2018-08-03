@@ -85,7 +85,7 @@ export default {
            state.listAllowedGeo = payload
         },
         addChildLoc(state, payload) {
-           state.childCurLoc = payload
+           state.childCurLoc.push(payload)
         },
         loadChildLoc(state, payload) {
            state.childCurLoc = payload
@@ -116,6 +116,7 @@ export default {
                 throw error
             }
          },
+
         async addGeoType({commit}, payload) {
             commit('clearError');
             commit('setLoading', true);
@@ -133,6 +134,7 @@ export default {
                 throw error
             }
         },
+
         async delGeoType({commit}, payload) {
             commit('clearError');
             commit('setLoading', true);
@@ -148,6 +150,7 @@ export default {
                 throw error
             }
             },
+
         async getAllValuesOfGeo({commit}, payload) {
             commit('clearError');
             commit('setLoading', true);
@@ -173,6 +176,7 @@ export default {
                 throw error
             }
         },
+
         async setDefChild({commit}, payload) {
             commit('clearError');
             commit('setLoading', true);
