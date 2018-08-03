@@ -195,7 +195,7 @@
                 <v-flex xs12 >
                     <v-card>
                         <v-card-text>
-                            <v-layout row justify-space-between>
+                            <v-layout row justify-space-between mb-2>
                                <v-flex xs2>
                                    <v-select
                                      :items="listAllowedGeo"
@@ -209,10 +209,10 @@
                                      label="Select child geo type">
                                    </v-select>
                                </v-flex >
-                                <v-flex xs1 justify-center >
+                                <v-flex xs1 justify-center ml-1>
                                         <v-chip wigth="100%" label outline color="blue" class="text-xs-center"> SELECTED FOR ---> </v-chip>
                                 </v-flex>
-                                <v-flex xs2>
+                                <v-flex xs2 ml-1>
                                     <v-btn small class="info text-xs-center" @click=""  >{{defValue}}</v-btn>
                                  </v-flex>
 
@@ -251,11 +251,11 @@
                 <v-flex xs12 >
                     <v-card>
                         <v-card-text>
-                          <v-layout row justify-space-between>
+                          <v-layout row justify-space-between mb-2>
                             <v-flex xs1 justify-center >
-                                <v-chip wigth="100%" label outline color="purple" class="text-xs-center"> ALL VALUES OF -----> </v-chip>
+                                <v-chip wigth="100%" label outline color="purple" class="text-xs-center"> ALL VALUES OF ---> </v-chip>
                             </v-flex>
-                            <v-flex xs1>
+                            <v-flex xs1 ml-1>
                                 <v-btn small class="info text-xs-center" @click=""  >{{selectAllowedType}}</v-btn>
                             </v-flex>
 
@@ -418,6 +418,7 @@ export default {
             },
             addChildLoc () {
                 this.$store.dispatch('addChildLoc',{itemGeoType:this.curAllowedLocId, idParent:this.defValueId, name:this.newChildloc});
+                this.getChildLoc ();
                 this.newChildloc="";
             }
         }
