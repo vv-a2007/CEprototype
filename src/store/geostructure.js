@@ -68,6 +68,9 @@ export default {
         addGeoValue(state, payload) {
             state.valuesCurGeo.push(payload)
         },
+        editGeoValue(state,payload){
+            state.valuesCurGeo[state.valuesCurGeo.findIndex(i => i.id === payload.id)].name = payload.value;
+        },
         addCustChild(state, payload) {
             state.custChild.push(payload)
         },
@@ -201,6 +204,23 @@ export default {
                 throw error
             }
         },
+
+         async editGeoValue({commit},{id, idParent, value}){
+             commit('clearError');
+             commit('setLoading', true);
+             try {
+                 await fb.database().ref('geotypes/'+idParent+'/values/'+id).set({name:value});
+                 await fb.database().ref('geoitems/'+id).set({name:value});
+                 commit('editGeoValue',{id,value});
+             }
+             catch (error) {
+                 commit('setError',error.message);
+                 commit('setLoading', false);
+                 throw error
+             }
+
+         },
+
         async addCustChild({commit}, payload) {
             commit('clearError');
             commit('setLoading', true);

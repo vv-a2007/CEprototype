@@ -153,19 +153,25 @@
                         <v-container  grid-list-xs>
                             <v-layout row wrap >
                                 <v-flex xs6 sm4 md2 lg1 v-for="val in this.curGeoValues" :key="val.name">
-                                        <v-badge rigth color="yellow" v-model="val.name === defValue" >
-                                        <v-icon slot="badge" dark small  @click="editGeoValue">edit</v-icon>
-                                        <v-btn small  v-if="val.name === defValue" color="info" class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
-                                        <v-btn small  v-else class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
+
+                                        <v-badge rigth color="yellow" v-model="val.name === defValue">
+                                           <v-icon slot="badge" dark small  @click="()=>{geoValueEdit = true; editDefValue=defValue}" v-show="geoValueEdit === false" >edit</v-icon>
+                                           <v-btn small  v-if="val.name === defValue && geoValueEdit === false" color="info" class="text-xs-center" @click="">{{val.name}}</v-btn>
+                                           <v-flex xs12 v-else-if="(geoValueEdit === true) && (val.name === defValue)" >
+                                              <v-text-field
+                                                    type="text"
+                                                    autofocus
+                                                    v-model="editDefValue"
+                                                    :value="defValue"
+                                                    :rules="geoRules"
+                                              ></v-text-field>
+                                              <v-btn small  class="success text-xs-center" @click="editGeoValue">save</v-btn>
+                                           </v-flex>
+                                           <v-btn small  v-else class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
                                     </v-badge>
 
-
-
-
-
-
                                 </v-flex>
-                                <v-flex xs6 sm4 md2 lg1>
+                                <v-flex xs6 sm4 md2 lg1 v-show="geoValueEdit === false">
                                     <div>
                                         <v-text-field
                                                 type="text"
@@ -277,6 +283,7 @@ export default {
                defaultChildName:'',
 
                defValue:"",
+               editDefValue:"",
                defValueId:null,
 
                curAllowedLocId:null,
@@ -286,6 +293,9 @@ export default {
 
                valid: false,
                valid1: false,
+
+               geoValueEdit:false,
+
                geoRules: [
                     v => !!v || 'Name is required'
                 ],
@@ -299,7 +309,7 @@ export default {
             curGeoValues () { return this.$store.getters.getAllValuesOfGeo},
             customChildren () { return this.$store.getters.getCustomChild},
             listAllowedGeo () { return this.$store.getters.getListAllowedGeo},
-            curChildLoc () { return this.$store.getters.getCurChildLoc}
+            curChildLoc () { return this.$store.getters.getCurChildLoc},
         },
         methods : {
             newGeoType () {
@@ -368,9 +378,8 @@ export default {
                 this.$store.dispatch('getListAllowedGeo', {geoId:this.curGeoId, valId:this.defValueId});
             },
             editGeoValue () {
-
-
-                this.$store.dispatch('editGeoValue', {id:this.defValueId, idParent:this.curGeoId, newValue:newValue})
+                this.$store.dispatch('editGeoValue', {id:this.defValueId, idParent:this.curGeoId, value:this.editDefValue});
+                this.geoValueEdit = false;
             },
 
             getChildLoc () {
