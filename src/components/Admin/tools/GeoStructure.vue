@@ -86,7 +86,7 @@
                             </div>
                         </v-flex>
 
-                        <v-flex xs12><h3>Custom Geo Children</h3></v-flex>
+                        <v-flex xs12 mb-3><h3>Custom Geo Children</h3></v-flex>
                         <v-flex xs12 d-flex justify-space-between ml-3
                                 v-for="item in customChildren"
                                 :key="item.id"
@@ -220,7 +220,7 @@
                                    <v-spacer></v-spacer>
                                </v-flex>
                             </v-layout>
-                            <v-container  grid-list-xs>
+                            <v-container  grid-list-xs v-if="curAllowedLocId" >
                                 <v-layout row wrap>
                                     <v-flex xs6 sm4 md2 lg1
                                             v-for="val in this.curChildLoc"
@@ -229,7 +229,7 @@
                                         <v-btn small class="text-xs-center" :id="val.id" @click="" >{{val.name}}</v-btn>
                                     </v-flex>
                                     <v-flex xs6 sm4 md2 lg1>
-                                        <div v-if="curAllowedLocId">
+                                        <div >
                                             <v-text-field
                                                     type="text"
                                                     v-model="newChildloc"
@@ -241,13 +241,46 @@
                                     </v-flex>
                                 </v-layout>
                             </v-container>
+                        </v-card-text>
+                    </v-card>
+                </v-flex>
+            </v-layout>
+        </v-container>
+        <v-container grid-list-xs v-if="curAllowedLocId">
+            <v-layout row justify-space-between >
+                <v-flex xs12 >
+                    <v-card>
+                        <v-card-text>
+                          <v-layout row justify-space-between>
+                            <v-flex xs1 justify-center >
+                                <v-chip wigth="100%" label outline color="purple" class="text-xs-center"> ALL VALUES OF -----> </v-chip>
+                            </v-flex>
+                            <v-flex xs1>
+                                <v-btn small class="info text-xs-center" @click=""  >{{selectAllowedType}}</v-btn>
+                            </v-flex>
+
+                                <v-flex xs10 >
+                                    <v-spacer></v-spacer>
+                                </v-flex>
+
+                           </v-layout>
+
+
+                           <v-layout row wrap>
+                                    <v-flex xs6 sm4 md2 lg1
+                                            v-for="val in this.allValueSelectAllowedValue"
+                                            :key="val.id"
+                                    >
+                                        <v-btn small class="text-xs-center" :id="val.id" @click="" >{{val.name}}</v-btn>
+                                    </v-flex>
+
+                           </v-layout>
 
                         </v-card-text>
                     </v-card>
                 </v-flex>
             </v-layout>
         </v-container>
-
 
 
 
@@ -302,6 +335,8 @@ export default {
             customChildren () { return this.$store.getters.getCustomChild},
             listAllowedGeo () { return this.$store.getters.getListAllowedGeo},
             curChildLoc () { return this.$store.getters.getCurChildLoc},
+            selectAllowedType () { return this.$store.getters.getSelectAllowed.geoname},
+            allValueSelectAllowedValue () {return this.$store.getters.allValueSelectAllowedValue}
         },
         methods : {
             newGeoType () {
@@ -365,9 +400,13 @@ export default {
                 this.newGeoValue="";
             },
             setDefValue (event) {
+                this.curAllowedLocId = null;
+                this.defLoc="";
+                this.defLocId=null;
                 this.defValue = event.target.textContent;
                 this.defValueId = event.currentTarget.id;
                 this.$store.dispatch('getListAllowedGeo', {geoId:this.curGeoId, valId:this.defValueId});
+
             },
             editGeoValue () {
                 this.$store.dispatch('editGeoValue', {id:this.defValueId, idParent:this.curGeoId, value:this.editDefValue});

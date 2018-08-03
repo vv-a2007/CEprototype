@@ -46,7 +46,9 @@ export default {
         valuesCurGeo: [],
         custChild: [],
         listAllowedGeo: [],
-        childCurLoc: []
+        childCurLoc: [],
+        selectAllowed:{},
+        allValueSelectAllowedValue: []
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -89,6 +91,12 @@ export default {
         },
         loadChildLoc(state, payload) {
            state.childCurLoc = payload
+        },
+        getSelectAllowed(state, payload){
+           state.selectAllowed = payload
+        },
+        getAllValueSelectAllowed(state, payload){
+            state.allValueSelectAllowedValue = payload
         }
 
     },
@@ -233,7 +241,7 @@ export default {
                 const newCust = await fb.database().ref('geotypes/'+payload.idParent+'/custChild').push({id:null, custValueId:payload.custValueId, custChildId:payload.custChildId});
 
                 const custValue = this.getters.getAllValuesOfGeo[this.getters.getAllValuesOfGeo.findIndex(i => i.id === payload.custValueId)].name;
-                const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === payload.custChildId)].name;
+                const custChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === payload.custChildId)].geoname;
 
                 const newCustChild = new CustomChild(newCust.key, custValue, custChild);
 
@@ -351,6 +359,7 @@ export default {
             }
 
             try {
+
                 const fbVal = await fb.database().ref('geoitems/' + idParent + '/children').once('value');
                 const childVal = fbVal.val();
                 if (childVal !== null) {
@@ -358,7 +367,6 @@ export default {
                         allChildLoc.push(key)
                     }));
                     await Promise.all(allChildLoc.map(f => getName(f)));
-
                     commit('loadChildLoc', selectChildLoc);
                     commit('setLoading', false);
                 }
@@ -366,6 +374,23 @@ export default {
                     commit('loadChildLoc', []);
                     commit('setLoading', false);
                 }
+
+                const fbVal1 = await fb.database().ref('geotypes/' + itemGeoType).once('value');
+                const childVal1 = fbVal1.val();
+                commit('getSelectAllowed',{id:fbVal1.key, geoname:childVal1.geoname});
+
+                const fbVal2 = await fb.database().ref('geotypes/' + itemGeoType+'/values').once('value');
+                const childVal2 = fbVal2.val();
+                let allValueSelectAllowed = [];
+                if (childVal2 !== null) {
+                    Object.keys(childVal2).forEach((key => {
+                        const loc = new ChildLoc(key, childVal2[key].name);
+                        allValueSelectAllowed.push(loc);
+                    }));
+                }
+
+                commit('getAllValueSelectAllowed',allValueSelectAllowed);
+                commit('getSelectAllowed',{id:fbVal1.key, geoname:childVal1.geoname});
             }
             catch (error) {
                 commit('setError', error.message);
@@ -402,6 +427,8 @@ export default {
         getAllValuesOfGeo(state) { return state.valuesCurGeo },
         getCustomChild(state) {return state.custChild},
         getListAllowedGeo(state){return state.listAllowedGeo},
-        getCurChildLoc (state) {return state.childCurLoc}
+        getCurChildLoc (state) {return state.childCurLoc},
+        getSelectAllowed (state) {return state.selectAllowed},
+        allValueSelectAllowedValue (state) {return state.allValueSelectAllowedValue}
      }
 }
