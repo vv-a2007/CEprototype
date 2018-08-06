@@ -151,12 +151,12 @@
                     <v-card-text>
                         <h3>Geo values for : {{curGeoName}}</h3>
                         <v-container  grid-list-xs>
-                            <v-layout row wrap >
+                            <v-layout row wrap justify-space-arround mb-2>
                                 <v-flex xs6 sm4 md2 lg1 v-for="val in curGeoValues" :key="val.name">
 
-                                        <v-badge rigth color="yellow" v-model="val.name === defValue">
-                                           <v-icon slot="badge" dark small  @click="()=>{ geoValueEdit = true; editDefValue =  defValue}" v-show="geoValueEdit === false" >edit</v-icon>
-                                           <v-btn small  v-if="val.name === defValue && geoValueEdit === false" color="info" class="text-xs-center" @click="">{{val.name}}</v-btn>
+                                        <v-badge rigth color="yellow" v-model="val.name === defValue" >
+                                           <v-icon slot="badge" dark small @click="()=>{ geoValueEdit = true; editDefValue =  defValue}" v-show="geoValueEdit === false" >edit</v-icon>
+                                           <v-btn small  v-if="val.name === defValue && geoValueEdit === false" color="info" class="text-xs-center" @click="()=>{defValue=''; defValueId = null}">{{val.name}}</v-btn>
                                            <v-flex xs12 v-else-if="(geoValueEdit === true) && (val.name === defValue)" >
                                               <v-text-field
                                                     type="text"
@@ -210,7 +210,7 @@
                                    </v-select>
                                </v-flex >
                                 <v-flex xs1 justify-center ml-1>
-                                        <v-chip wigth="100%" label outline color="blue" class="text-xs-center"> SELECTED FOR ---> </v-chip>
+                                        <v-chip wigth="100%" label outline color="blue" class="text-xs-center"> Selected From ---> </v-chip>
                                 </v-flex>
                                 <v-flex xs2 ml-1>
                                     <v-btn small class="info text-xs-center" @click=""  >{{defValue}}</v-btn>
@@ -221,7 +221,7 @@
                                </v-flex>
                             </v-layout>
                             <v-container  grid-list-xs v-if="curAllowedLocId" >
-                                <v-layout row wrap>
+                                <v-layout row wrap justify-space-arround mb-2>
                                     <v-flex xs6 sm4 md2 lg1
                                             v-for="val in this.curChildLoc"
                                             :key="val.id"
@@ -258,7 +258,7 @@
                 <v-flex xs12 >
                     <v-card>
                         <v-card-text>
-                          <v-layout row justify-space-between mb-2>
+                          <v-layout row justify-space-arround mb-2>
                             <v-flex xs1 justify-center >
                                 <v-chip wigth="100%" label outline color="purple" class="text-xs-center"> ALL VALUES OF ---> </v-chip>
                             </v-flex>
@@ -420,6 +420,7 @@ export default {
                 this.defLocId=null;
                 this.defValue = event.target.textContent;
                 this.defValueId = event.currentTarget.id;
+                this.editDefValue = this.defValue;
                 this.$store.dispatch('getListAllowedGeo', {geoId:this.curGeoId, valId:this.defValueId});
 
             },
@@ -441,6 +442,8 @@ export default {
                 this.$store.dispatch('delValueFromLoc',{id:this.defLocId, idParent:this.defValueId});
                 this.defLoc="";
                 this.defLocId=null;
+
+
             },
             goValueToLoc () {
                 this.$store.dispatch('goValueToLoc',{id:this.defAllLocId, idParent:this.defValueId, name:this.defAllLoc});
