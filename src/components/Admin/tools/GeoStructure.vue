@@ -152,10 +152,10 @@
                         <h3>Geo values for : {{curGeoName}}</h3>
                         <v-container  grid-list-xs>
                             <v-layout row wrap >
-                                <v-flex xs6 sm4 md2 lg1 v-for="val in this.curGeoValues" :key="val.name">
+                                <v-flex xs6 sm4 md2 lg1 v-for="val in curGeoValues" :key="val.name">
 
                                         <v-badge rigth color="yellow" v-model="val.name === defValue">
-                                           <v-icon slot="badge" dark small  @click="()=>{geoValueEdit = true; editDefValue=defValue}" v-show="geoValueEdit === false" >edit</v-icon>
+                                           <v-icon slot="badge" dark small  @click="()=>{ geoValueEdit = true; editDefValue =  defValue}" v-show="geoValueEdit === false" >edit</v-icon>
                                            <v-btn small  v-if="val.name === defValue && geoValueEdit === false" color="info" class="text-xs-center" @click="">{{val.name}}</v-btn>
                                            <v-flex xs12 v-else-if="(geoValueEdit === true) && (val.name === defValue)" >
                                               <v-text-field
@@ -168,10 +168,10 @@
                                               <v-btn small  class="success text-xs-center" @click="editGeoValue">save</v-btn>
                                            </v-flex>
                                            <v-btn small  v-else class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
-                                    </v-badge>
+                                        </v-badge>
 
                                 </v-flex>
-                                <v-flex xs6 sm4 md2 lg1 v-show="geoValueEdit === false && curGeoName ==='World region'">
+                                <v-flex xs6 sm4 md2 lg1 ml-3 v-show="geoValueEdit === false && curGeoName ==='World region'">
                                     <div>
                                         <v-text-field
                                                 type="text"
@@ -226,9 +226,16 @@
                                             v-for="val in this.curChildLoc"
                                             :key="val.id"
                                     >
-                                        <v-btn small class="text-xs-center" :id="val.id" @click="" >{{val.name}}</v-btn>
+
+                                        <v-badge rigth color="red" v-model="val.name === defLoc">
+                                            <v-icon slot="badge" dark small  @click.stop="delValueFromLoc" v-show="val.name === defLoc" >delete_outline</v-icon>
+                                            <v-btn small  v-if="val.name === defLoc" color="info" class="text-xs-center" @click="()=>{defLoc=''; defLocId = null}">{{val.name}}</v-btn>
+                                            <v-btn small  v-else class="text-xs-center" :id=val.id  @click="()=>{ defLoc = val.name; defLocId = val.id}">{{val.name}}</v-btn>
+                                        </v-badge>
+
                                     </v-flex>
-                                    <v-flex xs6 sm4 md2 lg1>
+
+                                    <v-flex xs6 sm4 md2 lg1 ml-3>
                                         <div >
                                             <v-text-field
                                                     type="text"
@@ -271,7 +278,12 @@
                                             v-for="val in this.allValueSelectAllowedValue"
                                             :key="val.id"
                                     >
-                                        <v-btn small class="text-xs-center" :id="val.id" @click="" >{{val.name}}</v-btn>
+                                        <v-badge rigth color="green" v-model="val.name === defAllLoc">
+                                            <v-icon slot="badge" dark small  @click.stop="goValueToLoc" v-show="val.name === defAllLoc" >library_add</v-icon>
+                                            <v-btn small  v-if="val.name === defAllLoc" color="info" class="text-xs-center" @click="()=>{defAllLoc=''; defAllLocId = null}">{{val.name}}</v-btn>
+                                            <v-btn small  v-else class="text-xs-center" :id=val.id  @click="()=>{ defAllLoc = val.name; defAllLocId = val.id}">{{val.name}}</v-btn>
+                                        </v-badge>
+
                                     </v-flex>
 
                            </v-layout>
@@ -315,6 +327,9 @@ export default {
 
                defLoc:"",
                defLocId:null,
+
+               defAllLoc:"",
+               defAllLocId:null,
 
                valid: false,
                valid1: false,
@@ -414,12 +429,23 @@ export default {
             },
 
             getChildLoc () {
-                this.$store.dispatch('getChildLoc',{itemGeoType:this.curAllowedLocId, idParent:this.defValueId})
+                if (this.curAllowedLocId !=null && this.defValueId != null) {
+                this.$store.dispatch('getChildLoc',{itemGeoType:this.curAllowedLocId, idParent:this.defValueId})}
             },
             addChildLoc () {
                 this.$store.dispatch('addChildLoc',{itemGeoType:this.curAllowedLocId, idParent:this.defValueId, name:this.newChildloc});
                 this.getChildLoc ();
                 this.newChildloc="";
+            },
+            delValueFromLoc () {
+                this.$store.dispatch('delValueFromLoc',{id:this.defLocId, idParent:this.defValueId});
+                this.defLoc="";
+                this.defLocId=null;
+            },
+            goValueToLoc () {
+                this.$store.dispatch('goValueToLoc',{id:this.defAllLocId, idParent:this.defValueId, name:this.defAllLoc});
+                this.defAllLoc="";
+                this.defAllLocId=null;
             }
         }
 

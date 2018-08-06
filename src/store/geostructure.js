@@ -52,29 +52,34 @@ export default {
     },
     mutations: {
        loadGeoTypes(state, payload) {
-           state.geoTypes = payload
+           state.geoTypes = payload;
+           state.geoTypes.sort(function (a,b) { if (a.geoname.toUpperCase() > b.geoname.toUpperCase()) {return 1} else {return -1}});
        },
        addGeoType(state, payload) {
-           state.geoTypes.push(payload)
+           state.geoTypes.push(payload);
+           state.geoTypes.sort(function (a,b) { if (a.geoname.toUpperCase() > b.geoname.toUpperCase()) {return 1} else {return -1}});
        },
        delGeoType (state, payload) {
            let num = state.geoTypes.findIndex(i => i.id === payload);
-           state.geoTypes.splice(num,1)
+           state.geoTypes.splice(num,1);
        },
         loadValuesCurGeo(state, payload) {
-           state.valuesCurGeo = payload
+           state.valuesCurGeo = payload;
+           state.valuesCurGeo.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
         },
         setDefChild(state, payload) {
             state.geoTypes[state.geoTypes.findIndex(i => i.id === payload.idParent)].defaultChildId=payload.id;
         },
         addGeoValue(state, payload) {
-            state.valuesCurGeo.push(payload)
+            state.valuesCurGeo.push(payload);
+            state.valuesCurGeo.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
         },
         editGeoValue(state,payload){
             state.valuesCurGeo[state.valuesCurGeo.findIndex(i => i.id === payload.id)].name = payload.value;
+            state.valuesCurGeo.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
         },
         addCustChild(state, payload) {
-            state.custChild.push(payload)
+            state.custChild.push(payload);
         },
         loadCustChild(state, payload){
             state.custChild = payload
@@ -84,20 +89,29 @@ export default {
             state.custChild.splice(num,1)
         },
         loadAllowedGeo(state, payload){
-           state.listAllowedGeo = payload
+           state.listAllowedGeo = payload;
+           state.listAllowedGeo.sort(function (a,b) { if (a.custChild.toUpperCase() > b.custChild.toUpperCase()) {return 1} else {return -1}});
         },
         addChildLoc(state, payload) {
-           state.childCurLoc.push(payload)
+           state.childCurLoc.push(payload);
+           state.childCurLoc.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
         },
         loadChildLoc(state, payload) {
-           state.childCurLoc = payload
+           state.childCurLoc = payload;
+           state.childCurLoc.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
         },
         getSelectAllowed(state, payload){
-           state.selectAllowed = payload
+           state.selectAllowed = payload;
         },
         getAllValueSelectAllowed(state, payload){
-            state.allValueSelectAllowedValue = payload
-        }
+            state.allValueSelectAllowedValue = payload;
+            state.allValueSelectAllowedValue.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
+        },
+        delValueLoc (state, id){
+            let num = state.childCurLoc.findIndex(i => i.id === id);
+            state.childCurLoc.splice(num,1);
+        },
+
 
     },
     actions: {
@@ -411,6 +425,36 @@ export default {
                 await fb.database().ref('geoitems/'+geoValue.id+'/parents/'+idParent).set(idParent);
                 await fb.database().ref('geoitems/'+idParent+'/children/'+geoValue.id).set(geoValue.id);
 
+                commit('addChildLoc',geoValue);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async delValueFromLoc ({commit},{id, idParent}){
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                await fb.database().ref('geoitems/' + idParent + '/children/'+id).remove();
+                await fb.database().ref('geoitems/' + id + '/parents/'+idParent).remove();
+                commit('delValueLoc',{id})
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async goValueToLoc ({commit}, {idParent, id, name}) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                await fb.database().ref('geoitems/'+id+'/parents/'+idParent).set(idParent);
+                await fb.database().ref('geoitems/'+idParent+'/children/'+id).set(id);
+                const geoValue = new GeoValue(id, name );
                 commit('addChildLoc',geoValue);
                 commit('setLoading', false);
             }
