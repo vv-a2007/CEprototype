@@ -29,7 +29,7 @@
 
                               <v-list-tile-action>
                                   <v-btn icon ripple>
-                                     <v-icon color="grey darken-2"  @click.stop="delGeo(geoType.id)" v-if="curGeoName === geoType.geoname">backspace</v-icon>
+                                     <v-icon color="grey darken-2"  @click.stop="delGeo(geoType)" v-if="curGeoName === geoType.geoname">backspace</v-icon>
                                       <v-icon color="grey lighten-1"  @click.stop="" v-else :disabled="true">backspace</v-icon>
                                   </v-btn>
                                </v-list-tile-action>
@@ -75,7 +75,7 @@
                             <div>
                               <h3>Default Geo children</h3>
                                 <v-select ml-3
-                                    :items="geoTypes"
+                                    :items="geoTypesForDefCust"
                                     item-value="id"
                                     item-text="geoname"
                                     solo
@@ -99,7 +99,7 @@
                             <p>{{item.custChild}}</p>
                             </v-flex>
                             <v-flex xs2>
-                            <v-btn icon ripple>
+                            <v-btn icon ripple v-if="valueForCustDel (item.custValue, item.custChild)">
                                        <v-icon color="grey lighten-1"  @click="delCustomChild(item.id)">backspace</v-icon>
                                       </v-btn>
                             </v-flex>
@@ -154,21 +154,27 @@
                             <v-layout row wrap justify-space-arround mb-2>
                                 <v-flex xs6 sm4 md2 lg1 ml-3 v-for="val in curGeoValues" :key="val.name">
 
-                                        <v-badge rigth color="yellow" v-model="val.name === defValue" >
+                                        <v-badge rigth color="yellow" v-model="val.name === defValue" v-show="geoValueEdit === false">
                                            <v-icon slot="badge" dark small @click="()=>{ geoValueEdit = true; editDefValue =  defValue}" v-show="geoValueEdit === false" >edit</v-icon>
                                            <v-btn small  v-if="val.name === defValue && geoValueEdit === false" color="info" class="text-xs-center" @click="()=>{defValue=''; defValueId = null; curAllowedLocId = null; }">{{val.name}}</v-btn>
-                                           <v-flex xs12 v-else-if="(geoValueEdit === true) && (val.name === defValue)" >
-                                              <v-text-field
+                                            <v-btn small  v-else class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
+                                        </v-badge>
+
+
+                                           <v-flex xs12 v-if="(geoValueEdit === true) && (val.name === defValue)" >
+                                               <v-badge rigth color="red" v-model="val.name === defValue" >
+                                                   <v-icon slot="badge" dark small @click="delGeoValue(val)" v-if="valueForDel">delete_outline</v-icon>
+                                                   <v-text-field
                                                     type="text"
                                                     autofocus
                                                     v-model="editDefValue"
                                                     :value="defValue"
                                                     :rules="geoRules"
-                                              ></v-text-field>
-                                              <v-btn small  class="success text-xs-center" @click="editGeoValue">save</v-btn>
+                                                   ></v-text-field>
+                                               </v-badge>
+                                               <v-btn small  class="success text-xs-center" @click="editGeoValue">save</v-btn>
                                            </v-flex>
-                                           <v-btn small  v-else class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
-                                        </v-badge>
+
 
                                 </v-flex>
                                 <v-flex xs6 sm4 md2 lg1 ml-3 v-show="geoValueEdit === false && curGeoName ==='World region'">
@@ -202,7 +208,7 @@
                                      item-value="custChildId"
                                      item-text="custChild"
                                      v-model="curAllowedLocId"
-                                     :value="curAllowedLocId"
+                                     :value="curAllowedLoc"
                                      readonly
                                      small
                                      solo
@@ -210,7 +216,7 @@
                                      label="Select child geo type">
                                    </v-select>
                                </v-flex >
-                                <v-flex xs1 justify-center ml-1>
+                                <v-flex xs1 justify-center ml-2>
                                         <v-chip wigth="100%" label outline color="blue" class="text-xs-center"> Selected From ---> </v-chip>
                                 </v-flex>
                                 <v-flex xs2 ml-1>
@@ -229,7 +235,7 @@
                                     >
 
                                         <v-badge rigth color="red" v-model="val.name === defLoc">
-                                            <v-icon slot="badge" dark small  @click.stop="delValueFromLoc" v-show="val.name === defLoc" >delete_outline</v-icon>
+                                            <v-icon slot="badge" dark small  @click.stop="delValueFromLoc" v-show="val.name === defLoc" >indeterminate_check_box</v-icon>
                                             <v-btn small  v-if="val.name === defLoc" color="info" class="text-xs-center" @click="()=>{defLoc=''; defLocId = null}">{{val.name}}</v-btn>
                                             <v-btn small  v-else class="text-xs-center" :id=val.id  @click="()=>{ defLoc = val.name; defLocId = val.id}">{{val.name}}</v-btn>
                                         </v-badge>
@@ -263,7 +269,7 @@
                             <v-flex xs1 justify-center >
                                 <v-chip wigth="100%" label outline color="purple" class="text-xs-center"> ALL VALUES OF ---> </v-chip>
                             </v-flex>
-                            <v-flex xs1 ml-1>
+                            <v-flex xs1 ml-2>
                                 <v-btn small class="info text-xs-center" @click=""  >{{selectAllowedType}}</v-btn>
                             </v-flex>
 
@@ -325,6 +331,7 @@ export default {
                defValueId:null,
 
                curAllowedLocId:null,
+               curAllowedLoc:"",
 
                defLoc:"",
                defLocId:null,
@@ -347,12 +354,19 @@ export default {
         },
         computed : {
             geoTypes () { return this.$store.getters.getGeoTypes},
+            geoTypesForDefCust () {
+                let ar = [{id:null, geoname:""}];
+                ar = ar.concat(this.$store.getters.getGeoTypes);
+                return ar;
+            },
             curGeoValues () { return this.$store.getters.getAllValuesOfGeo},
             customChildren () { return this.$store.getters.getCustomChild},
             listAllowedGeo () { return this.$store.getters.getListAllowedGeo},
             curChildLoc () { return this.$store.getters.getCurChildLoc},
             selectAllowedType () { return this.$store.getters.getSelectAllowed.geoname},
-            allValueSelectAllowedValue () {return this.$store.getters.allValueSelectAllowedValue}
+            allValueSelectAllowedValue () {return this.$store.getters.allValueSelectAllowedValue},
+            valueForDel () { return this.$store.getters.valueForDel}
+
         },
         methods : {
             newGeoType () {
@@ -378,16 +392,14 @@ export default {
                 } else { this.defaultChildName=""}
 
 
-                this.$store.dispatch('getAllValuesOfGeo', this.curGeoId);
-
-                this.$store.dispatch('getCustomChild', this.curGeoId);
-
+                this.$store.dispatch('getAllValuesOfGeo', this.curGeoId).
+                   then(()=>{this.$store.dispatch('getCustomChild', this.curGeoId);});
 
 
             },
-            delGeo (key) {
+            delGeo (geoType) {
                 if (this.curGeoValues.length === 0) {
-                          this.$store.dispatch('delGeoType', key);}
+                          this.$store.dispatch('delGeoType', geoType);}
                     else {
                     this.$store.dispatch('setError', {message:'Geo type have child, not allowed to delete !'});
                 }
@@ -401,35 +413,53 @@ export default {
                         idParent: this.curGeoId,
                         custValueId: this.curCustValue,
                         custChildId: this.newCustChildId
-                    });
+                    }).
+                    then (()=>{if (this.defValueId !== null && this.curGeoId !== null) {this.checkDefValueForDel ();}});
                     this.curCustValue = null;
                     this.newCustChildId = null;
                 }
+
+            },
+            valueForCustDel (custValue, custChild) {
+                return (custValue === this.defValue && custChild === this.curAllowedLoc && this.curChildLoc.length < 1)
             },
 
             delCustomChild (key) {
-                this.$store.dispatch('delCustomChild', {id:key, idParent:this.curGeoId})
+                this.$store.dispatch('delCustomChild', {id:key, idParent:this.curGeoId}).
+                   then (()=>{if (this.defValueId !== null && this.curGeoId !== null) {this.checkDefValueForDel ();}})
+
             },
 
             addGeoValue () {
                 this.$store.dispatch('addGeoValue',{idParent:this.curGeoId, value:this.newGeoValue});
                 this.newGeoValue="";
             },
+
+            checkDefValueForDel () {
+                this.$store.dispatch('checkDefValueForDel', {geoId:this.curGeoId, valId:this.defValueId})
+            },
+
             setDefValue (event) {
                 this.curAllowedLocId = null;
+                this.curAllowedLoc = "";
                 this.defLoc="";
                 this.defLocId=null;
                 this.defValue = event.target.textContent;
                 this.defValueId = event.currentTarget.id;
                 this.editDefValue = this.defValue;
+                this.checkDefValueForDel ();
                 this.$store.dispatch('getListAllowedGeo', {geoId:this.curGeoId, valId:this.defValueId}).then (()=>{
                     let allowed = this.$store.getters.getListAllowedGeo;
-                    if (allowed.length > 0 ) {this.curAllowedLocId = allowed[0].custChildId}
+                    if (allowed.length > 0 ) {this.curAllowedLocId = allowed[0].custChildId; this.curAllowedLoc = allowed[0].custChild}
                     this.getChildLoc()
                 });
             },
             editGeoValue () {
                 this.$store.dispatch('editGeoValue', {id:this.defValueId, idParent:this.curGeoId, value:this.editDefValue});
+                this.geoValueEdit = false;
+            },
+            delGeoValue(val) {
+                this.$store.dispatch('delGeoValue', {id:this.defValueId, idParent:this.curGeoId});
                 this.geoValueEdit = false;
             },
 
@@ -438,12 +468,15 @@ export default {
                 this.$store.dispatch('getChildLoc',{itemGeoType:this.curAllowedLocId, idParent:this.defValueId})}
             },
             addChildLoc () {
-                this.$store.dispatch('addChildLoc',{itemGeoType:this.curAllowedLocId, idParent:this.defValueId, name:this.newChildloc});
+                this.$store.dispatch('addChildLoc',{itemGeoType:this.curAllowedLocId, idParent:this.defValueId, name:this.newChildloc}).
+                   then (()=>{if (this.defValueId !== null && this.curGeoId !== null) {this.checkDefValueForDel ();}});
                 this.getChildLoc ();
                 this.newChildloc="";
+
             },
             delValueFromLoc () {
-                this.$store.dispatch('delValueFromLoc',{id:this.defLocId, idParent:this.defValueId});
+                this.$store.dispatch('delValueFromLoc',{id:this.defLocId, idParent:this.defValueId}).
+                   then (()=>{if (this.defValueId !== null && this.curGeoId !== null) {this.checkDefValueForDel ();}});
                 this.defLoc="";
                 this.defLocId=null;
 

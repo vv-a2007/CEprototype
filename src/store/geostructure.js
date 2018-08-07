@@ -6,6 +6,7 @@ class GeoType {
         this.id = id;
         this.geoname = geoname;
         this.defaultChildId = defaultChildId;
+        this.busy = false;
     }
 
 }
@@ -48,7 +49,8 @@ export default {
         listAllowedGeo: [],
         childCurLoc: [],
         selectAllowed:{},
-        allValueSelectAllowedValue: []
+        allValueSelectAllowedValue: [],
+        valueForDel: false
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -75,9 +77,17 @@ export default {
             state.valuesCurGeo.push(payload);
             state.valuesCurGeo.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
         },
-        editGeoValue(state,payload){
+        editGeoValue(state, payload){
             state.valuesCurGeo[state.valuesCurGeo.findIndex(i => i.id === payload.id)].name = payload.value;
             state.valuesCurGeo.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
+        },
+        setValueForDel (state, payload) {
+            state.valueForDel = payload;
+        },
+        delGeoValue (state, payload){
+            state.valuesCurGeo.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
+            let num = state.valuesCurGeo.findIndex(i => i.id === payload);
+            state.valuesCurGeo.splice(num,1)
         },
         addCustChild(state, payload) {
             state.custChild.push(payload);
@@ -125,7 +135,9 @@ export default {
                 if (geoTypes !== null) {
                     Object.keys(geoTypes).forEach((key => {
                         const geoType = geoTypes[key];
-                        resultGeoTypes.push(new GeoType(key, geoType.geoname, geoType.defaultChildId))
+                        let newGeoType = new GeoType(key, geoType.geoname, geoType.defaultChildId);
+                        if (!!geoType.defaultChildId || !!geoType.value || !!geoType.custChild) newGeoType.busy = true;
+                        resultGeoTypes.push(newGeoType);
                     }));
                     commit('loadGeoTypes', resultGeoTypes);
                     commit('setLoading', false);
@@ -162,9 +174,12 @@ export default {
             commit('clearError');
             commit('setLoading', true);
             try {
-
-                const delGeo = await fb.database().ref('geotypes/'+payload).remove();
-                commit('delGeoType', payload);
+                if (payload.busy === false) {
+                    await fb.database().ref('geotypes/' + payload.id).remove();
+                    commit('delGeoType', payload.id);
+                } else {
+                    commit('setError','Geo Type have somethings and not alowed to delete !');
+                }
                 commit('setLoading', false);
             }
             catch (error) {
@@ -174,17 +189,19 @@ export default {
             }
             },
 
-        async getAllValuesOfGeo({commit}, payload) {
+        getAllValuesOfGeo: async function ({commit}, payload) {
+
             commit('clearError');
             commit('setLoading', true);
             const allValuesGeo = [];
+
             try {
-                const fbVal = await fb.database().ref('geotypes/'+payload+'/values').once('value');
+                const fbVal = await fb.database().ref('geotypes/' + payload + '/values').once('value');
                 const geoValues = fbVal.val();
                 if (geoValues !== null) {
                     Object.keys(geoValues).forEach((key => {
                         const geoValue = geoValues[key];
-                        allValuesGeo.push(new GeoValue(key, geoValue.name))
+                        allValuesGeo.push(new GeoValue(key, geoValue.name));
                     }));
                     commit('loadValuesCurGeo', allValuesGeo);
                     commit('setLoading', false);
@@ -247,6 +264,53 @@ export default {
              }
 
          },
+
+        async checkDefValueForDel ({commit}, payload){
+            commit('clearError');
+            commit('setValueForDel', false);
+            commit('setLoading', true);
+            try {
+                const cust = await fb.database().ref('geotypes/'+payload.geoId+'/custChild/custValueID'+payload.valId).once('value');
+                const custV = cust.val();
+                if (custV !== null) { commit('setValueForDel', false); commit('setLoading', false); return}
+                const child = await fb.database().ref('geoitems/'+payload.valId+'/children').once('value');
+                const childV = child.val();
+                if (childV !== null) { commit('setValueForDel', false); commit('setLoading', false); return}
+
+                commit('setValueForDel',true);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+     },
+
+        async delGeoValue({commit},{id, idParent}){
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                    await fb.database().ref('geotypes/'+idParent+'/values/'+id).remove();
+
+                    const fbVal = await fb.database().ref('geoitems/'+id+'/parents').once('value');
+                    const parents = fbVal.val();
+                    if (parents !== null) {
+                        Object.keys(parents).forEach((async key => {
+                        await fb.database().ref('geoitems/'+key+'/children/'+id).remove();
+                    }))}
+
+                    await fb.database().ref('geoitems/'+id).remove();
+
+                    commit('delGeoValue', id);
+                    commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
 
         async addCustChild({commit}, payload) {
             commit('clearError');
@@ -480,6 +544,7 @@ export default {
         getListAllowedGeo(state){return state.listAllowedGeo},
         getCurChildLoc (state) {return state.childCurLoc},
         getSelectAllowed (state) {return state.selectAllowed},
-        allValueSelectAllowedValue (state) {return state.allValueSelectAllowedValue}
+        allValueSelectAllowedValue (state) {return state.allValueSelectAllowedValue},
+        valueForDel (state) {return state.valueForDel}
      }
 }
