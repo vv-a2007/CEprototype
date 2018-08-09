@@ -106,22 +106,14 @@
                         </v-flex>
                     </v-layout>
 
-                        <v-spacer></v-spacer>
+                     <v-spacer></v-spacer>
 
-                        <v-breadcrumbs v-for="crumbs in curGeoBreadcrumbs" :key="crumbs[0].id">
-                            <v-icon slot="divider">forward</v-icon>
 
-                            <v-breadcrumbs-item
-                                    v-for="item in crumbs"
-                                    :key="item.name"
-                            >
-                                {{ item.name }}
-                            </v-breadcrumbs-item>
-                        </v-breadcrumbs>
 
 
                      <v-form v-model="valid1" ref="form1" lazy-validation>
                          <v-layout row justify-space-between>
+
                            <v-flex xs5>
                               <div>
                                 <v-select
@@ -157,7 +149,15 @@
         </v-layout>
     </v-container>
      <v-container v-show="this.curGeoId">
-        <v-layout row  >
+        <v-layout row wrap >
+            <v-flex no-wrap xs12 fill-height v-if="defValueId">
+                <div  v-for="(crumbs, index) in curGeoBreadcrumbs" :key="index" >
+                    <span style="color: blue" v-for="(item, index1) in crumbs" :key="item.id" >
+                        <v-icon   style="color: blue" slot="divider" v-if="index1>0">forward</v-icon>
+                        {{ item.name }}
+                    </span>
+                </div>
+            </v-flex>
             <v-flex xs12 >
                 <v-card>
                     <v-card-text>
@@ -209,7 +209,15 @@
         </v-layout>
      </v-container>
         <v-container v-show="this.defValueId">
-            <v-layout row justify-space-between >
+            <v-layout row justify-space-between wrap>
+                <v-flex no-wrap xs12 fill-height v-if="defLocId">
+                    <div  v-for="(crumbs, index) in curValBreadcrumbs" :key="index" >
+                    <span style="color: blue" v-for="(item, index1) in crumbs" :key="item.id" >
+                        <v-icon   style="color: blue" slot="divider" v-if="index1>0">forward</v-icon>
+                        {{ item.name }}
+                    </span>
+                    </div>
+                </v-flex>
                 <v-flex xs12 >
                     <v-card>
                         <v-card-text>
@@ -249,7 +257,9 @@
                                         <v-badge rigth color="red" v-model="val.name === defLoc">
                                             <v-icon slot="badge" dark small  @click.stop="delValueFromLoc" v-show="val.name === defLoc" >indeterminate_check_box</v-icon>
                                             <v-btn small  v-if="val.name === defLoc" color="info" class="text-xs-center" @click="()=>{defLoc=''; defLocId = null}">{{val.name}}</v-btn>
-                                            <v-btn small  v-else class="text-xs-center" :id=val.id  @click="()=>{ defLoc = val.name; defLocId = val.id}">{{val.name}}</v-btn>
+                                            <v-btn small  v-else class="text-xs-center" :id=val.id
+                                                   @click="()=> { defLoc = val.name; defLocId = val.id; setDefLoc();}">{{val.name}}
+                                            </v-btn>
                                         </v-badge>
 
                                     </v-flex>
@@ -377,7 +387,8 @@ export default {
             curChildLoc () { return this.$store.getters.getCurChildLoc},
             selectAllowedType () { return this.$store.getters.getSelectAllowed.geoname},
             allValueSelectAllowedValue () {return this.$store.getters.allValueSelectAllowedValue},
-            curGeoBreadcrumbs () {return this.$store.getters.getCurrentGeoBreadcrumbs}
+            curGeoBreadcrumbs () {return this.$store.getters.getCurrentGeoBreadcrumbs},
+            curValBreadcrumbs () {return this.$store.getters.getCurrentValBreadcrumbs}
 
         },
         methods : {
@@ -465,7 +476,7 @@ export default {
                     if (allowed.length > 0 ) {this.curAllowedLocId = allowed[0].custChildId; this.curAllowedLoc = allowed[0].custChild}
                     this.getChildLoc()
                 });
-                this.$store.dispatch('getCurrentItemBreadcrumbs', {idItem:this.defValueId})
+                this.$store.dispatch('getCurrentBreadcrumbs', {idItem:this.defValueId, type:"Geo"})
             },
             editGeoValue () {
                 this.$store.dispatch('editGeoValue', {id:this.defValueId, idParent:this.curGeoId, value:this.editDefValue});
@@ -475,7 +486,9 @@ export default {
                 this.$store.dispatch('delGeoValue', {id:this.defValueId, idParent:this.curGeoId});
                 this.geoValueEdit = false;
             },
-
+            setDefLoc () {
+                this.$store.dispatch('getCurrentBreadcrumbs', {idItem:this.defLocId, type:"Val"})
+            },
             getChildLoc () {
                 if (this.curAllowedLocId !=null && this.defValueId != null) {
                 this.$store.dispatch('getChildLoc',{itemGeoType:this.curAllowedLocId, idParent:this.defValueId})}

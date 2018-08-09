@@ -51,7 +51,8 @@ export default {
         selectAllowed:{},
         allValueSelectAllowedValue: [],
         valueForDel: false,
-        currentGeoBreadcrumbs: []
+        currentGeoBreadcrumbs: [],
+        currentValBreadcrumbs: []
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -125,6 +126,9 @@ export default {
         },
         currentGeoBreadcrumbs (state, payload){
            state.currentGeoBreadcrumbs = payload
+        },
+        currentValBreadcrumbs (state, payload){
+            state.currentValBreadcrumbs = payload
         }
 
 
@@ -540,7 +544,7 @@ export default {
             }
         },
 
-        async getCurrentItemBreadcrumbs ({commit},{idItem}){
+        async getCurrentBreadcrumbs ({commit},{idItem, type}){
             commit('clearError');
             commit('setLoading', true);
             let pathArray = [[]];
@@ -564,7 +568,7 @@ export default {
 
             try {
                 await treeGo([],idItem);
-                commit('currentGeoBreadcrumbs',pathArray);
+                commit('current'+type+'Breadcrumbs',pathArray);
                 commit('setLoading', false);
 
             }
@@ -585,6 +589,7 @@ export default {
         getSelectAllowed (state) {return state.selectAllowed},
         allValueSelectAllowedValue (state) {return state.allValueSelectAllowedValue},
         valueForDel (state) {return state.valueForDel},
-        getCurrentGeoBreadcrumbs (state) {return state.currentGeoBreadcrumbs}
+        getCurrentGeoBreadcrumbs (state) {return state.currentGeoBreadcrumbs},
+        getCurrentValBreadcrumbs (state) {return state.currentValBreadcrumbs}
      }
 }
