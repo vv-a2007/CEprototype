@@ -46,6 +46,7 @@
                                     v-model="emailBasic"
                                     :rules="emailRules"
                                     placeholder="Enter your basic e-mail"
+                                    autocomplete="email"
                                     @change="change=true"
                             ></v-text-field>
                             <v-text-field
@@ -55,6 +56,7 @@
                                     v-model="emailReserve"
                                     :rules="emailRules"
                                     placeholder="Enter your reserve e-mail"
+                                    autocomplete="email"
                                     @change="change=true"
                             ></v-text-field>
                         </v-form>

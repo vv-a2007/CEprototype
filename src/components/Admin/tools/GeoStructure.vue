@@ -108,6 +108,18 @@
 
                         <v-spacer></v-spacer>
 
+                        <v-breadcrumbs v-for="crumbs in curGeoBreadcrumbs" :key="crumbs[0].id">
+                            <v-icon slot="divider">forward</v-icon>
+
+                            <v-breadcrumbs-item
+                                    v-for="item in crumbs"
+                                    :key="item.name"
+                            >
+                                {{ item.name }}
+                            </v-breadcrumbs-item>
+                        </v-breadcrumbs>
+
+
                      <v-form v-model="valid1" ref="form1" lazy-validation>
                          <v-layout row justify-space-between>
                            <v-flex xs5>
@@ -270,7 +282,7 @@
                                 <v-chip wigth="100%" label outline color="purple" class="text-xs-center"> ALL VALUES OF ---> </v-chip>
                             </v-flex>
                             <v-flex xs1 ml-2>
-                                <v-btn small class="info text-xs-center" @click=""  >{{selectAllowedType}}</v-btn>
+                                <v-btn small class="cyan darken-3 text-xs-center" @click=""  >{{selectAllowedType}}</v-btn>
                             </v-flex>
 
                                 <v-flex xs10 >
@@ -365,7 +377,7 @@ export default {
             curChildLoc () { return this.$store.getters.getCurChildLoc},
             selectAllowedType () { return this.$store.getters.getSelectAllowed.geoname},
             allValueSelectAllowedValue () {return this.$store.getters.allValueSelectAllowedValue},
-            valueForDel () { return this.$store.getters.valueForDel}
+            curGeoBreadcrumbs () {return this.$store.getters.getCurrentGeoBreadcrumbs}
 
         },
         methods : {
@@ -453,6 +465,7 @@ export default {
                     if (allowed.length > 0 ) {this.curAllowedLocId = allowed[0].custChildId; this.curAllowedLoc = allowed[0].custChild}
                     this.getChildLoc()
                 });
+                this.$store.dispatch('getCurrentItemBreadcrumbs', {idItem:this.defValueId})
             },
             editGeoValue () {
                 this.$store.dispatch('editGeoValue', {id:this.defValueId, idParent:this.curGeoId, value:this.editDefValue});

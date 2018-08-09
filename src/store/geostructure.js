@@ -50,7 +50,8 @@ export default {
         childCurLoc: [],
         selectAllowed:{},
         allValueSelectAllowedValue: [],
-        valueForDel: false
+        valueForDel: false,
+        currentGeoBreadcrumbs: []
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -122,6 +123,9 @@ export default {
             let num = state.childCurLoc.findIndex(i => i.id === payload.id);
             state.childCurLoc.splice(num,1);
         },
+        currentGeoBreadcrumbs (state, payload){
+           state.currentGeoBreadcrumbs = payload
+        }
 
 
     },
@@ -417,7 +421,7 @@ export default {
             }
         },
 
-        getChildLoc: async function ({commit}, {itemGeoType, idParent}) {
+        async getChildLoc ({commit}, {itemGeoType, idParent}) {
 
             commit('clearError');
             commit('setLoading', true);
@@ -534,6 +538,41 @@ export default {
                 commit('setLoading', false);
                 throw error
             }
+        },
+
+        async getCurrentItemBreadcrumbs ({commit},{idItem}){
+            commit('clearError');
+            commit('setLoading', true);
+            let pathArray = [[]];
+            let i=0;
+
+            const treeGo = async function (array, id) {
+                const startItem = await fb.database().ref('geoitems/' + id).once('value');
+                const sItem = startItem.val();
+
+                if (sItem !== null) {array.push(new GeoValue(id, sItem.name))}
+
+                if (sItem !== null && !!sItem.parents) {
+                    await Promise.all(Object.keys(sItem.parents).map(key => treeGo(array,key)))
+                    }
+                    else {
+                    pathArray[i] = pathArray[i].concat(array);
+                    pathArray[i] = pathArray[i].reverse();
+                    i++;
+                }
+                };
+
+            try {
+                await treeGo([],idItem);
+                commit('currentGeoBreadcrumbs',pathArray);
+                commit('setLoading', false);
+
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
         }
      },
 
@@ -545,6 +584,7 @@ export default {
         getCurChildLoc (state) {return state.childCurLoc},
         getSelectAllowed (state) {return state.selectAllowed},
         allValueSelectAllowedValue (state) {return state.allValueSelectAllowedValue},
-        valueForDel (state) {return state.valueForDel}
+        valueForDel (state) {return state.valueForDel},
+        getCurrentGeoBreadcrumbs (state) {return state.currentGeoBreadcrumbs}
      }
 }

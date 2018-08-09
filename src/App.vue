@@ -76,13 +76,34 @@
               :key="item.title"
               :to="item.link"
               v-show="showMenuItem(item.showNotUser,item.showUser)"
-       >
+        >
          <v-icon left
                  v-if="item.icon"
                  >{{item.icon}}
          </v-icon>
            {{item.title}}
-       </v-btn>
+        </v-btn>
+
+           <v-btn flat
+                  to="/account"
+                  v-show="showMenuItem(false, true)"
+           >
+               <v-icon left
+               >perm_identity
+               </v-icon>
+               {{userLogin}}
+         </v-btn>
+
+           <v-btn flat
+                  to="/logout"
+                  v-show="showMenuItem(false, true)"
+           >
+               <v-icon left
+               >exit_to_app
+               </v-icon>
+           </v-btn>
+
+
        </v-toolbar-items>
      </v-toolbar>
 
@@ -137,9 +158,8 @@ export default {
             rightLinks :[
                 {icon:'build', title:'tools', link:'/tools', showNotUser:false, showUser:true},
                 {icon:'face', title:'Login', link:'/login', showNotUser:true,showUser:false },
-                {icon:'perm_identity', title:'Registration', link:'/registration', showNotUser:true, showUser:false},
-                {icon:'perm_identity', title: 'this.userLogin', link: '/account', showNotUser:false, showUser:true},
-                {icon:'exit_to_app', title:'Log Out', link:'/logout', showNotUser:false, showUser:true}
+                {icon:'perm_identity', title:'Registration', link:'/registration', showNotUser:true, showUser:false}
+
             ],
         }
     },
