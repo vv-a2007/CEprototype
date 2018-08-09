@@ -150,18 +150,19 @@
     </v-container>
      <v-container v-show="this.curGeoId">
         <v-layout row wrap >
-            <v-flex no-wrap xs12 fill-height v-if="defValueId">
-                <div  v-for="(crumbs, index) in curGeoBreadcrumbs" :key="index" >
-                    <span style="color: blue" v-for="(item, index1) in crumbs" :key="item.id" >
-                        <v-icon   style="color: blue" slot="divider" v-if="index1>0">forward</v-icon>
-                        {{ item.name }}
-                    </span>
-                </div>
-            </v-flex>
+
             <v-flex xs12 >
                 <v-card>
                     <v-card-text>
                         <h3>Geo values for : {{curGeoName}}</h3>
+                        <v-flex no-wrap xs12 fill-height v-if="defValueId">
+                            <div  v-for="(crumbs, index) in curGeoBreadcrumbs" :key="index" >
+                              <span style="color: blue" v-for="(item, index1) in crumbs" :key="item.id" >
+                                 <v-icon   style="color: blue" slot="divider" v-if="index1>0">arrow_right</v-icon>
+                                 {{ item.name }}
+                             </span>
+                            </div>
+                        </v-flex>
                         <v-container  grid-list-xs>
                             <v-layout row wrap justify-space-arround mb-2>
                                 <v-flex xs6 sm4 md2 lg1 ml-3 v-for="val in curGeoValues" :key="val.name">
@@ -210,14 +211,7 @@
      </v-container>
         <v-container v-show="this.defValueId">
             <v-layout row justify-space-between wrap>
-                <v-flex no-wrap xs12 fill-height v-if="defLocId">
-                    <div  v-for="(crumbs, index) in curValBreadcrumbs" :key="index" >
-                    <span style="color: blue" v-for="(item, index1) in crumbs" :key="item.id" >
-                        <v-icon   style="color: blue" slot="divider" v-if="index1>0">forward</v-icon>
-                        {{ item.name }}
-                    </span>
-                    </div>
-                </v-flex>
+
                 <v-flex xs12 >
                     <v-card>
                         <v-card-text>
@@ -247,6 +241,14 @@
                                    <v-spacer></v-spacer>
                                </v-flex>
                             </v-layout>
+                            <v-flex no-wrap xs12 fill-height v-if="defLocId">
+                                <div  v-for="(crumbs, index) in curValBreadcrumbs" :key="index" >
+                                  <span style="color: blue" v-for="(item, index1) in crumbs" :key="item.id" >
+                                      <v-icon   style="color: blue" slot="divider" v-if="index1>0">arrow_right</v-icon>
+                                      {{ item.name }}
+                                  </span>
+                                </div>
+                            </v-flex>
                             <v-container  grid-list-xs v-if="curAllowedLocId" >
                                 <v-layout row wrap justify-space-arround mb-2>
                                     <v-flex xs6 sm4 md2 lg1 ml-3
@@ -387,8 +389,8 @@ export default {
             curChildLoc () { return this.$store.getters.getCurChildLoc},
             selectAllowedType () { return this.$store.getters.getSelectAllowed.geoname},
             allValueSelectAllowedValue () {return this.$store.getters.allValueSelectAllowedValue},
-            curGeoBreadcrumbs () {return this.$store.getters.getCurrentGeoBreadcrumbs},
-            curValBreadcrumbs () {return this.$store.getters.getCurrentValBreadcrumbs}
+            curGeoBreadcrumbs () {if (this.defValueId !== null){ return this.$store.getters.getCurrentGeoBreadcrumbs} else {return []}},
+            curValBreadcrumbs () {if (this.defLocId !== null){ return this.$store.getters.getCurrentValBreadcrumbs} else {return []}}
 
         },
         methods : {
