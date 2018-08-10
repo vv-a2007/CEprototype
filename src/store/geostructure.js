@@ -52,7 +52,8 @@ export default {
         allValueSelectAllowedValue: [],
         valueForDel: false,
         currentGeoBreadcrumbs: [],
-        currentValBreadcrumbs: []
+        currentValBreadcrumbs: [],
+        allItemNames: []
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -129,6 +130,10 @@ export default {
         },
         currentValBreadcrumbs (state, payload){
             state.currentValBreadcrumbs = payload
+        },
+        allItemNames (state, payload){
+            state.allItemNames = payload;
+            state.allItemNames.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
         }
 
 
@@ -584,6 +589,28 @@ export default {
                 commit('setLoading', false);
                 throw error
             }
+        },
+        async getAllItemNames ({commit}){
+            commit('clearError');
+            commit('setLoading', true);
+            let arrayNames=[];
+            try {
+                const fbVal = await fb.database().ref('geoitems').once('value');
+                const geoItems = fbVal.val();
+                if (geoItems !== null) {
+                        Object.keys(geoItems).forEach((key => {
+                            const geoItem = geoItems[key];
+                            arrayNames.push(new GeoValue(key, geoItem.name))
+                        }));
+                       commit('allItemNames',arrayNames);
+                }
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
         }
      },
 
@@ -597,6 +624,7 @@ export default {
         allValueSelectAllowedValue (state) {return state.allValueSelectAllowedValue},
         valueForDel (state) {return state.valueForDel},
         getCurrentGeoBreadcrumbs (state) {return state.currentGeoBreadcrumbs},
-        getCurrentValBreadcrumbs (state) {return state.currentValBreadcrumbs}
+        getCurrentValBreadcrumbs (state) {return state.currentValBreadcrumbs},
+        allItemNames (state) {return state.allItemNames}
      }
 }

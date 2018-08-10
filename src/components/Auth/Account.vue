@@ -72,11 +72,21 @@
                 </v-card>
             </v-flex>
             <v-spacer></v-spacer>
-            <v-flex xs12 md5  justify-center wrap >
+            <v-flex xs12 md5  justify-center >
                 <v-card>
-                    <v-card-title primary-title >
-                        <div class="headline">Delivery addreses</div>
-                    </v-card-title>
+                    <v-layout row >
+                      <v-flex xs8>
+                        <v-card-title primary-title>
+                           <div class="headline">Delivery addreses</div>
+                        </v-card-title>
+                      </v-flex>
+                      <v-flex xs4>
+                        <location-modal
+                           :id="idCurLocation"
+                           sort="New location">
+                        </location-modal>
+                      </v-flex>
+                    </v-layout>
                 </v-card>
             </v-flex>
         </v-layout>
@@ -84,9 +94,11 @@
 </template>
 
 <script>
+    import  LocationModal from '../Services/Location_modal'
+
     export default {
         name: "Account",
-
+        components:{LocationModal},
         data () {
             return {
                 valid:false,
@@ -97,6 +109,8 @@
                 phone: "",
                 emailBasic: "",
                 emailReserve: "",
+
+                idCurLocation: null,
 
                 emailRules: [
                     v => !!v || 'E-mail is required',
