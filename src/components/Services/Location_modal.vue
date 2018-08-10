@@ -7,6 +7,7 @@
                     <v-flex xs-10>
                         <v-card-text>
                             <v-autocomplete
+                                    v-model="model"
                                     :items="arrayItemNames"
                                     color="blue"
                                     return-object
@@ -15,9 +16,9 @@
                                     label="Locations"
                                     @change='searchLoc'
                                     placeholder="Enter any part of your location"
-                                    prepend-icon="mdi-database-search"
+                                    prepend-inner-icon="youtube_searched_for"
                                     autofocus
-                                    box
+                                    clearable
                             ></v-autocomplete>
                         </v-card-text>
                     </v-flex>
@@ -51,7 +52,8 @@
         data() {
             return {
                 modal: false,
-                allOk: false
+                allOk: false,
+                model:false
             }
         },
         computed : {
