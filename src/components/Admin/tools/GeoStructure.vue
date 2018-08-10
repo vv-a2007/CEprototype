@@ -168,7 +168,7 @@
                                 <v-flex xs6 sm4 md2 lg1 ml-3 v-for="val in curGeoValues" :key="val.name">
 
                                         <v-badge rigth color="yellow" v-model="val.name === defValue" v-show="geoValueEdit === false">
-                                           <v-icon slot="badge" dark small @click="()=>{ geoValueEdit = true; editDefValue =  defValue}" v-show="geoValueEdit === false" >edit</v-icon>
+                                           <v-icon slot="badge" dark small @click="() => { geoValueEdit = true; editDefValue = defValue} " v-show="geoValueEdit === false" >edit</v-icon>
                                            <v-btn small  v-if="val.name === defValue && geoValueEdit === false" color="info" class="text-xs-center" @click="()=>{defValue=''; defValueId = null; curAllowedLocId = null; }">{{val.name}}</v-btn>
                                             <v-btn small  v-else class="text-xs-center" :id=val.id  @click="setDefValue">{{val.name}}</v-btn>
                                         </v-badge>
@@ -389,6 +389,7 @@ export default {
             curChildLoc () { return this.$store.getters.getCurChildLoc},
             selectAllowedType () { return this.$store.getters.getSelectAllowed.geoname},
             allValueSelectAllowedValue () {return this.$store.getters.allValueSelectAllowedValue},
+            valueForDel () {return this.$store.getters.valueForDel},
             curGeoBreadcrumbs () {if (this.defValueId !== null){ return this.$store.getters.getCurrentGeoBreadcrumbs} else {return []}},
             curValBreadcrumbs () {if (this.defLocId !== null){ return this.$store.getters.getCurrentValBreadcrumbs} else {return []}}
 
@@ -487,6 +488,12 @@ export default {
             delGeoValue(val) {
                 this.$store.dispatch('delGeoValue', {id:this.defValueId, idParent:this.curGeoId});
                 this.geoValueEdit = false;
+                this.defValue = "";
+                this.defValueId = null;
+                this.curAllowedLocId = null;
+                this.curAllowedLoc = "";
+                this.defLoc="";
+                this.defLocId=null;
             },
             setDefLoc () {
                 this.$store.dispatch('getCurrentBreadcrumbs', {idItem:this.defLocId, type:"Val"})

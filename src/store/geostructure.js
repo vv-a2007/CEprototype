@@ -261,8 +261,8 @@ export default {
              commit('clearError');
              commit('setLoading', true);
              try {
-                 await fb.database().ref('geotypes/'+idParent+'/values/'+id).set({name:value});
-                 await fb.database().ref('geoitems/'+id).set({name:value});
+                 await fb.database().ref('geotypes/'+idParent+'/values/'+id).update({name:value});
+                 await fb.database().ref('geoitems/'+id).update({name:value});
                  commit('editGeoValue',{id,value});
              }
              catch (error) {
@@ -435,13 +435,11 @@ export default {
             async function getName(id) {
 
                 let fbVal = await fb.database().ref('geoitems/' + id).once('value');
-                const childList = fbVal.val();
-                if (childList !== null) {
-                    const name = childList.name;
+                const child = fbVal.val();
+                if (child !== null && child.geoType === itemGeoType) {
+                    const name = child.name;
                     const loc = new ChildLoc(id, name);
                     selectChildLoc.push(loc);
-                } else {
-                    selectChildLoc.push("Wrong DATA!")
                 }
             }
 
@@ -475,9 +473,7 @@ export default {
                         allValueSelectAllowed.push(loc);
                     }));
                 }
-
                 commit('getAllValueSelectAllowed',allValueSelectAllowed);
-                commit('getSelectAllowed',{id:fbVal1.key, geoname:childVal1.geoname});
             }
             catch (error) {
                 commit('setError', error.message);
@@ -546,31 +542,42 @@ export default {
 
         async getCurrentBreadcrumbs ({commit},{idItem, type}){
             commit('clearError');
-            commit('setLoading', true);
-            let pathArray = [[]];
-            let i=0;
+            let PromiseArray=[];
+            let pathArray = [];
+            pathArray[0] = [];
 
-            const treeGo = async function (array, id) {
-                const startItem = await fb.database().ref('geoitems/' + id).once('value');
-                const sItem = startItem.val();
+            const treeGo = async function (z, id) {
 
-                if (sItem !== null) {array.push(new GeoValue(id, sItem.name))}
-
-                if (sItem !== null && !!sItem.parents) {
-                    await Promise.all(Object.keys(sItem.parents).map(key => treeGo(array,key)))
-                    }
-                    else {
-                    pathArray[i] = pathArray[i].concat(array);
-                    pathArray[i] = pathArray[i].reverse();
-                    i++;
-                }
+                const getItem = async function (id) {
+                    const startItem = await fb.database().ref('geoitems/' + id).once('value');
+                    return startItem.val();
                 };
 
-            try {
-                await treeGo([],idItem);
-                commit('current'+type+'Breadcrumbs',pathArray);
-                commit('setLoading', false);
+                const sItem = await getItem(id);
 
+                if (sItem !== null) {pathArray[z].push(new GeoValue(id, sItem.name))}
+
+                if (sItem !== null && !!sItem.parents) {
+
+                        Object.keys(sItem.parents).map(async key => {
+                            let y = Object.keys(sItem.parents).indexOf(key);
+                            let tempArray = [];
+                            for (let i = 0; i < pathArray[z].length; i++) {
+                                tempArray[i] = new GeoValue(pathArray[z][i].id, pathArray[z][i].name);
+                            }
+                            pathArray[z + y] = tempArray;
+                            PromiseArray.push(Promise.resolve(await treeGo(z + y, key)));
+                        });
+                    }
+                    else {
+                        pathArray[z] = pathArray[z].reverse();
+                        commit('current'+type+'Breadcrumbs',pathArray);
+                     }
+
+            };
+
+            try {
+                await treeGo(0,idItem);
             }
             catch (error) {
                 commit('setError',error.message);
