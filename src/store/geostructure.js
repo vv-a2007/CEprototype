@@ -53,6 +53,7 @@ export default {
         valueForDel: false,
         currentGeoBreadcrumbs: [],
         currentValBreadcrumbs: [],
+        currentSearchBreadcrumbs: [],
         allItemNames: []
     },
     mutations: {
@@ -130,6 +131,9 @@ export default {
         },
         currentValBreadcrumbs (state, payload){
             state.currentValBreadcrumbs = payload
+        },
+        currentSearchBreadcrumbs (state, payload){
+            state.currentSearchBreadcrumbs = payload
         },
         allItemNames (state, payload){
             state.allItemNames = payload;
@@ -549,7 +553,7 @@ export default {
             commit('clearError');
             let PromiseArray=[];
             let pathArray = [];
-            pathArray[0] = [];
+            pathArray[0]=[];
 
             const treeGo = async function (z, id) {
 
@@ -576,13 +580,22 @@ export default {
                     }
                     else {
                         pathArray[z] = pathArray[z].reverse();
+                        if (pathArray[0].length === 0) { pathArray =[] }
                         commit('current'+type+'Breadcrumbs',pathArray);
+                        commit('setLoading', false);
                      }
 
             };
 
             try {
-                await treeGo(0,idItem);
+                if (idItem !== null) {
+                    await treeGo(0,idItem);
+                }
+                else {
+                    commit('current'+type+'Breadcrumbs',[]);
+                    commit('setLoading', false);
+                }
+
             }
             catch (error) {
                 commit('setError',error.message);
@@ -625,6 +638,7 @@ export default {
         valueForDel (state) {return state.valueForDel},
         getCurrentGeoBreadcrumbs (state) {return state.currentGeoBreadcrumbs},
         getCurrentValBreadcrumbs (state) {return state.currentValBreadcrumbs},
+        getCurrentSearchBreadcrumbs (state) {return state.currentSearchBreadcrumbs},
         allItemNames (state) {return state.allItemNames}
      }
 }

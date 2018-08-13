@@ -13,6 +13,7 @@
                                     return-object
                                     item-text="name"
                                     item-value="id"
+                                    id="id"
                                     label="Locations"
                                     @change='searchLoc'
                                     placeholder="Enter any part of your location"
@@ -21,6 +22,22 @@
                                     clearable
                             ></v-autocomplete>
                         </v-card-text>
+                        <v-select
+                            v-if="arPaths.length>0"
+                            :items="arPaths"
+                            item-value="num"
+                            item-text="str"
+                            :v-model="modelS"
+                            :value="modelS"
+                            readonly
+                            small
+                            solo
+                            @change="selectPath"
+                            label="Select variant of location"
+                            persistent-hint
+                            :hint="hintS"
+                        >
+                        </v-select>
                     </v-flex>
                 </v-layout>
                 <v-layout>
@@ -53,12 +70,27 @@
             return {
                 modal: false,
                 allOk: false,
-                model:false
+                model:false,
+                modelS:false,
+                hintS:""
             }
         },
         computed : {
             arrayItemNames () {
                 return this.$store.getters.allItemNames;
+            },
+            currentSearchBreadcrumbs () {return this.$store.getters.getCurrentSearchBreadcrumbs},
+            arPaths () {
+                let ar=[];
+                for (let i=0; i<this.currentSearchBreadcrumbs.length; i++) {
+                    ar[i]={num:i, str:""};
+                    for (let y=0; y<this.currentSearchBreadcrumbs[i].length; y++) {
+                        ar[i].str += this.currentSearchBreadcrumbs[i][y].name + " / "
+                    }
+                }
+                if (this.currentSearchBreadcrumbs.length>1) { this.hintS="You have more 1 variants"} else { this.hintS=""};
+                if (this.currentSearchBreadcrumbs.length>0) { this.modelS=0}
+                return ar;
             }
         },
         created () {
@@ -66,15 +98,27 @@
         },
         methods : {
             onCancel () {
+                this.model = false;
+                this.modelS = false;
+                this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
                 this.modal = false;
             },
             onSave () {
+                this.model = false;
+                this.modelS = false;
+                this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
                 this.modal = false;
             },
             searchLoc (item) {
-                if (item.id !== null) {
-                     console.log(this.searchText)
+                if (item !== null && item.id !== null) {
+                    this.$store.dispatch('getCurrentBreadcrumbs', { idItem:item.id, type:'Search'});
+
+                } else {
+                    this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
                 }
+            },
+            selectPath () {
+
             }
         }
     }
