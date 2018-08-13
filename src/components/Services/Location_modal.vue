@@ -1,5 +1,5 @@
-<template>
-    <v-dialog width="600px" v-model="modal" persistent>
+<template >
+    <v-dialog width="50%" v-model="modal" persistent>
         <v-btn flat large class="warning" slot="activator">{{sort}}</v-btn>
         <v-card>
             <v-container>
@@ -7,6 +7,7 @@
                     <v-flex xs-10>
                         <v-card-text>
                             <v-autocomplete
+                                    v-if="!realLoc"
                                     v-model="model"
                                     :items="arrayItemNames"
                                     color="blue"
@@ -14,7 +15,7 @@
                                     item-text="name"
                                     item-value="id"
                                     id="id"
-                                    label="Locations"
+                                    label="Search locations"
                                     @change='searchLoc'
                                     placeholder="Enter any part of your location"
                                     prepend-inner-icon="youtube_searched_for"
@@ -24,6 +25,7 @@
 
                             <v-select
                               v-if="arPaths.length>0"
+                              v-show="!realLoc"
                               :items="arPaths"
                               item-value="num"
                               item-text="str"
@@ -40,6 +42,15 @@
                           >
                           </v-select>
 
+                            <v-text-field
+                                    v-if="realLoc"
+                                    v-model="realLocStr"
+                                    label="Location :"
+                                    readonly
+                                    :append-icon=" !!realLoc ? 'undo' : ''"
+                                    @click:append="delLastItem"
+                            ></v-text-field>
+
                             <v-select
                                     v-if="arNextItems.length>0"
                                     :items="arNextItems"
@@ -47,6 +58,7 @@
                                     item-text="name"
                                     :v-model="modelN"
                                     :value="modelN"
+                                    return-object
                                     readonly
                                     small
                                     solo
@@ -56,6 +68,8 @@
                             </v-select>
 
                         </v-card-text>
+
+
                     </v-flex>
                 </v-layout>
                 <v-layout>
@@ -88,6 +102,8 @@ export default {
             return {
                 modal: false,
                 allOk: false,
+                realLoc: null,
+                realLocStr:"",
                 model:false,
                 modelS:false,
                 modelN:false,
@@ -102,11 +118,11 @@ export default {
             arPaths () {
                 let ar=[];
                 for (let i=0; i<this.currentSearchBreadcrumbs.length; i++) {
-                    ar[i]={num:i, str:"", lastId:null, iDar:[]};
+                    ar[i]={num:i, str:"", lastId:null, listLoc:[]};
                     for (let y=0; y<this.currentSearchBreadcrumbs[i].length; y++) {
                         ar[i].str += this.currentSearchBreadcrumbs[i][y].name + " / ";
                         ar[i].lastId = this.currentSearchBreadcrumbs[i][y].id;
-                        ar[i].iDar[y] = this.currentSearchBreadcrumbs[i][y].id;
+                        ar[i].listLoc = this.currentSearchBreadcrumbs[i];
                     }
                 }
                 if (this.currentSearchBreadcrumbs.length>1) {this.hintS="You have more 1 variants"} else { this.hintS=""}
@@ -137,15 +153,30 @@ export default {
 
                 } else {
                     this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
+                    this.realLoc =null; this.realLocStr =""
                 }
             },
             selectPath (value) {
-                if (value !== null ) { this.$store.dispatch(('getNextItemSelect'),{lastId:this.arPaths[value].lastId})}
-                else {this.$store.dispatch(('getNextItemSelect'),{lastId:null})}
+                if (value !== null ) {
+                    this.$store.dispatch(('getNextItemSelect'),{lastId:this.arPaths[value].lastId});
+                    this.realLoc = this.arPaths[value].listLoc;
+                    this.realLocStr = this.arPaths[value].str;
+                }
+                else {this.$store.dispatch(('getNextItemSelect'),{lastId:null}); this.realLoc =null; this.realLocStr =""}
 
             },
             selectNext (value) {
-
+                this.realLoc.push({id:value.id, name:value.name});
+                this.realLocStr += value.name+' / ';
+                this.$store.dispatch(('getNextItemSelect'),{lastId:value.id});
+            },
+            delLastItem () {
+                this.realLoc.splice(this.realLoc.length-1,1); this.realLocStr="";
+                for (let y=0; y<this.realLoc.length; y++) {this.realLocStr += this.realLoc[y].name+' / '}
+                if (this.realLoc.length === 0) { this.realLoc = null; this.modelN=false; this.modelS=false; this.model=false;
+                                                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
+                                               }
+                  else {this.$store.dispatch(('getNextItemSelect'),{lastId:this.realLoc[this.realLoc.length-1].id})}
             }
         }
     }
