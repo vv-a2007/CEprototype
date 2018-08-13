@@ -1,5 +1,5 @@
 <template>
-    <v-dialog width="600px" v-model="modal">
+    <v-dialog width="600px" v-model="modal" persistent>
         <v-btn flat large class="warning" slot="activator">{{sort}}</v-btn>
         <v-card>
             <v-container>
@@ -21,23 +21,41 @@
                                     autofocus
                                     clearable
                             ></v-autocomplete>
+
+                            <v-select
+                              v-if="arPaths.length>0"
+                              :items="arPaths"
+                              item-value="num"
+                              item-text="str"
+                              :v-model="modelS"
+                              :value="modelS"
+                              readonly
+                              small
+                              solo
+                              @change="selectPath"
+                              label="Select variant of location"
+                              persistent-hint
+                              :hint="hintS"
+                              clearable
+                          >
+                          </v-select>
+
+                            <v-select
+                                    v-if="arNextItems.length>0"
+                                    :items="arNextItems"
+                                    item-value="id"
+                                    item-text="name"
+                                    :v-model="modelN"
+                                    :value="modelN"
+                                    readonly
+                                    small
+                                    solo
+                                    @change="selectNext"
+                                    label="Select detail"
+                            >
+                            </v-select>
+
                         </v-card-text>
-                        <v-select
-                            v-if="arPaths.length>0"
-                            :items="arPaths"
-                            item-value="num"
-                            item-text="str"
-                            :v-model="modelS"
-                            :value="modelS"
-                            readonly
-                            small
-                            solo
-                            @change="selectPath"
-                            label="Select variant of location"
-                            persistent-hint
-                            :hint="hintS"
-                        >
-                        </v-select>
                     </v-flex>
                 </v-layout>
                 <v-layout>
@@ -63,7 +81,7 @@
 
 <script>
 
-    export default {
+export default {
         name: "LocationModal",
         props: ['id', 'sort'],
         data() {
@@ -72,6 +90,7 @@
                 allOk: false,
                 model:false,
                 modelS:false,
+                modelN:false,
                 hintS:""
             }
         },
@@ -83,15 +102,18 @@
             arPaths () {
                 let ar=[];
                 for (let i=0; i<this.currentSearchBreadcrumbs.length; i++) {
-                    ar[i]={num:i, str:""};
+                    ar[i]={num:i, str:"", lastId:null, iDar:[]};
                     for (let y=0; y<this.currentSearchBreadcrumbs[i].length; y++) {
-                        ar[i].str += this.currentSearchBreadcrumbs[i][y].name + " / "
+                        ar[i].str += this.currentSearchBreadcrumbs[i][y].name + " / ";
+                        ar[i].lastId = this.currentSearchBreadcrumbs[i][y].id;
+                        ar[i].iDar[y] = this.currentSearchBreadcrumbs[i][y].id;
                     }
                 }
-                if (this.currentSearchBreadcrumbs.length>1) { this.hintS="You have more 1 variants"} else { this.hintS=""};
-                if (this.currentSearchBreadcrumbs.length>0) { this.modelS=0}
+                if (this.currentSearchBreadcrumbs.length>1) {this.hintS="You have more 1 variants"} else { this.hintS=""}
+
                 return ar;
-            }
+            },
+            arNextItems () { return this.$store.getters.getArrayNextItems}
         },
         created () {
             this.$store.dispatch('getAllItemNames');
@@ -117,7 +139,12 @@
                     this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
                 }
             },
-            selectPath () {
+            selectPath (value) {
+                if (value !== null ) { this.$store.dispatch(('getNextItemSelect'),{lastId:this.arPaths[value].lastId})}
+                else {this.$store.dispatch(('getNextItemSelect'),{lastId:null})}
+
+            },
+            selectNext (value) {
 
             }
         }

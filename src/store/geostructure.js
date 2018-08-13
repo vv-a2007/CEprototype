@@ -54,7 +54,8 @@ export default {
         currentGeoBreadcrumbs: [],
         currentValBreadcrumbs: [],
         currentSearchBreadcrumbs: [],
-        allItemNames: []
+        allItemNames: [],
+        arrayNextItems: []
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -138,6 +139,11 @@ export default {
         allItemNames (state, payload){
             state.allItemNames = payload;
             state.allItemNames.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
+        },
+        arrayNextItems (state, payload) {
+            state.arrayNextItems = payload;
+            state.arrayNextItems.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
+
         }
 
 
@@ -593,6 +599,7 @@ export default {
                 }
                 else {
                     commit('current'+type+'Breadcrumbs',[]);
+                    commit('arrayNextItems',[]);
                     commit('setLoading', false);
                 }
 
@@ -624,6 +631,47 @@ export default {
                 commit('setLoading', false);
                 throw error
             }
+        },
+        async getNextItemSelect ({commit},{lastId}) {
+
+            let PromiseArray=[];
+
+            const getItem = async function (id) {
+                const startItem = await fb.database().ref('geoitems/' + id).once('value');
+                let item = startItem.val();
+                arrayNames.push(new GeoValue(startItem.key, item.name));
+                return item;
+            };
+
+            commit('clearError');
+            commit('setLoading', true);
+            let arrayNames=[];
+            if (lastId !== null) {
+                try {
+                    const fbVal = await fb.database().ref('geoitems/' + lastId + '/children').once('value');
+                    const geoItems = fbVal.val();
+                    if (geoItems !== null) {
+
+                        Object.keys(geoItems).forEach((async key => {
+                            PromiseArray.push(Promise.resolve(await getItem(key)));
+                        }));
+
+                    }
+
+                    commit('arrayNextItems', arrayNames);
+                    commit('setLoading', false);
+                }
+                catch (error) {
+                    commit('setError', error.message);
+                    commit('setLoading', false);
+                    throw error
+                }
+            }
+            else {
+                commit('arrayNextItems', []);
+                commit('setLoading', false);
+            }
+
         }
      },
 
@@ -639,6 +687,7 @@ export default {
         getCurrentGeoBreadcrumbs (state) {return state.currentGeoBreadcrumbs},
         getCurrentValBreadcrumbs (state) {return state.currentValBreadcrumbs},
         getCurrentSearchBreadcrumbs (state) {return state.currentSearchBreadcrumbs},
-        allItemNames (state) {return state.allItemNames}
+        allItemNames (state) {return state.allItemNames},
+        getArrayNextItems (state) {return state.arrayNextItems}
      }
 }
