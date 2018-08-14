@@ -74,26 +74,66 @@
             <v-spacer></v-spacer>
             <v-flex xs12 md5  justify-center >
                 <v-card>
-                    <v-layout row >
-                      <v-flex xs8>
+                    <v-layout row   d-flex>
+                      <v-flex xs11 justify-center>
                         <v-card-title primary-title>
                            <div class="headline">Delivery addreses</div>
                         </v-card-title>
                       </v-flex>
-                      <v-flex xs4>
+                      <v-flex xs1  justify-center align-content-center >
                         <location-modal
-                           :id="idCurLocation"
-                           sort="New location">
+                           :id-user="idUser"
+                           :id="null"
+                           icon="add_circle_outline"
+                           :address-line="true"
+                           :postcode="true"
+                        >
                         </location-modal>
                       </v-flex>
                     </v-layout>
                 </v-card>
+                <v-card
+                    v-for="locate in deliveryList"
+                    :key="locate.id"
+                    color='blue lighten-3'
+
+                >
+                    <v-layout mt-2 row  d-flex>
+                        <v-flex xs2>
+                            <v-card-title primary-title >
+                                <div class="text--primary">{{locate.postcode}}</div>
+                            </v-card-title>
+                        </v-flex>
+                        <v-flex xs4>
+                           <v-card-title primary-title >
+                               <div class="text--primary">{{locate.str}}</div>
+                           </v-card-title>
+                        </v-flex>
+                        <v-flex xs5 justify-center>
+                           <v-card-title primary-title >
+                              <div class="text--primary">{{locate.adr}}</div>
+                           </v-card-title>
+                        </v-flex>
+                        <v-flex xs1 justify-center  >
+                            <location-modal
+                                    :id-user="idUser"
+                                    :id="locate.id"
+                                     icon="edit"
+                                    :address-line="true"
+                                    :postcode="true"
+                            >
+                            </location-modal>
+                        </v-flex>
+                    </v-layout>
+                </v-card>
+
             </v-flex>
         </v-layout>
     </v-container>
 </template>
 
 <script>
+
     import  LocationModal from '../Services/Location_modal'
 
     export default {
@@ -110,7 +150,6 @@
                 emailBasic: "",
                 emailReserve: "",
 
-                idCurLocation: null,
 
                 emailRules: [
                     v => !!v || 'E-mail is required',
@@ -122,7 +161,9 @@
             }
         },
 
-        computed : { idUser () {return this.$store.getters.userId} },
+        computed : { idUser () {return this.$store.getters.userId},
+                     deliveryList () { return this.$store.getters.getLocateList}
+        },
 
         created () {
             if (this.idUser) {
@@ -131,6 +172,7 @@
                 this.phone = this.$store.getters.user.phone;
                 this.emailBasic = this.$store.getters.user.emailBasic;
                 this.emailReserve = this.$store.getters.user.emailReserve;
+                this.$store.dispatch('getDeliveryLoc',{idUser: this.idUser});
             }
         },
 

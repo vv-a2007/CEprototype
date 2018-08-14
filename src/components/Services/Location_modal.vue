@@ -1,9 +1,11 @@
 <template >
-    <v-dialog width="50%" v-model="modal" persistent>
-        <v-btn flat large class="warning" slot="activator">{{sort}}</v-btn>
+    <v-dialog width="50%" v-model="modal" persistent mt3>
+
+             <v-btn icon large slot="activator"> <v-icon center>{{icon}}</v-icon> </v-btn>
+
         <v-card>
             <v-container>
-                <v-layout row v-if="!id">
+                <v-layout row >
                     <v-flex xs-10>
                         <v-card-text>
                             <v-autocomplete
@@ -67,16 +69,23 @@
                             >
                             </v-select>
 
+                            <v-text-field
+                                    v-if="realLoc"
+                                    v-model="realLocAdr"
+                                    :value="realLocAdr"
+                                    label="Address :"
+                                    @input="setAdr"
+                            ></v-text-field>
+                            <v-text-field
+                                    v-if="realLoc"
+                                    v-model="realLocPost"
+                                    :value="realLocPost"
+                                    label="Postcode :"
+                                    @input="setPost"
+                            ></v-text-field>
                         </v-card-text>
 
 
-                    </v-flex>
-                </v-layout>
-                <v-layout>
-                    <v-flex xs-10>
-                        <v-card-text>
-
-                        </v-card-text>
                     </v-flex>
                 </v-layout>
                 <v-layout>
@@ -97,13 +106,15 @@
 
 export default {
         name: "LocationModal",
-        props: ['id', 'sort'],
+        props: ['idUser', 'id', 'icon', 'addressLine', 'postcode'],
         data() {
             return {
                 modal: false,
                 allOk: false,
                 realLoc: null,
                 realLocStr:"",
+                realLocAdr:"",
+                realLocPost:"",
                 model:false,
                 modelS:false,
                 modelN:false,
@@ -111,16 +122,19 @@ export default {
             }
         },
         computed : {
+
             arrayItemNames () {
                 return this.$store.getters.allItemNames;
             },
+
             currentSearchBreadcrumbs () {return this.$store.getters.getCurrentSearchBreadcrumbs},
+
             arPaths () {
                 let ar=[];
                 for (let i=0; i<this.currentSearchBreadcrumbs.length; i++) {
                     ar[i]={num:i, str:"", lastId:null, listLoc:[]};
                     for (let y=0; y<this.currentSearchBreadcrumbs[i].length; y++) {
-                        ar[i].str += this.currentSearchBreadcrumbs[i][y].name + " / ";
+                        ar[i].str += this.currentSearchBreadcrumbs[i][y].name + " , ";
                         ar[i].lastId = this.currentSearchBreadcrumbs[i][y].id;
                         ar[i].listLoc = this.currentSearchBreadcrumbs[i];
                     }
@@ -129,22 +143,45 @@ export default {
 
                 return ar;
             },
+
             arNextItems () { return this.$store.getters.getArrayNextItems}
         },
+
         created () {
             this.$store.dispatch('getAllItemNames');
+            if (this.id !== null) {
+                 let num = this.$store.getters.getLocateList.findIndex(i=>i.id === this.id);
+                 let curLoc = this.$store.getters.getLocateList[num];
+                 this.realLoc = curLoc.loc;
+                 this.realLocAdr = curLoc.adr;
+                 this.realLocStr = curLoc.str;
+                 this.realLocPost = curLoc.postcode;
+                 this.allOk = (!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
+            }
         },
+
+
         methods : {
             onCancel () {
                 this.model = false;
                 this.modelS = false;
                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
+
                 this.modal = false;
             },
             onSave () {
+                if (this.id === null) {
+                    this.$store.dispatch('addLocation',{idUser:this.idUser, loc:this.realLoc, adr:this.realLocAdr, str:this.realLocStr, postcode:this.realLocPost})
+                } else {
+                    let id = this.idUser;
+                    this.$store.dispatch('editLocation',{idUser:this.idUser, id:this.id, loc:this.realLoc, adr:this.realLocAdr, str:this.realLocStr, postcode:this.realLocPost}).
+                      then(()=>{this.$store.dispatch('getDeliveryLoc', {idUser: id})})
+                }
+
                 this.model = false;
                 this.modelS = false;
                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
+
                 this.modal = false;
             },
             searchLoc (item) {
@@ -161,23 +198,30 @@ export default {
                     this.$store.dispatch(('getNextItemSelect'),{lastId:this.arPaths[value].lastId});
                     this.realLoc = this.arPaths[value].listLoc;
                     this.realLocStr = this.arPaths[value].str;
+                    this.allOk = (!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
                 }
-                else {this.$store.dispatch(('getNextItemSelect'),{lastId:null}); this.realLoc =null; this.realLocStr =""}
+                else {this.$store.dispatch(('getNextItemSelect'),{ lastId:null}); this.realLoc =null; this.realLocStr =""; this.realLocPost =""; this.allOk=false }
 
             },
             selectNext (value) {
                 this.realLoc.push({id:value.id, name:value.name});
-                this.realLocStr += value.name+' / ';
+                this.realLocStr += value.name+' , ';
                 this.$store.dispatch(('getNextItemSelect'),{lastId:value.id});
             },
             delLastItem () {
                 this.realLoc.splice(this.realLoc.length-1,1); this.realLocStr="";
-                for (let y=0; y<this.realLoc.length; y++) {this.realLocStr += this.realLoc[y].name+' / '}
-                if (this.realLoc.length === 0) { this.realLoc = null; this.modelN=false; this.modelS=false; this.model=false;
+                for (let y=0; y<this.realLoc.length; y++) {this.realLocStr += this.realLoc[y].name+' , '}
+                if (this.realLoc.length === 0) { this.realLoc = null; this.modelN=false; this.modelS=false; this.model=false; this.allOk=false;
                                                  this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
                                                }
                   else {this.$store.dispatch(('getNextItemSelect'),{lastId:this.realLoc[this.realLoc.length-1].id})}
-            }
+            },
+            setAdr (value) {
+                this.allOk = (!!((this.addressLine && value.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
+            },
+            setPost (value) {
+                this.allOk =(!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && value.length > 0) || !this.postcode));
+            },
         }
     }
 </script>

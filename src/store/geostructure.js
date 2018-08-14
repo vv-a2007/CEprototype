@@ -41,6 +41,16 @@ class ChildLoc {
     }
 }
 
+class Location {
+    constructor(id, loc, adr, str, postcode){
+        this.id = id;
+        this.loc = loc;
+        this.adr = adr;
+        this.str = str;
+        this.postcode = postcode;
+    }
+}
+
 export default {
     state:{
         geoTypes: [],
@@ -55,7 +65,8 @@ export default {
         currentValBreadcrumbs: [],
         currentSearchBreadcrumbs: [],
         allItemNames: [],
-        arrayNextItems: []
+        arrayNextItems: [],
+        locateList:[]
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -144,8 +155,16 @@ export default {
             state.arrayNextItems = payload;
             state.arrayNextItems.sort(function (a,b) { if (a.name.toUpperCase() > b.name.toUpperCase()) {return 1} else {return -1}});
 
+        },
+        addLoc (state,payload) {
+            state.locateList.push(payload);
+        },
+        editLoc (state, payload){
+            state.locateList[state.locateList.findIndex(i => i.id === payload.id)] = payload;
+        },
+        loadDelLoc (state,payload){
+            state.locateList = payload
         }
-
 
     },
     actions: {
@@ -672,7 +691,64 @@ export default {
                 commit('setLoading', false);
             }
 
-        }
+        },
+        async addLocation ({commit},{idUser, loc, adr, str, postcode}){
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                const locate = new Location(null, loc, adr, str, postcode);
+                const newValue = await fb.database().ref('users/'+idUser+'/locations/delivery').push(locate);
+                locate.id = newValue.key;
+
+                commit('addLoc', locate);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async editLocation ({commit},{idUser, id, loc, adr, str, postcode}) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                const locate = new Location(id, loc, adr, str, postcode);
+                await fb.database().ref('users/'+idUser+'/locations/delivery/'+id).update({loc,adr,str,postcode});
+
+                commit('editLoc', locate);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async getDeliveryLoc ({commit},{idUser}) {
+            commit('clearError');
+            commit('setLoading', true);
+            const allDelLoc = [];
+            try {
+                const fbVal = await fb.database().ref('users/'+idUser+'/locations/delivery').once('value');
+                const locList = fbVal.val();
+                if (locList !== null) {
+                    Object.keys(locList).forEach((key => {
+                        allDelLoc.push(new Location(key, locList[key].loc, locList[key].adr,locList[key].str,  locList[key].postcode))
+                    }));
+                    commit('loadDelLoc', allDelLoc);
+                    commit('setLoading', false);
+                } else {
+                    commit('loadDelLoc', []);
+                    commit('setLoading', false);
+                }
+            }
+            catch (error) {
+                commit('setError', error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
      },
 
     getters: {
@@ -688,6 +764,7 @@ export default {
         getCurrentValBreadcrumbs (state) {return state.currentValBreadcrumbs},
         getCurrentSearchBreadcrumbs (state) {return state.currentSearchBreadcrumbs},
         allItemNames (state) {return state.allItemNames},
-        getArrayNextItems (state) {return state.arrayNextItems}
+        getArrayNextItems (state) {return state.arrayNextItems},
+        getLocateList (state) {return state.locateList}
      }
 }
