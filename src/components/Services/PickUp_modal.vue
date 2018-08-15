@@ -140,6 +140,14 @@ export default {
             }
         },
 
+        updated () {
+            if (this.currentSearchBreadcrumbs.length === 1) {
+                this.$store.dispatch(('getNextItemSelect'),{lastId:this.arPaths[0].lastId});
+                this.realPickUp = this.arPaths[0].listPickUp;
+                this.realPickUpStr = this.arPaths[0].str;
+                this.allOk = true;
+            }
+        },
 
         methods : {
             onCancel () {
