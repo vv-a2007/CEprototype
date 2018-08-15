@@ -9,7 +9,7 @@
                     <v-flex xs-10>
                         <v-card-text>
                             <v-autocomplete
-                                    v-if="!realLoc"
+                                    v-if="!realPickUp"
                                     v-model="model"
                                     :items="arrayItemNames"
                                     color="blue"
@@ -27,7 +27,7 @@
 
                             <v-select
                               v-if="arPaths.length>0"
-                              v-show="!realLoc"
+                              v-show="!realPickUp"
                               :items="arPaths"
                               item-value="num"
                               item-text="str"
@@ -45,11 +45,11 @@
                           </v-select>
 
                             <v-text-field
-                                    v-if="realLoc"
-                                    v-model="realLocStr"
+                                    v-if="realPickUp"
+                                    v-model="realPickUpStr"
                                     label="Location :"
                                     readonly
-                                    :append-icon=" !!realLoc ? 'undo' : ''"
+                                    :append-icon=" !!realPickUp ? 'undo' : ''"
                                     @click:append="delLastItem"
                             ></v-text-field>
 
@@ -68,24 +68,7 @@
                                     label="Select detail"
                             >
                             </v-select>
-
-                            <v-text-field
-                                    v-if="realLoc"
-                                    v-model="realLocAdr"
-                                    :value="realLocAdr"
-                                    label="Address :"
-                                    @input="setAdr"
-                            ></v-text-field>
-                            <v-text-field
-                                    v-if="realLoc"
-                                    v-model="realLocPost"
-                                    :value="realLocPost"
-                                    label="Postcode :"
-                                    @input="setPost"
-                            ></v-text-field>
                         </v-card-text>
-
-
                     </v-flex>
                 </v-layout>
                 <v-layout>
@@ -105,16 +88,14 @@
 <script>
 
 export default {
-        name: "LocationModal",
-        props: ['idUser', 'id', 'icon', 'addressLine', 'postcode'],
+        name: "PickUpModal",
+        props: ['idUser', 'id', 'icon'],
         data() {
             return {
                 modal: false,
                 allOk: false,
-                realLoc: null,
-                realLocStr:"",
-                realLocAdr:"",
-                realLocPost:"",
+                realPickUp: null,
+                realPickUpStr:"",
                 model:false,
                 modelS:false,
                 modelN:false,
@@ -136,7 +117,7 @@ export default {
                     for (let y=0; y<this.currentSearchBreadcrumbs[i].length; y++) {
                         ar[i].str += this.currentSearchBreadcrumbs[i][y].name + " -> ";
                         ar[i].lastId = this.currentSearchBreadcrumbs[i][y].id;
-                        ar[i].listLoc = this.currentSearchBreadcrumbs[i];
+                        ar[i].listPickUp = this.currentSearchBreadcrumbs[i];
                     }
                 }
                 if (this.currentSearchBreadcrumbs.length>1) {this.hintS="You have more 1 variants"} else { this.hintS=""}
@@ -150,13 +131,12 @@ export default {
         created () {
             this.$store.dispatch('getAllItemNames');
             if (this.id !== null) {
-                 let num = this.$store.getters.getLocateList.findIndex(i=>i.id === this.id);
-                 let curLoc = this.$store.getters.getLocateList[num];
-                 this.realLoc = curLoc.loc;
-                 this.realLocAdr = curLoc.adr;
-                 this.realLocStr = curLoc.str;
-                 this.realLocPost = curLoc.postcode;
-                 this.allOk = (!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
+                 let num = this.$store.getters.getPickUpList.findIndex(i=>i.id === this.id);
+                 let curLoc = this.$store.getters.getPickUpList[num];
+                 this.realPickUp = curLoc.loc;
+                 this.realPickUpStr = curLoc.str;
+
+                 this.allOk = true;
             }
         },
 
@@ -171,11 +151,11 @@ export default {
             },
             onSave () {
                 if (this.id === null) {
-                    this.$store.dispatch('addLocation',{idUser:this.idUser, loc:this.realLoc, adr:this.realLocAdr, str:this.realLocStr, postcode:this.realLocPost})
+                    this.$store.dispatch('addPickUp',{idUser:this.idUser, loc:this.realPickUp, str:this.realPickUpStr})
                 } else {
                     let id = this.idUser;
-                    this.$store.dispatch('editLocation',{idUser:this.idUser, id:this.id, loc:this.realLoc, adr:this.realLocAdr, str:this.realLocStr, postcode:this.realLocPost}).
-                      then(()=>{this.$store.dispatch('getDeliveryLoc', {idUser: id})})
+                    this.$store.dispatch('editPickUp',{idUser:this.idUser, id:this.id, loc:this.realPickUp, str:this.realPickUpStr}).
+                      then(()=>{this.$store.dispatch('getPickUp', {idUser: id})})
                 }
 
                 this.model = false;
@@ -190,38 +170,32 @@ export default {
 
                 } else {
                     this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
-                    this.realLoc =null; this.realLocStr =""
+                    this.realPickUp =null; this.realPickUpStr =""
                 }
             },
             selectPath (value) {
                 if (value !== null ) {
                     this.$store.dispatch(('getNextItemSelect'),{lastId:this.arPaths[value].lastId});
-                    this.realLoc = this.arPaths[value].listLoc;
-                    this.realLocStr = this.arPaths[value].str;
-                    this.allOk = (!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
+                    this.realPickUp = this.arPaths[value].listPickUp;
+                    this.realPickUpStr = this.arPaths[value].str;
+                    this.allOk = true;
                 }
-                else {this.$store.dispatch(('getNextItemSelect'),{ lastId:null}); this.realLoc =null; this.realLocStr =""; this.realLocPost =""; this.realLocAdr =""; this.allOk=false }
+                else {this.$store.dispatch(('getNextItemSelect'),{ lastId:null}); this.realPickUp =null; this.realPickUpStr =""; this.allOk=false }
 
             },
             selectNext (value) {
-                this.realLoc.push({id:value.id, name:value.name});
-                this.realLocStr += value.name+' -> ';
+                this.realPickUp.push({id:value.id, name:value.name});
+                this.realPickUpStr += value.name+' -> ';
                 this.$store.dispatch(('getNextItemSelect'),{lastId:value.id});
             },
             delLastItem () {
-                this.realLoc.splice(this.realLoc.length-1,1); this.realLocStr="";
-                for (let y=0; y<this.realLoc.length; y++) {this.realLocStr += this.realLoc[y].name+' -> '}
-                if (this.realLoc.length === 0) { this.realLoc = null; this.modelN=false; this.modelS=false; this.model=false; this.allOk=false;
+                this.realPickUp.splice(this.realPickUp.length-1,1); this.realPickUpStr="";
+                for (let y=0; y<this.realPickUp.length; y++) {this.realPickUpStr += this.realPickUp[y].name+' -> '}
+                if (this.realPickUp.length === 0) { this.realPickUp = null; this.modelN=false; this.modelS=false; this.model=false; this.allOk=false;
                                                  this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
                                                }
-                  else {this.$store.dispatch(('getNextItemSelect'),{lastId:this.realLoc[this.realLoc.length-1].id})}
-            },
-            setAdr (value) {
-                this.allOk = (!!((this.addressLine && value.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
-            },
-            setPost (value) {
-                this.allOk =(!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && value.length > 0) || !this.postcode));
-            },
+                  else {this.$store.dispatch(('getNextItemSelect'),{lastId:this.realPickUp[this.realPickUp.length-1].id})}
+            }
         }
     }
 </script>

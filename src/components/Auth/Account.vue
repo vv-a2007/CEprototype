@@ -1,7 +1,7 @@
 <template>
     <v-container>
-        <v-layout row>
-            <v-flex xs12 md5  justify-center wrap >
+        <v-layout row wrap>
+            <v-flex xs12 md6 lg4  justify-center pa-2 >
                 <v-card>
                     <v-card-title primary-title >
                         <div class="headline">Personal and contact information</div>
@@ -71,8 +71,8 @@
                     </v-card-actions>
                 </v-card>
             </v-flex>
-            <v-spacer></v-spacer>
-            <v-flex xs12 md5  justify-center >
+
+            <v-flex xs12 md6 lg4  justify-center pa-2>
                 <v-card>
                     <v-layout row   d-flex>
                       <v-flex xs11 justify-center>
@@ -128,6 +128,49 @@
                 </v-card>
 
             </v-flex>
+
+            <v-flex xs12 md6 lg4  justify-center pa-2>
+                <v-card >
+                    <v-layout row >
+                        <v-flex xs11 justify-center>
+                            <v-card-title primary-title>
+                                <div class="headline">Pick up locations</div>
+                            </v-card-title>
+                        </v-flex>
+                        <v-flex xs1  justify-center align-content-center >
+                            <pick-up-modal
+                                    :id-user="idUser"
+                                    :id="null"
+                                    icon="add_circle_outline"
+                            >
+                            </pick-up-modal>
+                        </v-flex>
+                    </v-layout>
+                </v-card>
+                <v-card
+                        v-for="pick in pickUpList"
+                        :key="pick.id"
+                        color='blue lighten-1'
+
+                >
+                    <v-layout row ma-2>
+                        <v-flex xs11>
+                            <v-card-title primary-title >
+                                <div class="text--primary">{{pick.str}}</div>
+                            </v-card-title>
+                        </v-flex>
+                        <v-flex xs1 justify-center  >
+                            <pick-up-modal
+                                    :id-user="idUser"
+                                    :id="pick.id"
+                                    icon="edit"
+                            >
+                            </pick-up-modal>
+                        </v-flex>
+                    </v-layout>
+                </v-card>
+            </v-flex>
+
         </v-layout>
     </v-container>
 </template>
@@ -135,10 +178,11 @@
 <script>
 
     import  LocationModal from '../Services/Location_modal'
+    import  PickUpModal from '../Services/PickUp_modal'
 
     export default {
         name: "Account",
-        components:{LocationModal},
+        components:{LocationModal, PickUpModal},
         data () {
             return {
                 valid:false,
@@ -162,7 +206,8 @@
         },
 
         computed : { idUser () {return this.$store.getters.userId},
-                     deliveryList () { return this.$store.getters.getLocateList}
+                     deliveryList () { return this.$store.getters.getLocateList},
+                     pickUpList () { return this.$store.getters.getPickUpList}
         },
 
         created () {
@@ -173,6 +218,7 @@
                 this.emailBasic = this.$store.getters.user.emailBasic;
                 this.emailReserve = this.$store.getters.user.emailReserve;
                 this.$store.dispatch('getDeliveryLoc',{idUser: this.idUser});
+                this.$store.dispatch('getPickUp',{idUser: this.idUser});
             }
         },
 

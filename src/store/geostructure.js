@@ -51,6 +51,14 @@ class Location {
     }
 }
 
+class PickUp {
+    constructor(id, loc, str){
+        this.id = id;
+        this.loc = loc;
+        this.str = str;
+    }
+}
+
 export default {
     state:{
         geoTypes: [],
@@ -66,7 +74,8 @@ export default {
         currentSearchBreadcrumbs: [],
         allItemNames: [],
         arrayNextItems: [],
-        locateList:[]
+        locateList:[],
+        pickUpList:[]
     },
     mutations: {
        loadGeoTypes(state, payload) {
@@ -164,8 +173,16 @@ export default {
         },
         loadDelLoc (state,payload){
             state.locateList = payload
+        },
+        addPickUp (state,payload) {
+            state.pickUpList.push(payload);
+        },
+        editPickUp (state, payload){
+            state.pickUpList[state.pickUpList.findIndex(i => i.id === payload.id)] = payload;
+        },
+        loadPickUp (state,payload){
+            state.pickUpList = payload
         }
-
     },
     actions: {
         async loadGeoTypes({commit}) {
@@ -749,6 +766,63 @@ export default {
                 throw error
             }
         },
+        async addPickUp ({commit},{idUser, loc, str}){
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                const locate = new PickUp(null, loc, str);
+                const newValue = await fb.database().ref('users/'+idUser+'/locations/pickup').push(locate);
+                locate.id = newValue.key;
+
+                commit('addPickUp', locate);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async editPickUp ({commit},{idUser, id, loc, str}) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                const locate = new PickUp(id, loc, str);
+                await fb.database().ref('users/'+idUser+'/locations/pickup/'+id).update({loc,str});
+
+                commit('editPickUp', locate);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async getPickUp ({commit},{idUser}) {
+            commit('clearError');
+            commit('setLoading', true);
+            const allPickUp = [];
+            try {
+                const fbVal = await fb.database().ref('users/'+idUser+'/locations/pickup').once('value');
+                const locList = fbVal.val();
+                if (locList !== null) {
+                    Object.keys(locList).forEach((key => {
+                        allPickUp.push(new PickUp(key, locList[key].loc,locList[key].str))
+                    }));
+                    commit('loadPickUp', allPickUp);
+                    commit('setLoading', false);
+                } else {
+                    commit('loadPickUp', []);
+                    commit('setLoading', false);
+                }
+            }
+            catch (error) {
+                commit('setError', error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
      },
 
     getters: {
@@ -765,6 +839,7 @@ export default {
         getCurrentSearchBreadcrumbs (state) {return state.currentSearchBreadcrumbs},
         allItemNames (state) {return state.allItemNames},
         getArrayNextItems (state) {return state.arrayNextItems},
-        getLocateList (state) {return state.locateList}
+        getLocateList (state) {return state.locateList},
+        getPickUpList (state) {return state.pickUpList}
      }
 }
