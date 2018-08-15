@@ -95,7 +95,7 @@
                 <v-card
                     v-for="locate in deliveryList"
                     :key="locate.id"
-                    color='blue lighten-3'
+                    :color="(locate.id === defaultLocation) ? 'orange' : 'blue lighten-3'"
 
                 >
                     <v-layout mt-2 row >
@@ -178,7 +178,7 @@
 </template>
 
 <script>
-
+    import { mapGetters } from 'vuex';
     import  LocationModal from '../Services/Location_modal'
     import  PickUpModal from '../Services/PickUp_modal'
 
@@ -209,7 +209,8 @@
 
         computed : { idUser () {return this.$store.getters.userId},
                      deliveryList () { return this.$store.getters.getLocateList},
-                     pickUpList () { return this.$store.getters.getPickUpList}
+                     pickUpList () { return this.$store.getters.getPickUpList},
+                     ...mapGetters({'defaultLocation' : 'getDefaultLocation'})
         },
 
         created () {
@@ -219,6 +220,7 @@
                 this.phone = this.$store.getters.user.phone;
                 this.emailBasic = this.$store.getters.user.emailBasic;
                 this.emailReserve = this.$store.getters.user.emailReserve;
+
                 this.$store.dispatch('getDeliveryLoc',{idUser: this.idUser});
                 this.$store.dispatch('getPickUp',{idUser: this.idUser});
             }
@@ -233,7 +235,8 @@
                       lastName: this.lastName,
                       phone: this.phone,
                       emailBasic: this.emailBasic,
-                      emailReserve: this.emailReserve
+                      emailReserve: this.emailReserve,
+                      defaultLocation: this.defaultLocation
                   };
                   this.$store.dispatch('savePersonalData', user)
                       .then(() => {

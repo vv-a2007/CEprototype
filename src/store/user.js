@@ -8,26 +8,43 @@ class User {
     constructor(id,email){
         this.id = id;
         this.emailLogin = email;
+        this.firstName = "";
+        this.lastName = "";
+        this.phone = "";
+        this.emailBasic = "";
+        this.emailReserve = "";
+        this.defaultLocation = ""
     }
 }
 
 export default {
+
     state:{
         user:null
     },
-    mutations:{
+
+    mutations: {
+
         setUser (state, payload) {
             state.user = payload;
         },
-        loadPersonalData (state, payload){
+
+        loadPersonalData (state, payload) {
             state.user.firstName = payload.firstName;
             state.user.lastName = payload.lastName;
             state.user.phone = payload.phone;
             state.user.emailBasic = payload.emailBasic;
             state.user.emailReserve = payload.emailReserve;
+            state.user.defaultLocation = payload.defaultLocation;
+        },
+
+        setDefaultLocation (state, id) {
+            state.user.defaultLocation = id;
         }
     },
+
     actions:{
+
         async registerUser({commit},{email,passw}){
           commit('clearError');
           commit('setLoading',true);
@@ -42,6 +59,7 @@ export default {
                   throw error
                 }
         },
+
         async loginUser({commit},{email,passw}){
             commit('clearError');
             commit('setLoading',true);
@@ -57,6 +75,7 @@ export default {
                 throw error
             }
         },
+
         async autoLoginUser({commit}, payload) {
             commit('setUser', new User(payload.uid, payload.email));
             commit('setLoading',true);
@@ -75,10 +94,12 @@ export default {
                 throw error
             }
         },
+
         logOutUser({commit}){
               fb.auth().signOut();
               commit('setUser',null)
         },
+
         async readPersonalData ({commit},{id}){
 
             commit('setLoading',true);
@@ -96,11 +117,12 @@ export default {
                 throw error
             }
         },
+
         async savePersonalData({commit},{id, firstName, lastName, phone, emailBasic, emailReserve}){
 
             commit('setLoading', true);
             try {
-                await fb.database().ref(`users/${id}`).update({firstName, lastName, phone, emailBasic, emailReserve});
+                await fb.database().ref(`users/${id}`).update({firstName, lastName, phone, emailBasic, emailReserve,});
                 commit('clearError');
                 commit('setLoading', false);
             }
@@ -110,18 +132,31 @@ export default {
                 throw error
             }
         },
-        loadPersonalData({commit},payload) { commit('loadPersonalData', payload)}
-    },
+
+        loadPersonalData({commit},payload) { commit('loadPersonalData', payload)},
+
+        async setDefaultLoc ({commit},{id, userId}) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                await fb.database().ref('users/'+userId+'/').update({defaultLocation:id});
+                commit('setDefaultLocation', id);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+
+
+},
     getters:{
-        user (state) {
-            return state.user
-        },
-        isUserLogin (state) {
-            return state.user !== null;
-        },
-        userId (state) {
-            if (state.user !== null) {return state.user.id}
-        },
-        userLogin (state) {if (state.user !== null) {return state.user.emailLogin} }
+        user (state) {return state.user},
+        isUserLogin (state) {return state.user !== null;},
+        userId (state) {if (state.user !== null) {return state.user.id}},
+        userLogin (state) {if (state.user !== null) {return state.user.emailLogin} },
+        getDefaultLocation (state) {if ((state.user !== null) && (state.user.defaultLocation !== null)) { return state.user.defaultLocation}}
     }
 }

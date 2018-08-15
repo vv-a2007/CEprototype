@@ -89,8 +89,9 @@
                 <v-layout>
                     <v-flex xs-10 row>
                         <v-card-actions>
+                            <v-btn v-if="!isDefault" flat class="orange" @click="setDefault" :disabled="!allOk">Set default</v-btn>
                             <v-spacer></v-spacer>
-                            <v-btn flat  @click="onCancel">Cancel</v-btn>
+                            <v-btn flat class="grey" @click="onCancel">Cancel</v-btn>
                             <v-btn flat class="success" @click="onSave" :disabled="!allOk">Save</v-btn>
                         </v-card-actions>
                     </v-flex>
@@ -101,7 +102,7 @@
 </template>
 
 <script>
-
+import { mapGetters } from 'vuex';
 export default {
         name: "LocationModal",
         props: ['idUser', 'id', 'icon', 'addressLine', 'postcode'],
@@ -122,14 +123,11 @@ export default {
         },
         computed : {
 
-            arrayItemNames () {
-                return this.$store.getters.allItemNames;
-            },
-
+            arrayItemNames () {return this.$store.getters.allItemNames;},
             currentSearchBreadcrumbs () {return this.$store.getters.getCurrentSearchBreadcrumbs},
-
-
-            arNextItems () { return this.$store.getters.getArrayNextItems}
+            arNextItems () { return this.$store.getters.getArrayNextItems},
+            ...mapGetters({'defaultLocation' : 'getDefaultLocation'}),
+            isDefault () {return this.defaultLocation === this.id}
         },
 
         created () {
@@ -197,18 +195,18 @@ export default {
             },
             selectPath (value) {
                 if (value !== null ) {
-                    this.$store.dispatch(('getNextItemSelect'),{lastId:this.arPaths[value].lastId});
+                    this.$store.dispatch('getNextItemSelect',{lastId:this.arPaths[value].lastId});
                     this.realLoc = this.arPaths[value].listLoc;
                     this.realLocStr = this.arPaths[value].str;
                     this.allOk = (!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
                 }
-                else {this.$store.dispatch(('getNextItemSelect'),{ lastId:null}); this.realLoc =null; this.realLocStr =""; this.realLocPost =""; this.realLocAdr =""; this.allOk=false }
+                else {this.$store.dispatch('getNextItemSelect',{ lastId:null}); this.realLoc =null; this.realLocStr =""; this.realLocPost =""; this.realLocAdr =""; this.allOk=false }
 
             },
             selectNext (value) {
                 this.realLoc.push({id:value.id, name:value.name});
                 this.realLocStr += value.name+' -> ';
-                this.$store.dispatch(('getNextItemSelect'),{lastId:value.id}).then(()=>{ this.getArPaths();})
+                this.$store.dispatch('getNextItemSelect',{lastId:value.id}).then(()=>{ this.getArPaths();})
 
             },
             delLastItem () {
@@ -218,7 +216,7 @@ export default {
                                                  this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'}); this.arPaths=[];
                                                }
                   else {
-                    this.$store.dispatch(('getNextItemSelect'),{lastId:this.realLoc[this.realLoc.length-1].id}).
+                    this.$store.dispatch('getNextItemSelect',{lastId:this.realLoc[this.realLoc.length-1].id}).
                     then(()=>{ this.getArPaths();})}
             },
             setAdr (value) {
@@ -227,6 +225,9 @@ export default {
             setPost (value) {
                 this.allOk =(!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && value.length > 0) || !this.postcode));
             },
+            setDefault() {
+                this.$store.dispatch('setDefaultLoc',{id:this.id, userId:this.idUser})
+            }
         }
     }
 </script>
