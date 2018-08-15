@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <v-layout row wrap>
-            <v-flex xs12 md6 lg4  justify-center pa-2 >
+            <v-flex md12 lg6 xl4 justify-center pa-2 >
                 <v-card>
                     <v-card-title primary-title >
                         <div class="headline">Personal and contact information</div>
@@ -72,7 +72,7 @@
                 </v-card>
             </v-flex>
 
-            <v-flex xs12 md6 lg4  justify-center pa-2>
+            <v-flex md12 lg6 xl4  justify-center pa-2>
                 <v-card>
                     <v-layout row   d-flex>
                       <v-flex xs11 justify-center>
@@ -99,22 +99,22 @@
 
                 >
                     <v-layout mt-2 row >
-                        <v-flex xs2>
-                            <v-card-title primary-title >
-                                <div class="text--primary">{{locate.postcode}}</div>
-                            </v-card-title>
-                        </v-flex>
-                        <v-flex xs5 ml1>
+                        <v-flex xs5 ml-1>
                            <v-card-title primary-title >
                                <div class="text--primary">{{locate.str}}</div>
                            </v-card-title>
                         </v-flex>
-                        <v-flex xs4 ml1>
+                        <v-flex xs2 ml-1>
+                            <v-card-title primary-title >
+                                <div class="text--primary">{{locate.postcode}}</div>
+                            </v-card-title>
+                        </v-flex>
+                        <v-flex xs4 ml-1>
                            <v-card-title primary-title >
                               <div class="text--primary">{{locate.adr}}</div>
                            </v-card-title>
                         </v-flex>
-                        <v-flex xs1 align-end wrap  >
+                        <v-flex xs1>
                             <location-modal
                                     :id-user="idUser"
                                     :id="locate.id"
@@ -123,14 +123,14 @@
                                     :postcode="true"
                             >
                             </location-modal>
-                            <v-icon :id="locate.id" @click="deleteLoc">delete_forever</v-icon>
+                            <v-btn icon><v-icon rigth :id="locate.id" @click="deleteLoc">delete_forever</v-icon></v-btn>
                         </v-flex>
                     </v-layout>
                 </v-card>
 
             </v-flex>
 
-            <v-flex xs12 md6 lg4  justify-center pa-2>
+            <v-flex md12 lg6 xl4  justify-center pa-2>
                 <v-card >
                     <v-layout row >
                         <v-flex xs11 justify-center>
@@ -167,7 +167,7 @@
                                     icon="edit"
                             >
                             </pick-up-modal>
-                            <v-icon :id="pick.id" @click="deletePickUp">delete_forever</v-icon>
+                            <v-btn icon><v-icon rigth :id="pick.id" @click="deletePickUp">delete_forever</v-icon></v-btn>
                         </v-flex>
                     </v-layout>
                 </v-card>

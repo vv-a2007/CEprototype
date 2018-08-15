@@ -465,14 +465,13 @@ export default {
                     }));
                 }
 
-                if (count === 0) {
                     const fbVal1 = await fb.database().ref('geotypes/'+payload.geoId + '/defaultChildId').once('value');
                     const defChildId = fbVal1.val();
                     if (defChildId !== null) {
                         const defChild = this.getters.getGeoTypes[this.getters.getGeoTypes.findIndex(i => i.id === defChildId)].geoname;
                         listAllowedGeo.push(new AllowedLoc(defChildId, defChild))
                     }
-                }
+
 
                 commit('loadAllowedGeo', listAllowedGeo);
                 commit('setLoading', false);

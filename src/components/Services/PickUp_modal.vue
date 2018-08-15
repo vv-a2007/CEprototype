@@ -1,7 +1,7 @@
 <template >
     <v-dialog width="50%" v-model="modal" persistent mt3>
 
-             <v-btn icon large slot="activator"> <v-icon center>{{icon}}</v-icon> </v-btn>
+             <v-btn icon medium slot="activator"> <v-icon rigth>{{icon}}</v-icon> </v-btn>
 
         <v-card>
             <v-container>
