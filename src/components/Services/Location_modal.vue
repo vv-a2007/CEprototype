@@ -21,8 +21,8 @@
                                     @change='searchLoc'
                                     placeholder="Enter any part of your location"
                                     prepend-inner-icon="youtube_searched_for"
-                                    autofocus
                                     clearable
+                                    success
                             ></v-autocomplete>
 
                             <v-select
@@ -69,14 +69,12 @@
                             >
                             </v-select>
                             <v-text-field
-                                    v-if="realLoc"
                                     v-model="realLocPost"
                                     :value="realLocPost"
                                     label="Postcode :"
                                     @input="setPost"
                             ></v-text-field>
                             <v-text-field
-                                    v-if="realLoc"
                                     v-model="realLocAdr"
                                     :value="realLocAdr"
                                     label="Address :"
@@ -111,6 +109,7 @@ export default {
             return {
                 modal: false,
                 allOk: false,
+                arPaths:[],
                 realLoc: null,
                 realLocStr:"",
                 realLocAdr:"",
@@ -129,20 +128,6 @@ export default {
 
             currentSearchBreadcrumbs () {return this.$store.getters.getCurrentSearchBreadcrumbs},
 
-            arPaths () {
-                let ar=[];
-                for (let i=0; i<this.currentSearchBreadcrumbs.length; i++) {
-                    ar[i]={num:i, str:"", lastId:null, listLoc:[]};
-                    for (let y=0; y<this.currentSearchBreadcrumbs[i].length; y++) {
-                        ar[i].str += this.currentSearchBreadcrumbs[i][y].name + " -> ";
-                        ar[i].lastId = this.currentSearchBreadcrumbs[i][y].id;
-                        ar[i].listLoc = this.currentSearchBreadcrumbs[i];
-                    }
-                }
-                if (this.currentSearchBreadcrumbs.length>1) {this.hintS="You have more 1 variants"} else { this.hintS=""}
-
-                return ar;
-            },
 
             arNextItems () { return this.$store.getters.getArrayNextItems}
         },
@@ -157,11 +142,28 @@ export default {
                  this.realLocStr = curLoc.str;
                  this.realLocPost = curLoc.postcode;
                  this.allOk = (!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
+                 this.getArPaths();
             }
         },
 
 
         methods : {
+            getArPaths () {
+                this.arPaths=[];
+                for (let i=0; i<this.currentSearchBreadcrumbs.length; i++) {
+                    this.arPaths[i]={num:i, str:"", lastId:null, listLoc:[]};
+                    for (let y=0; y<this.currentSearchBreadcrumbs[i].length; y++) {
+                        this.arPaths[i].str += this.currentSearchBreadcrumbs[i][y].name + " -> ";
+                        this.arPaths[i].lastId = this.currentSearchBreadcrumbs[i][y].id;
+                        this.arPaths[i].listLoc = this.currentSearchBreadcrumbs[i];
+                    }
+                }
+                if (this.currentSearchBreadcrumbs.length>1) {this.hintS="You have more 1 variants"}
+                else {
+                    this.hintS="";
+                    if (this.currentSearchBreadcrumbs.length === 1) {this.selectPath(0)}
+                }
+            },
             onCancel () {
                 this.model = false;
                 this.modelS = false;
@@ -186,11 +188,11 @@ export default {
             },
             searchLoc (item) {
                 if (item !== null && item.id !== null) {
-                    this.$store.dispatch('getCurrentBreadcrumbs', { idItem:item.id, type:'Search'});
+                    this.$store.dispatch('getCurrentBreadcrumbs', { idItem:item.id, type:'Search'}).then(()=>{ this.getArPaths();})
 
                 } else {
                     this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
-                    this.realLoc =null; this.realLocStr =""
+                    this.realLoc =null; this.realLocStr =""; this.modelN=false; this.modelS=false; this.model=false; this.allOk=false;
                 }
             },
             selectPath (value) {
@@ -206,15 +208,18 @@ export default {
             selectNext (value) {
                 this.realLoc.push({id:value.id, name:value.name});
                 this.realLocStr += value.name+' -> ';
-                this.$store.dispatch(('getNextItemSelect'),{lastId:value.id});
+                this.$store.dispatch(('getNextItemSelect'),{lastId:value.id}).then(()=>{ this.getArPaths();})
+
             },
             delLastItem () {
                 this.realLoc.splice(this.realLoc.length-1,1); this.realLocStr="";
                 for (let y=0; y<this.realLoc.length; y++) {this.realLocStr += this.realLoc[y].name+' -> '}
-                if (this.realLoc.length === 0) { this.realLoc = null; this.modelN=false; this.modelS=false; this.model=false; this.allOk=false;
-                                                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
+                if (this.realLoc.length === 0) { this.realLoc = null; this.realLocStr = ""; this.modelN=false; this.modelS=false; this.model=false; this.allOk=false;
+                                                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'}); this.arPaths=[];
                                                }
-                  else {this.$store.dispatch(('getNextItemSelect'),{lastId:this.realLoc[this.realLoc.length-1].id})}
+                  else {
+                    this.$store.dispatch(('getNextItemSelect'),{lastId:this.realLoc[this.realLoc.length-1].id}).
+                    then(()=>{ this.getArPaths();})}
             },
             setAdr (value) {
                 this.allOk = (!!((this.addressLine && value.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));

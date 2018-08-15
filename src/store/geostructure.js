@@ -617,17 +617,19 @@ export default {
 
                 if (sItem !== null && !!sItem.parents) {
 
-                        Object.keys(sItem.parents).map(async key => {
+                        Object.keys(sItem.parents).map( key => {
                             let y = Object.keys(sItem.parents).indexOf(key);
                             let tempArray = [];
                             for (let i = 0; i < pathArray[z].length; i++) {
                                 tempArray[i] = new GeoValue(pathArray[z][i].id, pathArray[z][i].name);
                             }
                             pathArray[z + y] = tempArray;
-                            PromiseArray.push(Promise.resolve(await treeGo(z + y, key)));
+                            PromiseArray.push(Promise.resolve(treeGo(z + y, key)));
                         });
+                        await Promise.all(PromiseArray);
                     }
                     else {
+
                         pathArray[z] = pathArray[z].reverse();
                         if (pathArray[0].length === 0) { pathArray =[] }
                         commit('current'+type+'Breadcrumbs',pathArray);
@@ -695,14 +697,16 @@ export default {
                     const geoItems = fbVal.val();
                     if (geoItems !== null) {
 
-                        Object.keys(geoItems).forEach((async key => {
-                            PromiseArray.push(Promise.resolve(await getItem(key)));
+                        Object.keys(geoItems).forEach((key => {
+                           PromiseArray.push(Promise.resolve(getItem(key)))
                         }));
 
                     }
+                    Promise.all(PromiseArray).then(()=>{
+                        commit('arrayNextItems', arrayNames);
+                        commit('setLoading', false);
+                    });
 
-                    commit('arrayNextItems', arrayNames);
-                    commit('setLoading', false);
                 }
                 catch (error) {
                     commit('setError', error.message);
