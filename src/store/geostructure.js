@@ -182,6 +182,14 @@ export default {
         },
         loadPickUp (state,payload){
             state.pickUpList = payload
+        },
+        deleteLoc (state, id) {
+           let num = state.locateList.findIndex(i => i.id === id);
+           state.locateList.splice(num,1)
+        },
+        deletePickUp (state, id) {
+            let num = state.pickUpList.findIndex(i => i.id === id);
+            state.pickUpList.splice(num,1)
         }
     },
     actions: {
@@ -426,7 +434,7 @@ export default {
             commit('clearError');
             commit('setLoading', true);
             try {
-                const delGeo = await fb.database().ref('geotypes/'+payload.idParent+'/custChild/'+payload.id).remove();
+                await fb.database().ref('geotypes/'+payload.idParent+'/custChild/'+payload.id).remove();
                 commit('delCustomChild', payload);
                 commit('setLoading', false);
             }
@@ -823,6 +831,34 @@ export default {
                 throw error
             }
         },
+        async deleteLoc ({commit},{id, userId}) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                await fb.database().ref('users/'+userId+'/locations/delivery/'+id).remove();
+                commit('deleteLoc', id);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async deletePickUp ({commit},{id, userId}) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                await fb.database().ref('users/'+userId+'/locations/pickup/'+id).remove();
+                commit('deletePickUp', id);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        }
      },
 
     getters: {
@@ -840,6 +876,7 @@ export default {
         allItemNames (state) {return state.allItemNames},
         getArrayNextItems (state) {return state.arrayNextItems},
         getLocateList (state) {return state.locateList},
-        getPickUpList (state) {return state.pickUpList}
+        getPickUpList (state) {return state.pickUpList},
+
      }
 }

@@ -98,23 +98,23 @@
                     color='blue lighten-3'
 
                 >
-                    <v-layout mt-2 row  d-flex>
+                    <v-layout mt-2 row >
                         <v-flex xs2>
                             <v-card-title primary-title >
                                 <div class="text--primary">{{locate.postcode}}</div>
                             </v-card-title>
                         </v-flex>
-                        <v-flex xs4>
+                        <v-flex xs5 ml1>
                            <v-card-title primary-title >
                                <div class="text--primary">{{locate.str}}</div>
                            </v-card-title>
                         </v-flex>
-                        <v-flex xs5 justify-center>
+                        <v-flex xs4 ml1>
                            <v-card-title primary-title >
                               <div class="text--primary">{{locate.adr}}</div>
                            </v-card-title>
                         </v-flex>
-                        <v-flex xs1 justify-center  >
+                        <v-flex xs1 align-end wrap  >
                             <location-modal
                                     :id-user="idUser"
                                     :id="locate.id"
@@ -123,6 +123,7 @@
                                     :postcode="true"
                             >
                             </location-modal>
+                            <v-icon :id="locate.id" @click="deleteLoc">delete_forever</v-icon>
                         </v-flex>
                     </v-layout>
                 </v-card>
@@ -166,6 +167,7 @@
                                     icon="edit"
                             >
                             </pick-up-modal>
+                            <v-icon :id="pick.id" @click="deletePickUp">delete_forever</v-icon>
                         </v-flex>
                     </v-layout>
                 </v-card>
@@ -248,7 +250,15 @@
                           return error
                       })
               }
-          }
+          },
+         deleteLoc(event) {
+              let id = event.target.id;
+              this.$store.dispatch('deleteLoc', {id:id, userId:this.idUser})
+          },
+         deletePickUp(event) {
+                let id = event.target.id;
+                this.$store.dispatch('deletePickUp', {id:id, userId:this.idUser})
+            }
       }
     }
 </script>
