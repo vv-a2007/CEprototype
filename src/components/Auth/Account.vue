@@ -1,8 +1,8 @@
 <template>
     <v-container>
         <v-layout row wrap>
-            <v-flex md12 lg6 xl4 justify-center pa-2 >
-                <v-card>
+            <v-flex md12 lg6 xl4 justify-center pa-3 >
+                <v-card color="teal lighten-4">
                     <v-card-title primary-title >
                         <div class="headline">Personal and contact information</div>
                     </v-card-title>
@@ -64,19 +64,20 @@
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn
-                                color="success"
+                                color="teal accent-3"
                                 @click="savePersonalData"
                                 :disabled="(!valid) || (!change)"
+                                :loading="isLoading"
                         >Save personal data</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-flex>
 
-            <v-flex md12 lg6 xl4  justify-center pa-2>
-                <v-card>
+            <v-flex md12 lg6 xl4  justify-center pa-3>
+                <v-card color="teal lighten-4">
                     <v-layout row   d-flex>
                       <v-flex xs11 justify-center>
-                        <v-card-title primary-title>
+                        <v-card-title primary-title >
                            <div class="headline">Delivery addreses</div>
                         </v-card-title>
                       </v-flex>
@@ -95,7 +96,7 @@
                 <v-card
                     v-for="locate in deliveryList"
                     :key="locate.id"
-                    :color="(locate.id === defaultLocation) ? 'orange' : 'blue lighten-3'"
+                    :color="(locate.id === defaultLocation) ? 'orange lighten-2' : 'blue lighten-2'"
 
                 >
                     <v-layout mt-2 row >
@@ -130,8 +131,8 @@
 
             </v-flex>
 
-            <v-flex md12 lg6 xl4  justify-center pa-2>
-                <v-card >
+            <v-flex md12 lg6 xl4  justify-center pa-3>
+                <v-card color="teal lighten-4">
                     <v-layout row >
                         <v-flex xs11 justify-center>
                             <v-card-title primary-title>
@@ -151,7 +152,7 @@
                 <v-card
                         v-for="pick in pickUpList"
                         :key="pick.id"
-                        color='blue lighten-1'
+                        color='blue darken-1'
 
                 >
                     <v-layout row ma-2>
@@ -210,7 +211,7 @@
         computed : { idUser () {return this.$store.getters.userId},
                      deliveryList () { return this.$store.getters.getLocateList},
                      pickUpList () { return this.$store.getters.getPickUpList},
-                     ...mapGetters({'defaultLocation' : 'getDefaultLocation'})
+                     ...mapGetters({'defaultLocation' : 'getDefaultLocation', 'isLoading':'loading'})
         },
 
         created () {

@@ -11,16 +11,18 @@ class User {
         this.firstName = "";
         this.lastName = "";
         this.phone = "";
-        this.emailBasic = "";
+        this.emailBasic = email;
         this.emailReserve = "";
-        this.defaultLocation = ""
+        this.defaultLocation = "";
+        this.roles = {admin:false, shopper:false, trader:false, buyer:false}
     }
 }
 
 export default {
 
     state:{
-        user:null
+        user:null,
+        users:[]
     },
 
     mutations: {
@@ -40,6 +42,13 @@ export default {
 
         setDefaultLocation (state, id) {
             state.user.defaultLocation = id;
+        },
+
+        loadUsers (state, payload) {
+            state.users = payload;
+        },
+        saveRoles (state, payload) {
+            const num = state.users[state.users.findIndex(i=>i.id===payload.id)].roles=payload.roles
         }
     },
 
@@ -101,7 +110,7 @@ export default {
         },
 
         async readPersonalData ({commit},{id}){
-
+            commit('clearError');
             commit('setLoading',true);
             try {
                 const fbVal = await fb.database().ref(`users/${id}`).once('value');
@@ -119,7 +128,7 @@ export default {
         },
 
         async savePersonalData({commit},{id, firstName, lastName, phone, emailBasic, emailReserve}){
-
+            commit('clearError');
             commit('setLoading', true);
             try {
                 await fb.database().ref(`users/${id}`).update({firstName, lastName, phone, emailBasic, emailReserve,});
@@ -149,7 +158,47 @@ export default {
                 throw error
             }
         },
+        async loadUsers ({commit},payload) {
+            commit('clearError');
+            commit('setLoading', true);
+            let allUsers = [];
+            try {
+                const fbVal = await fb.database().ref(`users/`).once('value');
+                const users = fbVal.val();
+                Object.keys(users).forEach((key => {
+                    const user = users[key];
+                    let newUser = new User(key, "");
+                    newUser.emailBasic = user.emailBasic;
+                    newUser.firstName = user.firstName;
+                    newUser.lastName = user.lastName;
+                    newUser.phone = user.phone;
+                    if (!!user.roles) {newUser.roles = user.roles}
+                    allUsers.push(newUser);
+                    }));
 
+                commit('loadUsers', allUsers);
+                commit('setLoading',false);
+
+            } catch (error) {
+                commit('setLoading',false);
+                commit('setError', error.message);
+                throw error
+            }
+        },
+        async saveRoles ({commit},payload) {
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                const user = await fb.database().ref('users/'+payload.id).update({roles:payload.roles});
+                commit('saveRoles', payload);
+                commit('setLoading',false);
+            }
+            catch(error) {
+                commit('setLoading',false);
+                commit('setError', error.message);
+                throw error
+            }
+        }
 
 },
     getters:{
@@ -157,6 +206,7 @@ export default {
         isUserLogin (state) {return state.user !== null;},
         userId (state) {if (state.user !== null) {return state.user.id}},
         userLogin (state) {if (state.user !== null) {return state.user.emailLogin} },
-        getDefaultLocation (state) {if ((state.user !== null) && (state.user.defaultLocation !== null)) { return state.user.defaultLocation}}
+        getDefaultLocation (state) {if ((state.user !== null) && (state.user.defaultLocation !== null)) { return state.user.defaultLocation}},
+        getUsers (state){return state.users}
     }
 }

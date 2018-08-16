@@ -15,7 +15,7 @@ import newAdPage from '../components/Admin/tools/newAd.vue'
 import adPage from '../components/Admin/tools/Ad.vue'
 import accountPage from '../components/Auth/Account.vue'
 import geoStructurePage from '../components/Admin/Tools/Geostructure.vue'
-
+import usersPage from '../components/Admin/Tools/Users.vue'
 
 Vue.use(VueRouter);
 Vue.use(Vuelidate);
@@ -84,6 +84,11 @@ export default new VueRouter ({
         {
             path:'/geostructure',
             component: geoStructurePage,
+            beforeEnter: AuthGuard
+        },
+        {
+            path:'/users',
+            component: usersPage,
             beforeEnter: AuthGuard
         }
 
