@@ -15,26 +15,26 @@
                     color="blue lighten-2"
 
                     >
-                    <v-layout mt-2 row >
-                        <v-flex xs2 mt-2 pb-2   >
+                    <v-layout mt-2 row wrap justify-space-around>
+                        <v-flex xs6 lg3 xl2 mt-2 pb-2   >
                                 <v-card-text class="text">{{user.emailBasic}}</v-card-text>
                         </v-flex>
-                        <v-flex xs2 mt-2 pb-2 >
+                        <v-flex xs6 lg3 xl2 mt-2 pb-2 >
                             <v-card-text >
                                 <div class="text">{{user.firstName}}</div>
                             </v-card-text>
                         </v-flex>
-                        <v-flex xs2 mt-2 pb-2 >
+                        <v-flex xs6 lg3 xl2 mt-2 pb-2 >
                             <v-card-text >
                                 <div class="text">{{user.lastName}}</div>
                             </v-card-text>
                         </v-flex>
-                        <v-flex xs2 mt-2 pb-2 >
+                        <v-flex xs6 lg3 xl2 mt-2 pb-2 >
                             <v-card-text >
                                 <div class="text">{{user.phone}}</div>
                             </v-card-text>
                         </v-flex>
-                        <v-flex xs4 ma-2 pa-1 pl-2 align-content-center style="border: 1px black solid">
+                        <v-flex xs12 xl3 ma-2 pa-1 pl-2 align-content-center style="border: 1px black solid">
                             <div >
                              <v-layout row>
                                  <v-flex xs3 mb-2 r>
@@ -77,7 +77,7 @@
                                              readonly
                                      ></v-checkbox>
                                  </v-flex>
-                                 <v-flex  mt-3 mr-2>
+                                 <v-flex  mt-1 mr-2>
                                      <div class="text-xs-center">
                                          <v-menu
                                                  v-model="menu"
