@@ -10,8 +10,8 @@
             </v-flex>
             <v-flex xs12 justify-center pa-1 >
                 <v-card
-                    v-for="user in curUsersPage"
-                    :key="user.id"
+                    v-for="user in this.curUsersPage"
+                    :key=user.id
                     color="blue lighten-2"
 
                     >
@@ -39,40 +39,44 @@
                              <v-layout row>
                                  <v-flex xs3 mb-2 r>
                                      <v-checkbox
-                                             :v-model="user.roles.shopper"
+                                             v-model="user.roles['shopper']"
                                              label="Shopper"
                                              color="deep-purple accent-1"
-                                             :value="user.roles.shopper"
+                                             :input-value="user.roles['shopper']"
+                                             value
                                              hide-details
                                              readonly
                                      ></v-checkbox>
                                  </v-flex>
                                  <v-flex xs3 mb-2  >
                                      <v-checkbox
-                                             :v-model="user.roles.trader"
-                                             label="trader"
+                                             v-model="user.roles['trader']"
+                                             label="Trader"
                                              color="green accent-3"
-                                             :value="user.roles.trader"
+                                             :input-value="user.roles['trader']"
+                                             value
                                              hide-details
                                              readonly
                                      ></v-checkbox>
                                  </v-flex>
                                  <v-flex xs3 mb-2 >
                                      <v-checkbox
-                                             :v-model="user.roles.buyer"
+                                             v-model="user.roles['buyer']"
                                              label="Buyer"
                                              color="yellow accent-2"
-                                             :value="user.roles.buyer"
+                                             :input-value="user.roles['buyer']"
+                                             value
                                              hide-details
                                              readonly
                                      ></v-checkbox>
                                  </v-flex>
                                  <v-flex xs3 mb-2 >
                                      <v-checkbox
-                                             :v-model="user.roles.admin"
+                                             v-model="user.roles['admin']"
                                              label="Admin"
                                              color="red"
-                                             :value="user.roles.admin"
+                                             :input-value="user.roles['admin']"
+                                             value
                                              hide-details
                                              readonly
                                      ></v-checkbox>
@@ -81,9 +85,9 @@
                                      <div class="text-xs-center">
                                          <v-menu
                                                  v-model="menu"
-                                                 :close-on-content-click="false"
-                                                 :close-on-click="false"
-                                                 :nudge-width="400"
+                                                 :close-on-content-click=false
+                                                 :close-on-click=false
+                                                 min-width="400px"
                                                  left
                                          >
                                              <v-btn
@@ -92,47 +96,52 @@
                                                      @click="editRoles"
                                              >
                                                  <v-icon
-                                                         :id="user.id"
                                                          color="yellow accent-2"
+                                                         :id="user.id"
                                                  >edit
                                                  </v-icon>
                                              </v-btn>
 
                                              <v-card v-if="!!curRoles && curId===user.id">
                                                      <v-layout row>
-                                                         <v-flex xs3 mb-2 r>
+                                                         <v-flex xs3 mb-2>
                                                              <v-checkbox
-                                                                     v-model="curRoles.shopper"
+                                                                     v-model="curRoles['shopper']"
                                                                      label="Shopper"
                                                                      color="deep-purple accent-1"
-                                                                     :value="curRoles.shopper"
+                                                                     :input-value="curRoles['shopper']"
+                                                                     value
                                                                      hide-details
+
                                                              ></v-checkbox>
                                                          </v-flex>
-                                                         <v-flex xs3 mb-2  >
+                                                         <v-flex xs3 mb-2>
                                                              <v-checkbox
-                                                                     v-model="curRoles.trader"
-                                                                     label="trader"
+                                                                     v-model="curRoles['trader']"
+                                                                     label="Trader"
                                                                      color="green accent-3"
-                                                                     :value="curRoles.trader"
+                                                                     :input-value="curRoles['trader']"
+                                                                     value
                                                                      hide-details
                                                              ></v-checkbox>
                                                          </v-flex>
-                                                         <v-flex xs3 mb-2 >
+                                                         <v-flex xs3 mb-2>
                                                              <v-checkbox
-                                                                     v-model="curRoles.buyer"
+                                                                     v-model="curRoles['buyer']"
                                                                      label="Buyer"
                                                                      color="yellow accent-2"
-                                                                     :value="curRoles.buyer"
+                                                                     :input-value="curRoles['buyer']"
+                                                                     value
                                                                      hide-details
                                                              ></v-checkbox>
                                                          </v-flex>
-                                                         <v-flex xs3 mb-2 >
+                                                         <v-flex xs3 mb-2>
                                                              <v-checkbox
-                                                                     v-model="curRoles.admin"
+                                                                     v-model="curRoles['admin']"
                                                                      label="Admin"
                                                                      color="red"
-                                                                     :value="curRoles.admin"
+                                                                     :input-value="curRoles['admin']"
+                                                                     value
                                                                      hide-details
                                                              ></v-checkbox>
                                                          </v-flex>
@@ -161,7 +170,7 @@
                         v-model="curPage"
                          total-visible="pageNum > 5 ? 5 : pageNum"
                         :length="pageNum"
-                        @input="getCurUsersPage"
+                        @input=""
                 ></v-pagination>
               </div>
             </v-flex>
@@ -179,43 +188,53 @@ export default {
 
             ...mapGetters({'allUsersList':'getUsers'}),
 
-            pageNum () { return Math.ceil(this.allUsersList.length/this.itemOnPage)}
+            pageNum () { return Math.ceil(this.allUsersList.length/this.itemOnPage)},
+            curUsersPage() {
+                let start = (this.curPage-1)*this.itemOnPage;
+                let end = start + this.itemOnPage;
+                end = (end > this.allUsersList.length) ? this.allUsersList.length : end;
+                start = start < 0 ? 0 : start;
+                let temp = [];
+                for (let i=start; i<end; i++) { temp.push( JSON.parse(JSON.stringify(this.allUsersList[i])))}
+                return temp;
+            },
 
         },
 
         data () { return {
                            curPage : 1,
                            itemOnPage : 10,
-                           curUsersPage : [],
                            menu: false,
-                           curRoles:null,
+                           curRoles:{},
                            curId:null
                  }
         },
         created () {
-            this.$store.dispatch('loadUsers').then(()=>{this.getCurUsersPage()})
+            this.$store.dispatch('loadUsers');
         },
         methods : {
-            getCurUsersPage() {
-                let start = (this.curPage-1)*this.itemOnPage;
-                let end = start + this.itemOnPage;
-                end = (end > this.allUsersList.length) ? this.allUsersList.length : end;
-                start = start < 0 ? 0 : start;
-                let temp = [];
-                for (let i=start; i<end; i++) { temp.push(this.allUsersList[i])}
-               this.curUsersPage = temp;
-            },
+
             editRoles(event){
                 const id = event.target.id;
                 const old = this.curUsersPage[this.curUsersPage.findIndex(i=>i.id===id)];
-                this.curRoles = JSON.parse(JSON.stringify(old.roles));
+                this.curRoles['admin'] = old.roles['admin'];
+                this.curRoles['shopper'] = old.roles['shopper'];
+                this.curRoles['trader'] = old.roles['trader'];
+                this.curRoles['buyer'] = old.roles['buyer'];
                 this.curId = id;
             },
             saveRoles(){
-                this.menu=false;
                 const id = this.curId;
-                this.curUsersPage[this.curUsersPage.findIndex(i=>i.id===id)].roles = JSON.parse(JSON.stringify(this.curRoles));
-                this.$store.dispatch('saveRoles',{id:id, roles:this.curRoles})
+                this.curUsersPage[this.curUsersPage.findIndex(i=>i.id===id)].roles['admin'] = this.curRoles['admin'];
+                this.curUsersPage[this.curUsersPage.findIndex(i=>i.id===id)].roles['shopper'] = this.curRoles['shopper'];
+                this.curUsersPage[this.curUsersPage.findIndex(i=>i.id===id)].roles['trader'] = this.curRoles['trader'];
+                this.curUsersPage[this.curUsersPage.findIndex(i=>i.id===id)].roles['buyer'] = this.curRoles['buyer'];
+                this.$store.dispatch('saveRoles',{'id':id, 'roles':this.curRoles}).then(()=>{
+                    this.curRoles={};
+                    this.curId=null;
+                    this.menu=false;
+                })
+
             }
         }
     }

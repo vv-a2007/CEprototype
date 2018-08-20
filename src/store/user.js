@@ -14,7 +14,7 @@ class User {
         this.emailBasic = email;
         this.emailReserve = "";
         this.defaultLocation = "";
-        this.roles = {admin:false, shopper:false, trader:false, buyer:false}
+        this.roles = {}
     }
 }
 
@@ -48,7 +48,7 @@ export default {
             state.users = payload;
         },
         saveRoles (state, payload) {
-            const num = state.users[state.users.findIndex(i=>i.id===payload.id)].roles=payload.roles
+            const num = state.users[state.users.findIndex(i=>i.id===payload.id)].roles = payload.roles
         }
     },
 
@@ -158,7 +158,7 @@ export default {
                 throw error
             }
         },
-        async loadUsers ({commit},payload) {
+        async loadUsers ({commit}) {
             commit('clearError');
             commit('setLoading', true);
             let allUsers = [];
@@ -172,7 +172,7 @@ export default {
                     newUser.firstName = user.firstName;
                     newUser.lastName = user.lastName;
                     newUser.phone = user.phone;
-                    if (!!user.roles) {newUser.roles = user.roles}
+                    newUser.roles = Object.assign({},JSON.parse(JSON.stringify(user.roles)));
                     allUsers.push(newUser);
                     }));
 

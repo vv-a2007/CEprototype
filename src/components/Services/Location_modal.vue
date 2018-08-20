@@ -54,7 +54,7 @@
                             ></v-text-field>
 
                             <v-select
-                                    v-if="arNextItems.length>0"
+                                    v-if="!!realLoc && arNextItems.length>0"
                                     :items="arNextItems"
                                     item-value="id"
                                     item-text="name"
@@ -110,7 +110,6 @@ export default {
             return {
                 modal: false,
                 allOk: false,
-                arPaths:[],
                 realLoc: null,
                 realLocStr:"",
                 realLocAdr:"",
@@ -122,12 +121,28 @@ export default {
             }
         },
         computed : {
+            ...mapGetters({'defaultLocation' : 'getDefaultLocation',
+                           'arNextItems':'getArrayNextItems',
+                           'currentSearchBreadcrumbs':'getCurrentSearchBreadcrumbs',
+                           'arrayItemNames':'allItemNames'
+                          }),
+            isDefault () {return this.defaultLocation === this.id},
+            arPaths () {
+                let ar=[];
+                for (let i=0; i<this.currentSearchBreadcrumbs.length; i++) {
+                    ar[i]={num:i, str:"", lastId:null, listLoc:[]};
+                    for (let y=0; y<this.currentSearchBreadcrumbs[i].length; y++) {
+                        ar[i].str += this.currentSearchBreadcrumbs[i][y].name + " -> ";
+                        ar[i].lastId = this.currentSearchBreadcrumbs[i][y].id;
+                        ar[i].listLoc = this.currentSearchBreadcrumbs[i];
+                    }
+                }
+                if (this.currentSearchBreadcrumbs.length>1) {this.hintS="You have more 1 variants"} else {this.hintS="";}
 
-            arrayItemNames () {return this.$store.getters.allItemNames;},
-            currentSearchBreadcrumbs () {return this.$store.getters.getCurrentSearchBreadcrumbs},
-            arNextItems () { return this.$store.getters.getArrayNextItems},
-            ...mapGetters({'defaultLocation' : 'getDefaultLocation'}),
-            isDefault () {return this.defaultLocation === this.id}
+                return ar;
+            },
+
+
         },
 
         created () {
@@ -140,31 +155,25 @@ export default {
                  this.realLocStr = curLoc.str;
                  this.realLocPost = curLoc.postcode;
                  this.allOk = (!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
-                 this.getArPaths();
             }
         },
 
+        updated () {
+          if (this.currentSearchBreadcrumbs.length === 1) {
+                this.$store.dispatch(('getNextItemSelect'),{lastId:this.arPaths[0].lastId});
+                this.realLoc = this.arPaths[0].listLoc;
+                this.realLocStr = this.arPaths[0].str;
+                this.allOk = true;
+          }
+        },
+
+
 
         methods : {
-            getArPaths () {
-                this.arPaths=[];
-                for (let i=0; i<this.currentSearchBreadcrumbs.length; i++) {
-                    this.arPaths[i]={num:i, str:"", lastId:null, listLoc:[]};
-                    for (let y=0; y<this.currentSearchBreadcrumbs[i].length; y++) {
-                        this.arPaths[i].str += this.currentSearchBreadcrumbs[i][y].name + " -> ";
-                        this.arPaths[i].lastId = this.currentSearchBreadcrumbs[i][y].id;
-                        this.arPaths[i].listLoc = this.currentSearchBreadcrumbs[i];
-                    }
-                }
-                if (this.currentSearchBreadcrumbs.length>1) {this.hintS="You have more 1 variants"}
-                else {
-                    this.hintS="";
-                    if (this.currentSearchBreadcrumbs.length === 1) {this.selectPath(0)}
-                }
-            },
             onCancel () {
                 this.model = false;
                 this.modelS = false;
+                this.modelN=false;
                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
 
                 this.modal = false;
@@ -180,13 +189,14 @@ export default {
 
                 this.model = false;
                 this.modelS = false;
+                this.modelN=false;
                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
 
                 this.modal = false;
             },
             searchLoc (item) {
                 if (item !== null && item.id !== null) {
-                    this.$store.dispatch('getCurrentBreadcrumbs', { idItem:item.id, type:'Search'}).then(()=>{ this.getArPaths();})
+                    this.$store.dispatch('getCurrentBreadcrumbs', { idItem:item.id, type:'Search'});
 
                 } else {
                     this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
@@ -206,18 +216,16 @@ export default {
             selectNext (value) {
                 this.realLoc.push({id:value.id, name:value.name});
                 this.realLocStr += value.name+' -> ';
-                this.$store.dispatch('getNextItemSelect',{lastId:value.id}).then(()=>{ this.getArPaths();})
+                this.$store.dispatch('getNextItemSelect',{lastId:value.id});
 
             },
             delLastItem () {
                 this.realLoc.splice(this.realLoc.length-1,1); this.realLocStr="";
                 for (let y=0; y<this.realLoc.length; y++) {this.realLocStr += this.realLoc[y].name+' -> '}
                 if (this.realLoc.length === 0) { this.realLoc = null; this.realLocStr = ""; this.modelN=false; this.modelS=false; this.model=false; this.allOk=false;
-                                                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'}); this.arPaths=[];
+                                                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
                                                }
-                  else {
-                    this.$store.dispatch('getNextItemSelect',{lastId:this.realLoc[this.realLoc.length-1].id}).
-                    then(()=>{ this.getArPaths();})}
+                  else {this.$store.dispatch('getNextItemSelect', {lastId: this.realLoc[this.realLoc.length - 1].id});}
             },
             setAdr (value) {
                 this.allOk = (!!((this.addressLine && value.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));

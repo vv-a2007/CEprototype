@@ -54,7 +54,7 @@
                             ></v-text-field>
 
                             <v-select
-                                    v-if="arNextItems.length>0"
+                                    v-if="!!realPickUp && arNextItems.length>0"
                                     :items="arNextItems"
                                     item-value="id"
                                     item-text="name"
@@ -86,7 +86,7 @@
 </template>
 
 <script>
-
+import { mapGetters } from 'vuex';
 export default {
         name: "PickUpModal",
         props: ['idUser', 'id', 'icon'],
@@ -103,12 +103,11 @@ export default {
             }
         },
         computed : {
-
-            arrayItemNames () {
-                return this.$store.getters.allItemNames;
-            },
-
-            currentSearchBreadcrumbs () {return this.$store.getters.getCurrentSearchBreadcrumbs},
+            ...mapGetters({
+                'arrayItemNames':'allItemNames',
+                'currentSearchBreadcrumbs':'getCurrentSearchBreadcrumbs',
+                'arNextItems':'getArrayNextItems'
+            }),
 
             arPaths () {
                 let ar=[];
@@ -125,7 +124,7 @@ export default {
                 return ar;
             },
 
-            arNextItems () { return this.$store.getters.getArrayNextItems}
+
         },
 
         created () {
@@ -135,7 +134,6 @@ export default {
                  let curLoc = this.$store.getters.getPickUpList[num];
                  this.realPickUp = curLoc.loc;
                  this.realPickUpStr = curLoc.str;
-
                  this.allOk = true;
             }
         },
@@ -153,6 +151,7 @@ export default {
             onCancel () {
                 this.model = false;
                 this.modelS = false;
+                this.modelN=false;
                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
 
                 this.modal = false;
@@ -168,6 +167,7 @@ export default {
 
                 this.model = false;
                 this.modelS = false;
+                this.modelN=false;
                 this.$store.dispatch('getCurrentBreadcrumbs', { idItem:null, type:'Search'});
 
                 this.modal = false;
