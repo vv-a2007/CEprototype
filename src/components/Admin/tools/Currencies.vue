@@ -12,7 +12,7 @@
                 <v-flex xs12 v-for="curr in currenciesList" :key="curr.id">
                     <v-card >
                        <v-layout row wrap>
-                        <v-flex lg1 align-center justify-center>
+                        <v-flex lg1 align-center justify-center class="text-xs-center" pt-4>
                                 <v-icon >{{curr.iconName}}</v-icon>
                         </v-flex>
                         <v-flex lg2>
@@ -25,8 +25,10 @@
                             <v-text-field type="text" solo v-model="curr.currCode" readonly :name="curr.currCode">{{curr.currCode}}</v-text-field>
                           </v-card-text>
                         </v-flex>
-                        <v-flex lg1>
-                          <v-card-actions><v-icon :id="curr.id" @click="delCurr" color="red">delete_outline</v-icon></v-card-actions>
+                        <v-flex lg1 class="text-xs-center" pt-4>
+                          <v-card-actions >
+                              <v-icon :id="curr.id" @click="delCurr" color="red">delete_outline</v-icon>
+                          </v-card-actions>
                         </v-flex>
                        </v-layout>
                     </v-card>
