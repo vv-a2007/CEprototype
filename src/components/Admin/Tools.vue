@@ -40,7 +40,8 @@
                     {icon:'art_track', title:'Users', link:"/users"},
                     {icon:'art_track', title:'Shop automation', link:"/shop-automation"},
                     {icon:'art_track', title:'Delivery points', link:"/delivery-points"},
-                    {icon:'art_track', title:'Geography structure', link:"/geostructure"}
+                    {icon:'art_track', title:'Geography structure', link:"/geostructure"},
+                    {icon:'art_track', title:'Currencies', link:"/currencies"}
                     ]
             }
         }

@@ -152,7 +152,7 @@ export default {
                 {icon:'home', title:'Home', link:'/', showNotUser:true, showUser:true},
                 {icon:'shopping_cart', title:'Shopping', link:'/shopping', showNotUser:false, showUser:true},
                 {icon:'monetization_on', title:'Trading', link:'/trading', showNotUser:false, showUser:true},
-                {icon:'monetization_on', title:'Buyers', link:'/buying', showNotUser:false, showUser:true}
+                {icon:'call_split', title:'Buyers', link:'/buying', showNotUser:false, showUser:true}
 
             ],
             rightLinks :[

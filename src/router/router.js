@@ -16,6 +16,7 @@ import adPage from '../components/Admin/tools/Ad.vue'
 import accountPage from '../components/Auth/Account.vue'
 import geoStructurePage from '../components/Admin/Tools/Geostructure.vue'
 import usersPage from '../components/Admin/Tools/Users.vue'
+import currenciesPage from '../components/Admin/Tools/Currencies.vue'
 
 Vue.use(VueRouter);
 Vue.use(Vuelidate);
@@ -89,6 +90,11 @@ export default new VueRouter ({
         {
             path:'/users',
             component: usersPage,
+            beforeEnter: AuthGuard
+        },
+        {
+            path:'/currencies',
+            component: currenciesPage,
             beforeEnter: AuthGuard
         }
 
