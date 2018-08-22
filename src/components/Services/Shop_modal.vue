@@ -1,7 +1,7 @@
 <template >
     <v-dialog width="90%" v-model="modal" persistent mt3>
 
-             <v-btn icon medium slot="activator"> <v-icon rigth>{{icon}}</v-icon> </v-btn>
+             <v-btn icon medium slot="activator" @click="start"> <v-icon rigth>{{icon}}</v-icon> </v-btn>
 
         <v-card>
             <v-container>
@@ -14,20 +14,23 @@
                                         {{shop.name}}
                                     </v-text-field>
                                 </v-flex>
-                                <v-flex lg3>
-                                    <v-select label="Sale currency" v-model="currenciesList" :value="shop.currency"></v-select>
+                                <v-flex lg1>
+                                    <v-select label="Shop currency" :items="currenciesList" item-value="id" item-text="currName" v-model="shop.currency" clearable return-object ></v-select>
                                 </v-flex>
-                                <v-flex lg3 >
-                                    <v-text-field type="text" label="basic location" :value="shop.basicLocation" >
-                                        {{shop.basicLocation}}
+                                <v-flex lg5 >
+                                    <v-text-field type="text" label="Basic location" :value="modelLoc" v-model="modelLoc" readonly hide-details>
+                                             {{modelLoc}}
                                     </v-text-field>
+                                </v-flex>
+                                <v-flex lg1 >
                                     <basic-location-modal
-                                            :id-user="this.idUser"
+                                            :id-user="idUser"
                                             :id-shop="shop.id"
-                                            :id="shop.basicLocation"
-                                            icon="..."
-                                            :address-line="true"
-                                            :postcode="true"
+                                            :location="shop.basicLocation"
+                                             icon="edit"
+                                            address-line="true"
+                                            postcode="true"
+                                            :refresh="start"
                                     >
                                     </basic-location-modal>
                                 </v-flex>
@@ -76,7 +79,7 @@ export default {
                     id:this.id,
                     name:"",
                     currency :null,
-                    basicLocation:null,
+                    basicLocation: {str:"", loc:null, adr:"", postcode:""},
                     logoImageSrc:null,
                     shortDescription:"",
                     discountRules:[],
@@ -92,28 +95,28 @@ export default {
                             'tradersShops':'tradersShops',
                             'currenciesList':'currenciesList'
                           }),
-
+             modelLoc () {if (!!this.shop.basicLocation){ return this.shop.basicLocation.str+' ( '+this.shop.basicLocation.postcode+'  '+this.shop.basicLocation.adr+' )'} else {return ""}}
 
         },
 
-        created () {
-            if (this.id !== null) {
-                 let shopTemp = this.$store.getters.getShop(this.id);
-                 this.shop.name = shopTemp.name;
-                this.shop.shortDescription = shopTemp.shortDescription;
-            }
+        mounted () {
+
         },
 
         updated () {
-
+              this.start()
         },
 
 
-
         methods : {
+            start(){
+                if (this.id !== null) {
+                    this.shop = this.$store.getters.getShop(this.id);
+                }
+            },
             onCancel(){ this.modal = false},
             onSave(){ this.$store.dispatch('editShop', {
-                idUser:this.idUser, shop:this.shop});
+                idUser:this.idUser, shop:this.shop}).then(()=>{this.$store.dispatch('getTradersShops', {idUser:this.idUser});});
                 this.modal=false;
             }
         }

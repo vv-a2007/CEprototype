@@ -102,9 +102,10 @@
         },
         created () {
             this.$store.dispatch('getTradersShops', {idUser:this.idUser});
+            this.$store.dispatch('getCurrenciesList');
         },
         updated () {
-            this.$store.dispatch('getTradersShops', {idUser:this.idUser});
+
         },
         data () {
             return {
@@ -114,7 +115,7 @@
         },
         methods : {
             addShop (){
-                this.$store.dispatch('addShop', { name:this.newShop, idUser:this.idUser}).then(()=>{this.newShop = ""; this.menu = false;})
+                this.$store.dispatch('addShop', { name:this.newShop, idUser:this.idUser}).then(()=>{this.newShop = ""; this.menu = false; this.$store.dispatch('getTradersShops', {idUser:this.idUser});})
             }
         }
     }

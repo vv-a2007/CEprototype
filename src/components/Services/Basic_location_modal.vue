@@ -1,7 +1,7 @@
 <template >
     <v-dialog width="50%" v-model="modal" persistent mt3>
 
-             <v-btn icon medium slot="activator"> <v-icon rigth>{{icon}}</v-icon> </v-btn>
+             <v-btn icon medium slot="activator" @click="start"> <v-icon rigth>{{icon}}</v-icon> </v-btn>
 
         <v-card>
             <v-container>
@@ -104,7 +104,7 @@
 import { mapGetters } from 'vuex';
 export default {
         name: "BasicLocationModal",
-        props: ['idUser', 'idShop', 'id', 'icon', 'addressLine', 'postcode'],
+        props: ['idUser', 'idShop', 'location', 'icon', 'addressLine', 'postcode', 'refresh'],
         data() {
             return {
                 modal: false,
@@ -144,19 +144,6 @@ export default {
 
         },
 
-        created () {
-            this.$store.dispatch('getAllItemNames');
-            if (this.id !== null) {
-                 let num = this.$store.getters.getLocateList.findIndex(i=>i.id === this.id);
-                 let curLoc = this.$store.getters.getLocateList[num];
-                 this.realLoc = curLoc.loc;
-                 this.realLocAdr = curLoc.adr;
-                 this.realLocStr = curLoc.str;
-                 this.realLocPost = curLoc.postcode;
-                 this.allOk = (!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
-            }
-        },
-
         updated () {
           if (this.currentSearchBreadcrumbs.length === 1) {
                 this.$store.dispatch(('getNextItemSelect'),{lastId:this.arPaths[0].lastId});
@@ -169,6 +156,15 @@ export default {
 
 
         methods : {
+            start() {
+                this.$store.dispatch('getAllItemNames');
+                this.realLoc = this.location.loc;
+                this.realLocAdr = this.location.adr;
+                this.realLocStr = this.location.str;
+                this.realLocPost = this.location.postcode;
+                this.allOk = (!!((this.addressLine && this.realLocAdr.length > 0) || !this.addressLine)) && (!!((this.postcode && this.realLocPost.length > 0) || !this.postcode));
+
+            },
             onCancel () {
                 this.model = false;
                 this.modelS = false;
@@ -178,12 +174,10 @@ export default {
                 this.modal = false;
             },
             onSave () {
-                if (this.id === null) {
-                    this.$store.dispatch('addBasicLocation',{idUser:this.idUser, idShop:this.idShop, loc:this.realLoc, adr:this.realLocAdr, str:this.realLocStr, postcode:this.realLocPost})
-                } else {
-                    let id = this.idUser;
-                    this.$store.dispatch('editBasicLocation',{idUser:this.idUser, id:this.id, loc:this.realLoc, adr:this.realLocAdr, str:this.realLocStr, postcode:this.realLocPost});
-                }
+
+               this.$store.dispatch('editBasicLocation',{idUser:this.idUser, idShop:this.idShop, loc:this.realLoc, adr:this.realLocAdr, str:this.realLocStr, postcode:this.realLocPost}).then(()=>{
+                   this.refresh();
+               });
 
                 this.model = false;
                 this.modelS = false;

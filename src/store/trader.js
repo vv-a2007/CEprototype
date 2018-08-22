@@ -23,6 +23,15 @@ class Currency {
     }
 }
 
+class Location {
+    constructor(loc, adr, str, postcode){
+        this.loc = loc;
+        this.adr = adr;
+        this.str = str;
+        this.postcode = postcode;
+    }
+}
+
 export default {
 
     state:{
@@ -56,9 +65,6 @@ export default {
             let num = state.currenciesList.findIndex(i => i.id === id);
             state.currenciesList.splice(num,1);
         },
-        addBasicLocation (state, payload) {
-            state.shop.basicLocation = payload;
-        },
         editBasicLocation (state, payload) {
             state.shop.basicLocation = payload;
         }
@@ -78,7 +84,7 @@ export default {
                   Object.keys(shops).forEach((key => {
                     let shop = new Shop(key, shops[key].name);
                     shop.currency = shops[key].currency;
-                    shop.basicLocation = shops[key].basicLocation;
+                    shop.basicLocation = !!shops[key].basicLocation ? shops[key].basicLocation : null;
                     shop.shortDescription = shops[key].shortDescription;
 
                     trShops.push(shop);
@@ -119,7 +125,9 @@ export default {
             try {
                 await fb.database().ref('users/'+idUser+'/tradersShops/'+shop.id).update({
                     name:shop.name,
-                    shortDescription:shop.shortDescription
+                    shortDescription:shop.shortDescription,
+                    currency:shop.currency,
+                    basicLocation:shop.basicLocation
                 });
                 commit('editShop',shop);
                 commit('setLoading', false);
@@ -189,31 +197,16 @@ export default {
                 throw error
             }
         },
-        async addBasicLocation ({commit},{idUser, idShop, loc, adr, str, postcode}){
+
+        async editBasicLocation ({commit},{idUser, idShop, loc, adr, str, postcode}) {
             commit('clearError');
             commit('setLoading', true);
             try {
-                const locate = new Location(null, loc, adr, str, postcode);
-                const newValue = await fb.database().ref('users/'+idUser+'/shops/'+idShop+'/basicLocation').push(locate);
-                locate.id = newValue.key;
-
-                commit('addBasicLoc', locate);
-                commit('setLoading', false);
-            }
-            catch (error) {
-                commit('setError',error.message);
-                commit('setLoading', false);
-                throw error
-            }
-        },
-        async editBasicLocation ({commit},{idUser, idShop, id, loc, adr, str, postcode}) {
-            commit('clearError');
-            commit('setLoading', true);
-            try {
-                const locate = new Location(id, loc, adr, str, postcode);
-                await fb.database().ref('users/'+idUser+'/shops/'+idShop+'/basicLocation/'+id).update({loc,adr,str,postcode});
-
-                commit('editBasicLoc', locate);
+                if (!!idUser && !!idShop) {
+                    const locate = new Location(loc, adr, str, postcode);
+                    await fb.database().ref('users/' + idUser + '/tradersShops/' + idShop + '/basicLocation').set(locate);
+                    commit('editBasicLocation', locate);
+                }
                 commit('setLoading', false);
             }
             catch (error) {
@@ -227,6 +220,6 @@ export default {
     getters:{
         tradersShops (state) {return state.tradersShops},
         currenciesList (state) {return state.currenciesList},
-        getShop: state => id=> {return state.tradersShops[state.tradersShops.findIndex(i=>i.id===id)]}
+        getShop: state => id=> {return state.shop = state.tradersShops[state.tradersShops.findIndex(i=>i.id===id)]}
     }
 }
