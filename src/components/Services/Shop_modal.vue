@@ -104,6 +104,24 @@
                                         </v-layout>
                                     </div>
                                 </v-flex>
+
+                                <v-flex xs4 md4 lg1 class="text-xs-center " fill-height pl-2>
+                                <div style="border: black thin solid">
+                                    <v-layout row>
+                                        <v-flex fill-height >
+                                            <v-card-title class="blue-grey--text font-weight-bold justify-center">Delivery :</v-card-title>
+                                        </v-flex>
+                                        <delivery-rates-modal
+                                                :id-user="idUser"
+                                                :id-shop="shop.id"
+                                                icon="edit"
+                                                :refresh="start"
+                                        >
+                                        </delivery-rates-modal>
+                                    </v-layout>
+                                </div>
+                                </v-flex>
+
                             </v-layout>
 
                             <v-layout row wrap>
@@ -140,12 +158,13 @@
 import { mapGetters } from 'vuex';
 import  BasicLocationModal from '../Services/Basic_location_modal'
 import  DiscountRulesModal from '../Services/Discount_rules_modal'
+import  DeliveryRatesModal from '../Services/Delivery_rates_modal'
 
 export default {
 
     name: "ShopModal",
 
-    components:{BasicLocationModal, DiscountRulesModal},
+    components:{BasicLocationModal, DiscountRulesModal, DeliveryRatesModal},
 
     props: ['idUser', 'id', 'icon'],
 
