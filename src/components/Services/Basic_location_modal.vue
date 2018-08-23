@@ -1,12 +1,12 @@
 <template >
     <v-dialog width="50%" v-model="modal" persistent mt3>
 
-             <v-btn icon medium slot="activator" @click="start"> <v-icon rigth>{{icon}}</v-icon> </v-btn>
+             <v-btn icon medium slot="activator" @click="start"> <v-icon rigth color="yellow darken-2" >{{icon}}</v-icon> </v-btn>
 
         <v-card>
             <v-container>
                 <v-layout row >
-                    <v-flex xs-10>
+                    <v-flex xs-12>
                         <v-card-text>
                             <v-autocomplete
                                     v-if="!realLoc"

@@ -16,12 +16,12 @@
                     {{shop.name}}
                 </v-text-field>
              </v-flex>
-             <v-flex lg3>
+             <v-flex lg4>
                 <v-text-field ty pe="text" solo readonly :value="shop.shortDescription" v-model="shop.shortDescription">
                     {{shop.shortDescription}}
                 </v-text-field>
              </v-flex>
-             <v-flex lg3>
+             <v-flex lg1>
                 <shop-modal
                         :id-user="idUser"
                         :id="shop.id"

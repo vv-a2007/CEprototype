@@ -10,7 +10,8 @@ class Shop {
         this.name = name;
         this.currency = null;
         this.basicLocation = null;
-        this.shortDescription = ""
+        this.shortDescription = "";
+        this.discountRules = []
     }
 }
 
@@ -67,6 +68,9 @@ export default {
         },
         editBasicLocation (state, payload) {
             state.shop.basicLocation = payload;
+        },
+        editDiscountRules (state, payload) {
+            state.shop.discountRules = payload
         }
 
     },
@@ -86,7 +90,8 @@ export default {
                     shop.currency = shops[key].currency;
                     shop.basicLocation = !!shops[key].basicLocation ? shops[key].basicLocation : null;
                     shop.shortDescription = shops[key].shortDescription;
-
+                    shop.logoSrc = shops[key].logoSrc;
+                    shop.discountRules = !!shops[key].discountRules ? shops[key].discountRules : [];
                     trShops.push(shop);
                   }));
                   commit('loadTradersShops', trShops);
@@ -122,13 +127,24 @@ export default {
         async editShop ({commit}, {idUser, shop}){
             commit('clearError');
             commit('setLoading', true);
+
             try {
+                if (shop.logoSrc === "") {
+                    const image = shop.logo;
+                    const imageExt = image.name.slice(image.name.lastIndexOf('.'));
+                    const fileData = await fb.storage().ref(`logoTradersShops/${shop.id}${imageExt}`).put(image);
+                    shop.logoSrc = fileData.downloadURL;
+                }
                 await fb.database().ref('users/'+idUser+'/tradersShops/'+shop.id).update({
                     name:shop.name,
                     shortDescription:shop.shortDescription,
                     currency:shop.currency,
-                    basicLocation:shop.basicLocation
+                    basicLocation:shop.basicLocation,
+                    logoSrc:shop.logoSrc,
+                    discountRules:shop.discountRules
                 });
+
+
                 commit('editShop',shop);
                 commit('setLoading', false);
             }
@@ -215,11 +231,27 @@ export default {
                 throw error
             }
         },
+        async editDiscountRules ({commit}, payload){
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                await fb.database().ref('users/' + payload.idUser + '/tradersShops/' + payload.idShop + '/discountRules').set(payload.discountRules);
+                commit('editDiscountRules', payload.discountRules);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+
+        }
 
 },
     getters:{
         tradersShops (state) {return state.tradersShops},
         currenciesList (state) {return state.currenciesList},
-        getShop: state => id=> {return state.shop = state.tradersShops[state.tradersShops.findIndex(i=>i.id===id)]}
+        getShop: state => id=> {return state.shop = state.tradersShops[state.tradersShops.findIndex(i=>i.id===id)]},
+        discountRules (state) {return !!state.shop ? state.shop.discountRules : []}
     }
 }
