@@ -5,25 +5,24 @@
 
         <v-card>
             <v-container>
-                <v-layout row >
-                    <v-flex xs-12>
-
+                <v-layout row justify-center>
+                    <v-flex xs12>
                         <v-card-title class="headline justify-center">Discount rules</v-card-title>
                         <v-card-text v-for="(discount, index) in discountRules" :key="index">
-                           <v-layout row>
-                               <v-flex xs-2 ml-2>
-                                   <v-text-field type="integer" mask="#####" label="From" :value="discount.from" v-model="discount.from"  hide-details outline>{{discount.from}}</v-text-field>
+                           <v-layout row justify-center >
+                               <v-flex xs3 ml-2>
+                                   <v-text-field type="integer" mask="########" label="From" :value="discount.from" v-model="discount.from"  hide-details outline>{{discount.from}}</v-text-field>
                                </v-flex>
-                               <v-flex xs-2 ml-2>
-                                   <v-text-field type="integer" mask="#####" label="To" :value="discount.to" v-model="discount.to"  hide-details outline>{{discount.to}}</v-text-field>
+                               <v-flex xs3 ml-2>
+                                   <v-text-field type="integer" mask="########" label="To" :value="discount.to" v-model="discount.to"  hide-details outline>{{discount.to}}</v-text-field>
                                </v-flex>
-                               <v-flex xs-2 ml-2>
+                               <v-flex xs3 ml-2>
                                    <v-text-field type="integer" mask="##" label="Discount" :value="discount.disc" v-model="discount.disc"  hide-details outline>{{discount.disc}}</v-text-field>
                                </v-flex>
-                               <v-flex xs-1 class="text-xs-center" mt-3>
+                               <v-flex xs1 class="text-xs-center" mt-3>
                                    <span class="font-weight-bold"> %% </span>
                                </v-flex >
-                               <v-flex xs-1class="text-xs-center" mt-3 >
+                               <v-flex xs1 class="text-xs-center" mt-2 >
                                    <v-card-actions >
                                        <v-icon  @click="discountRules.splice(index,1)" color="red">delete_outline</v-icon>
                                    </v-card-actions>
@@ -32,12 +31,12 @@
                         </v-card-text>
                     </v-flex>
                 </v-layout>
-                <v-layout>
-                    <v-flex xs-12 row>
+                <v-layout row justify-center>
+                    <v-flex xs11 row mt-3>
                         <v-card-actions>
                             <v-btn button class="yellow" @click="addDisc">Add discount</v-btn>
                             <v-spacer></v-spacer>
-                            <v-btn flat class="grey" @click="onCancel">Cancel</v-btn>
+                            <v-btn flat class="grey" @click="onCancel" >Cancel</v-btn>
                             <v-btn button class="success" @click="onSave" :disabled="!allOk">Save</v-btn>
                         </v-card-actions>
                     </v-flex>
@@ -100,7 +99,8 @@ export default {
 
             },
             addDisc(){
-                this.discountRules.push(new Discount())
+                this.discountRules.push(new Discount());
+                if (this.discountRules.length>1) {this.discountRules[this.discountRules.length-1].from = this.discountRules[this.discountRules.length-2].to}
             },
             onCancel () {
 

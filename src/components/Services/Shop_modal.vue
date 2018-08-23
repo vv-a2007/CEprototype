@@ -9,7 +9,7 @@
                     <v-flex xs-12>
                         <v-card>
                             <v-layout row wrap>
-                                <v-flex lg1 class="text-xs-center"  ml-3 pr-2 >
+                                <v-flex lg1 class="text-xs-center"  pl-3 pr-2 >
                                     <v-avatar
                                             slot="activator"
                                             size="100%"
@@ -56,7 +56,7 @@
                                         </v-layout>
                                     </div>
                                 </v-flex>
-                                <v-flex xs8 md6 lg4 class="text-xs-center " fill-height ml-2>
+                                <v-flex xs8 md6 lg4 class="text-xs-center " fill-height pl-2>
                                     <div style="border: black thin solid" >
                                         <v-layout row wrap>
                                         <v-flex fill-height >
@@ -83,7 +83,7 @@
                                     </div>
                                 </v-flex>
 
-                                <v-flex xs4 md4 lg2 class="text-xs-center " fill-height ml-2>
+                                <v-flex xs4 md4 lg2 class="text-xs-center " fill-height pl-2>
                                     <div style="border: black thin solid">
                                         <v-layout row>
                                             <v-flex xs5 fill-height >
@@ -107,7 +107,7 @@
                             </v-layout>
 
                             <v-layout row wrap>
-                                <v-flex xs12 md8 lg5 fill-height mt-3 ml-3>
+                                <v-flex xs12 md8 lg5 fill-height my-3 pl-3>
                                     <div style="border: black thin solid">
                                         <v-layout row>
                                             <v-textarea label="Short description" :value="shop.shortDescription" v-model="shop.shortDescription" hide-details>
@@ -120,7 +120,7 @@
 
                             <v-divider></v-divider>
                             <v-layout>
-                                <v-flex xs-10 row>
+                                <v-flex xs-10 row mt-3>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
                                         <v-btn flat class="grey" @click="onCancel">Cancel</v-btn>
