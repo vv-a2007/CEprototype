@@ -11,7 +11,8 @@ class Shop {
         this.currency = null;
         this.basicLocation = null;
         this.shortDescription = "";
-        this.discountRules = []
+        this.discountRules = [];
+        this.deliveryZones = [];
     }
 }
 
@@ -71,6 +72,12 @@ export default {
         },
         editDiscountRules (state, payload) {
             state.shop.discountRules = payload
+        },
+        addDeliveryZone (state, payload) {
+            state.shop.deliveryZones.push(payload)
+        },
+        editDeliveryZone (state, payload) {
+            state.shop.deliveryZones[payload.index] = payload.zone
         }
 
     },
@@ -92,6 +99,7 @@ export default {
                     shop.shortDescription = shops[key].shortDescription;
                     shop.logoSrc = shops[key].logoSrc;
                     shop.discountRules = !!shops[key].discountRules ? shops[key].discountRules : [];
+                    shop.deliveryZones = !!shops[key].deliveryZones ? shops[key].deliveryZones : [];
                     trShops.push(shop);
                   }));
                   commit('loadTradersShops', trShops);
@@ -136,12 +144,13 @@ export default {
                     shop.logoSrc = fileData.downloadURL;
                 }
                 await fb.database().ref('users/'+idUser+'/tradersShops/'+shop.id).update({
-                    name:shop.name,
-                    shortDescription:shop.shortDescription,
-                    currency:shop.currency,
-                    basicLocation:shop.basicLocation,
-                    logoSrc:shop.logoSrc,
-                    discountRules:shop.discountRules
+                    name:             shop.name,
+                    shortDescription: shop.shortDescription,
+                    currency:         shop.currency,
+                    basicLocation:    shop.basicLocation,
+                    logoSrc:          shop.logoSrc,
+                    discountRules:    shop.discountRules,
+                    deliveryZones:    shop.deliveryZones
                 });
 
 
@@ -245,13 +254,47 @@ export default {
                 throw error
             }
 
-        }
+        },
+        async addDeliveryZone ({commit},payload){
+            commit('clearError');
+            commit('setLoading', true);
 
+            try {
+                let newZone = payload.zone;
+                commit('addDeliveryZone', newZone);
+                let delZones = this.getters.deliveryZones;
+                await fb.database().ref('users/' + payload.idUser + '/tradersShops/' + payload.idShop + '/deliveryZones').set(delZones);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
+        async editDeliveryZone ({commit},payload){
+            commit('clearError');
+            commit('setLoading', true);
+
+            try {
+                let editZone = payload.zone;
+                commit('editDeliveryZone', payload);
+                let edZones = this.getters.deliveryZones;
+                await fb.database().ref('users/' + payload.idUser + '/tradersShops/' + payload.idShop + '/deliveryZones').set(edZones);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+        },
 },
     getters:{
         tradersShops (state) {return state.tradersShops},
         currenciesList (state) {return state.currenciesList},
         getShop: state => id=> {return state.shop = state.tradersShops[state.tradersShops.findIndex(i=>i.id===id)]},
-        discountRules (state) {return !!state.shop ? state.shop.discountRules : []}
+        discountRules (state) {return !!state.shop ? state.shop.discountRules : []},
+        deliveryZones (state) {return !!state.shop ? state.shop.deliveryZones : []}
     }
 }

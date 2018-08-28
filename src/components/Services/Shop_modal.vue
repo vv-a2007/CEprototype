@@ -111,13 +111,13 @@
                                         <v-flex fill-height >
                                             <v-card-title class="blue-grey--text font-weight-bold justify-center">Delivery :</v-card-title>
                                         </v-flex>
-                                        <delivery-rates-modal
+                                        <delivery-zones-modal
                                                 :id-user="idUser"
                                                 :id-shop="shop.id"
                                                 icon="edit"
                                                 :refresh="start"
                                         >
-                                        </delivery-rates-modal>
+                                        </delivery-zones-modal>
                                     </v-layout>
                                 </div>
                                 </v-flex>
@@ -158,13 +158,13 @@
 import { mapGetters } from 'vuex';
 import  BasicLocationModal from '../Services/Basic_location_modal'
 import  DiscountRulesModal from '../Services/Discount_rules_modal'
-import  DeliveryRatesModal from '../Services/Delivery_rates_modal'
+import  DeliveryZonesModal from './Delivery_zones_modal'
 
 export default {
 
     name: "ShopModal",
 
-    components:{BasicLocationModal, DiscountRulesModal, DeliveryRatesModal},
+    components:{BasicLocationModal, DiscountRulesModal, DeliveryZonesModal},
 
     props: ['idUser', 'id', 'icon'],
 
@@ -181,7 +181,7 @@ export default {
                     logoImageSrc:null,
                     shortDescription:"",
                     discountRules:[],
-                    deliveryModel:null,
+                    deliveryZones:null,
                     parselRules:null,
                     buyersList:[]
                 }

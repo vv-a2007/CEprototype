@@ -17,7 +17,7 @@
                 </v-text-field>
              </v-flex>
              <v-flex lg4>
-                <v-text-field ty pe="text" solo readonly :value="shop.shortDescription" v-model="shop.shortDescription">
+                <v-text-field type="text" solo readonly :value="shop.shortDescription" v-model="shop.shortDescription">
                     {{shop.shortDescription}}
                 </v-text-field>
              </v-flex>
