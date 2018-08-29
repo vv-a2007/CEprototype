@@ -13,6 +13,7 @@ class Shop {
         this.shortDescription = "";
         this.discountRules = [];
         this.deliveryZones = [];
+        this.specialDelivery = [];
     }
 }
 
@@ -100,6 +101,7 @@ export default {
                     shop.logoSrc = shops[key].logoSrc;
                     shop.discountRules = !!shops[key].discountRules ? shops[key].discountRules : [];
                     shop.deliveryZones = !!shops[key].deliveryZones ? shops[key].deliveryZones : [];
+                    shop.specialDelivery = !!shops[key].specialDelivery ? shops[key].specialDelivery : [];
                     trShops.push(shop);
                   }));
                   commit('loadTradersShops', trShops);
@@ -150,7 +152,8 @@ export default {
                     basicLocation:    shop.basicLocation,
                     logoSrc:          shop.logoSrc,
                     discountRules:    shop.discountRules,
-                    deliveryZones:    shop.deliveryZones
+                    deliveryZones:    shop.deliveryZones,
+                    specialDelivery:  shop.specialDelivery
                 });
 
 

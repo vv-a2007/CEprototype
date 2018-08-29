@@ -71,23 +71,18 @@
 
                         <v-layout row no-wrap>
                             <v-flex xs12 fill-height pa-2>
-                            <div style="border:  medium solid dodgerblue ">
+                             <div style="border:  medium solid dodgerblue ">
                               <v-layout row no-wrap>
                                 <v-flex xs2>
-                                <v-layout row>
-                                    <v-flex fill-height>
-                                      <v-flex >
-                                        <v-card-title style="color: black" class=" font-weight-bold ">Weight and Costs : </v-card-title>
+                                    <v-flex align-center>
+                                        <v-card-title style="color: black" class="text-xs-center font-weight-bold" align="center">Weight and Costs : </v-card-title>
                                     </v-flex>
-                                    <v-flex ml-5 pl-2 pb-3>
+                                    <v-flex class="text-xs-center" pb-3>
                                         <v-icon @click="addZoneRate()" color="red" >add_box</v-icon>
                                     </v-flex>
-                                  </v-flex>
-                                </v-layout>
                                 </v-flex>
-                                <v-flex xs10>
                                  <v-layout row  v-if="zone.weightAndCosts.length>0" wrap>
-                                    <v-flex my-2 fill-height v-for="(cost, index) in zone.weightAndCosts" :key="index">
+                                    <v-flex my-2  v-for="(cost, index) in zone.weightAndCosts" :key="index">
                                         <v-layout row justify-center >
                                             <v-flex xs2 ml-2>
                                                 <v-text-field type="integer" mask="########" label="From" :value="cost.from" v-model="cost.from"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen">{{cost.from}}</v-text-field>
@@ -115,41 +110,32 @@
                                         </v-layout>
                                     </v-flex>
                                  </v-layout>
-                                </v-flex>
                               </v-layout>
                             </div>
-                            </v-flex>
+                           </v-flex>
                         </v-layout>
 
                             <v-layout row >
                                 <v-flex fill-height pa-2>
                                    <div style="border:  medium solid dodgerblue ">
-                                     <v-flex xs2>
-                                       <v-layout row wrap justify-end>
-
-                                         <v-flex xs12>
-                                           <v-layout row no-wrap>
-                                               <v-flex fill-height mt-3 ml-4 pl-3>
-                                                  <v-icon color="red">cake</v-icon>
-                                               </v-flex>
-                                               <v-flex fill-height ma-2>
+                                     <v-layout row no-wrap justify-center>
+                                        <v-flex xs2 >
+                                               <v-flex>
                                                  <v-card-title style="color: black" class=" font-weight-bold "  > Special promo delivery dates : </v-card-title>
                                                </v-flex>
-                                           </v-layout>
-                                         </v-flex>
-                                         <v-flex xs4 my-1 ml-5>
-                                                   <v-icon @click="addSpecialPromo" color="red" >add_box</v-icon>
-                                         </v-flex>
-                                       </v-layout>
-                                     </v-flex>
+                                               <v-flex class="text-xs-center" >
+                                                   <v-icon @click="addSpecialPromo" color="red"  >add_box</v-icon>
+                                               </v-flex>
+                                        </v-flex>
                                        <v-layout row  v-if="zone.specialDelivery.length>0" wrap>
-                                           <v-flex my-2 fill-height v-for="(promo, index) in zone.specialDelivery" :key="index">
-                                               <v-layout row justify-center >
-                                                   <v-flex xs2 ml-2>
+                                           <v-flex xs12 my-2  v-for="(promo, index) in zone.specialDelivery" :key="index">
+                                               <v-layout row justify-end wrap>
+                                                   <v-spacer></v-spacer>
+                                                   <v-flex xs3 ml-2>
                                                        <v-menu
-                                                               ref="menu"
+                                                               ref="menu[0][index]"
                                                                :close-on-content-click="false"
-                                                               v-model="menu"
+                                                               v-model="menu[0][index]"
                                                                :nudge-right="40"
                                                                lazy
                                                                transition="scale-transition"
@@ -166,22 +152,57 @@
                                                            ></v-text-field>
                                                            <v-date-picker
                                                                    v-model="date"
-                                                                   @input="promo.fromDate = formatDate(date); menu=false"
+                                                                   @input="promo.fromDate = formatDate(date); menu[0][index]=false"
                                                                    first-day-of-week="1"
                                                            ></v-date-picker>
 
                                                        </v-menu>
                                                    </v-flex>
+                                                   <v-flex xs3 ml-2>
+                                                       <v-menu
+                                                               ref="menu[1][index]"
+                                                               :close-on-content-click="false"
+                                                               v-model="menu[1][index]"
+                                                               :nudge-right="40"
+                                                               lazy
+                                                               transition="scale-transition"
+                                                               offset-x
+                                                               full-width
+                                                               min-width="290px"
+                                                       >
+                                                           <v-text-field
+                                                                   slot="activator"
+                                                                   v-model="promo.toDate"
+                                                                   label="To date"
+                                                                   prepend-icon="event"
+                                                                   readonly
+                                                           ></v-text-field>
+                                                           <v-date-picker
+                                                                   v-model="date"
+                                                                   :min="parseDate(promo.fromDate)"
+                                                                   @input="promo.toDate = formatDate(date); menu[1][index]=false"
+                                                                   first-day-of-week="1"
+                                                           ></v-date-picker>
 
-
-
-
-
-
-
+                                                       </v-menu>
+                                                   </v-flex>
+                                                   <v-flex xs3 ml-2>
+                                                       <v-text-field
+                                                               v-model="promo.discount"
+                                                               label="Discount %%"
+                                                               prepend-icon="event"
+                                                               type="integer" mask="###"
+                                                       ></v-text-field>
+                                                   </v-flex>
+                                                   <v-flex xs2 class="text-xs-center" mt-2 >
+                                                       <v-card-actions >
+                                                           <v-icon  @click="zone.specialDelivery.splice(index,1)" color="red">delete_outline</v-icon>
+                                                       </v-card-actions>
+                                                   </v-flex>
                                                </v-layout>
                                            </v-flex>
                                        </v-layout>
+                                     </v-layout>
                                   </div>
                                 </v-flex>
                             </v-layout>
@@ -236,7 +257,7 @@ export default {
         data() {
             return {
                 modal: false,
-                menu: false,
+                menu:[[],[]],
                 date: null,
                 zone:{
                     name:"",
@@ -305,7 +326,15 @@ export default {
                             this.zone.weightAndCosts[i].price = ar[i].price;
                         }
                     }
-
+                    let sd = this.delivZones[this.index].specialDelivery;
+                    if (!!sd) {
+                        for (let i = 0; i < sd.length; i++) {
+                            this.zone.specialDelivery[i] = new ZoneRate();
+                            this.zone.specialDelivery[i].fromDate = sd[i].fromDate;
+                            this.zone.specialDelivery[i].toDate = sd[i].toDate;
+                            this.zone.specialDelivery[i].discount = sd[i].discount;
+                        }
+                    }
                 }
             },
 
@@ -320,11 +349,14 @@ export default {
 
             formatDate (date) {
                 if (!date) return null;
-
-                const [year, month, day] = date.split('-')
+                const [year, month, day] = date.split('-');
                 return `${day}/${month}/${year}`
             },
-
+            parseDate (date) {
+                if (!date) return null;
+                const [day, month, year] = date.split('/');
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+            },
             onSave () {
                if (this.index === null) {
                     this.$store.dispatch('addDeliveryZone',{idUser:this.idUser, idShop:this.idShop ,zone:this.zone}).then(()=>{
