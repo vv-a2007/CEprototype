@@ -18,10 +18,10 @@
                                       <v-card-title style="color: blue" class=" font-weight-bold "><label style="color: black; margin-right: 3%" > Zone name: </label>  {{zone.name}}  </v-card-title>
                                   </v-flex>
                                   <v-flex fill-height >
-                                      <v-card-title style="color: red" class=" font-weight-bold "><label style="color: black; margin-right: 3%" > Optimal weight: </label> {{zone.optWeight}} </v-card-title>
+                                      <v-card-title style="color: red" class=" font-weight-bold "><label style="color: black; margin-right: 3%" > Optimal  delivery weight: </label> {{zone.bestWeight}} </v-card-title>
                                   </v-flex>
                                   <v-flex fill-height >
-                                      <v-card-title style="color: orangered" class=" font-weight-bold "><label style="color: black; margin-right: 3%" > Cost: </label> {{zone.optCost}} </v-card-title>
+                                      <v-card-title style="color: darkgreen" class=" font-weight-bold "><label style="color: black; margin-right: 3%" > Delivery price: </label> {{zone.bestPrice}} </v-card-title>
                                   </v-flex>
                                   <v-flex xs1 fill-height mt-3 ml-3>
                                       <v-icon v-if="!!zone.promo" color="red">cake</v-icon>
@@ -143,6 +143,8 @@ export default {
                         this.deliveryZones[i] = new Zone();
                         this.deliveryZones[i].name = this.delivZones[i].name;
                         this.deliveryZones[i].expDays = this.delivZones[i].expDays;
+                        this.deliveryZones[i].bestWeight = this.delivZones[i].bestWeight;
+                        this.deliveryZones[i].bestPrice = this.delivZones[i].bestPrice;
 
                         if (!!this.delivZones[i].areas) {
                             this.deliveryZones[i].areas = [];

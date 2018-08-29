@@ -89,19 +89,25 @@
                                  <v-layout row  v-if="zone.weightAndCosts.length>0" wrap>
                                     <v-flex my-2 fill-height v-for="(cost, index) in zone.weightAndCosts" :key="index">
                                         <v-layout row justify-center >
-                                            <v-flex xs3 ml-2>
-                                                <v-text-field type="integer" mask="########" label="From" :value="cost.from" v-model="cost.from"  hide-details outline>{{cost.from}}</v-text-field>
+                                            <v-flex xs2 ml-2>
+                                                <v-text-field type="integer" mask="########" label="From" :value="cost.from" v-model="cost.from"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen">{{cost.from}}</v-text-field>
+                                                <v-text-field type="integer" mask="########" label="From" :value="cost.from" v-model="cost.from"  hide-details outline v-else>{{cost.from}}</v-text-field>
                                             </v-flex>
-                                            <v-flex xs3 ml-2>
-                                                <v-text-field type="integer" mask="########" label="To" :value="cost.to" v-model="cost.to"  hide-details outline>{{cost.to}}</v-text-field>
+                                            <v-flex xs2 ml-2>
+                                                <v-text-field type="integer" mask="########" label="To" :value="cost.to" v-model="cost.to"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen" >{{cost.to}}</v-text-field>
+                                                <v-text-field type="integer" mask="########" label="To" :value="cost.to" v-model="cost.to"  hide-details outline v-else>{{cost.to}}</v-text-field>
                                             </v-flex>
-                                            <v-flex xs3 ml-2>
-                                                <v-text-field type="integer" mask="##" label="Price" :value="cost.price" v-model="cost.price"  hide-details outline>{{cost.price}}</v-text-field>
+                                            <v-flex xs2 class="text-xs-center" mt-3>
+                                                <span class="font-weight-bold" style="color: darkgreen"> Kg </span>
+                                            </v-flex >
+                                            <v-flex xs2 ml-2>
+                                                <v-text-field type="integer" mask="#######" label="Delivery price" :value="cost.price" v-model="cost.price"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen">{{cost.price}}</v-text-field>
+                                                <v-text-field type="integer" mask="#######" label="Delivery price" :value="cost.price" v-model="cost.price"  hide-details outline v-else>{{cost.price}}</v-text-field>
                                             </v-flex>
-                                            <v-flex xs1 class="text-xs-center" mt-3>
+                                            <v-flex xs2 class="text-xs-center" mt-3>
                                                 <span class="font-weight-bold"> {{cur}} </span>
                                             </v-flex >
-                                            <v-flex xs1 class="text-xs-center" mt-2 >
+                                            <v-flex xs2 class="text-xs-center" mt-2 >
                                                 <v-card-actions >
                                                     <v-icon  @click="zone.weightAndCosts.splice(index,1)" color="red">delete_outline</v-icon>
                                                 </v-card-actions>
@@ -118,14 +124,64 @@
                             <v-layout row >
                                 <v-flex fill-height pa-2>
                                    <div style="border:  medium solid dodgerblue ">
-                                     <v-layout row no-wrap>
-                                        <v-flex xs1 fill-height mt-3 ml-5 pl-3>
-                                            <v-icon color="red">cake</v-icon>
-                                        </v-flex>
-                                        <v-flex fill-height ma-2>
-                                            <v-card-title style="color: black" class=" font-weight-bold "  > Special promo list : </v-card-title>
-                                       </v-flex>
-                                     </v-layout>
+                                     <v-flex xs2>
+                                       <v-layout row wrap justify-end>
+
+                                         <v-flex xs12>
+                                           <v-layout row no-wrap>
+                                               <v-flex fill-height mt-3 ml-4 pl-3>
+                                                  <v-icon color="red">cake</v-icon>
+                                               </v-flex>
+                                               <v-flex fill-height ma-2>
+                                                 <v-card-title style="color: black" class=" font-weight-bold "  > Special promo delivery dates : </v-card-title>
+                                               </v-flex>
+                                           </v-layout>
+                                         </v-flex>
+                                         <v-flex xs4 my-1 ml-5>
+                                                   <v-icon @click="addSpecialPromo" color="red" >add_box</v-icon>
+                                         </v-flex>
+                                       </v-layout>
+                                     </v-flex>
+                                       <v-layout row  v-if="zone.specialDelivery.length>0" wrap>
+                                           <v-flex my-2 fill-height v-for="(promo, index) in zone.specialDelivery" :key="index">
+                                               <v-layout row justify-center >
+                                                   <v-flex xs2 ml-2>
+                                                       <v-menu
+                                                               ref="menu"
+                                                               :close-on-content-click="false"
+                                                               v-model="menu"
+                                                               :nudge-right="40"
+                                                               lazy
+                                                               transition="scale-transition"
+                                                               offset-x
+                                                               full-width
+                                                               min-width="290px"
+                                                       >
+                                                           <v-text-field
+                                                                   slot="activator"
+                                                                   v-model="promo.fromDate"
+                                                                   label="From date"
+                                                                   prepend-icon="event"
+                                                                   readonly
+                                                           ></v-text-field>
+                                                           <v-date-picker
+                                                                   v-model="date"
+                                                                   @input="promo.fromDate = formatDate(date); menu=false"
+                                                                   first-day-of-week="1"
+                                                           ></v-date-picker>
+
+                                                       </v-menu>
+                                                   </v-flex>
+
+
+
+
+
+
+
+                                               </v-layout>
+                                           </v-flex>
+                                       </v-layout>
                                   </div>
                                 </v-flex>
                             </v-layout>
@@ -164,6 +220,13 @@ class ZoneRate {
         this.price = null;
     }
 }
+class SpecialDelivery {
+    constructor() {
+        this.fromDate = null;
+        this.toDate = null;
+        this.discount = 0;
+    }
+}
 export default {
 
         name: "AddZoneModal",
@@ -173,12 +236,16 @@ export default {
         data() {
             return {
                 modal: false,
-
+                menu: false,
+                date: null,
                 zone:{
                     name:"",
                     expDays:-1,
                     areas:[],
-                    weightAndCosts:[]
+                    weightAndCosts:[],
+                    bestWeight:null,
+                    bestPrice:null,
+                    specialDelivery:[]
                 },
 
             }
@@ -194,27 +261,32 @@ export default {
 
              allOk() {
                 return !!this.zone.name && this.zone.expDays > -1 && this.zone.areas !== [];
+                },
+
+            optimalIndex () {
+                let opt = 999999999999999999; let ind=-1;
+                for (let i=0; i<this.zone.weightAndCosts.length; i++) {
+                    if ((this.zone.weightAndCosts[i].price/this.zone.weightAndCosts[i].to) <= opt) {opt=(this.zone.weightAndCosts[i].price/this.zone.weightAndCosts[i].to); ind=i}
                 }
+                if (ind>-1) {this.zone.bestWeight = this.zone.weightAndCosts[ind].to; this.zone.bestPrice = this.zone.weightAndCosts[ind].price;}
+                return ind;
+            }
 
         },
-
-        created () {
-
-        },
-
 
 
         methods : {
 
             started() {
                 this.$store.dispatch('getAllItemNames');
-                this.zone = new Object({name:"", expDays:-1, areas:[], weightAndCosts:[]});
+                this.zone = new Object({name:"", expDays:-1, areas:[], weightAndCosts:[], specialDelivery:[]});
 
                 if (this.index !== null) {
 
                     this.zone.name = this.delivZones[this.index].name;
                     this.zone.expDays = this.delivZones[this.index].expDays;
-
+                    this.zone.bestWeight = this.delivZones[this.index].bestWeight;
+                    this.zone.bestPrice = this.delivZones[this.index].bestPrice;
 
                     if (!!this.delivZones[this.index].areas) {
                         for (let y = 0; y < this.delivZones[this.index].areas.length; y++) {
@@ -233,6 +305,7 @@ export default {
                             this.zone.weightAndCosts[i].price = ar[i].price;
                         }
                     }
+
                 }
             },
 
@@ -242,6 +315,15 @@ export default {
             },
 
             addZoneRate () { this.zone.weightAndCosts.push(new ZoneRate())},
+
+            addSpecialPromo () { this.zone.specialDelivery.push(new SpecialDelivery())},
+
+            formatDate (date) {
+                if (!date) return null;
+
+                const [year, month, day] = date.split('-')
+                return `${day}/${month}/${year}`
+            },
 
             onSave () {
                if (this.index === null) {
