@@ -1,15 +1,15 @@
 <template >
-    <v-dialog width="100%" v-model="modal" persistent mt3>
+    <v-dialog width="100%" v-model="modal" persistent mt-3 @keydown.esc="modal = false">
 
              <v-btn icon medium slot="activator" @click="start"> <v-icon rigth color="yellow darken-2">{{icon}}</v-icon> </v-btn>
 
         <v-card>
             <v-container fluid>
                 <v-layout row v-if="shop.id !== null">
-                    <v-flex xs-12>
+                    <v-flex xs-12 >
                         <v-card>
-                            <v-layout row wrap>
-                                <v-flex lg1 class="text-xs-center"  pl-3 pr-2 >
+                            <v-layout row wrap fill-height>
+                                <v-flex lg1 class="text-xs-center"  pl-3 pr-2 fill-height>
                                     <v-avatar
                                             slot="activator"
                                             size="100%"
@@ -34,7 +34,7 @@
 
                                 <v-flex xs6 md4 lg3  fill-height pr-2>
                                     <div style="border: black thin solid" >
-                                        <v-layout row no-wrap>
+                                        <v-layout row no-wrap fill-height>
                                             <v-flex fill-height >
                                                 <v-card-title style="color: black" class=" font-weight-bold ">Shop name : </v-card-title>
                                             </v-flex>
@@ -49,16 +49,17 @@
 
                                 <v-flex xs6 md4 lg1 class="text-xs-center " fill-height>
                                     <div style="border: black thin solid" >
-                                        <v-layout row no-wrap>
+                                        <v-layout row no-wrap fill-height>
                                           <v-flex fill-height pt-1>
                                              <v-select :items="currenciesList" item-value="id" item-text="currName" v-model="shop.currency" clearable return-object hide-details solo placeholder="set currency"></v-select>
                                           </v-flex>
                                         </v-layout>
                                     </div>
                                 </v-flex>
+
                                 <v-flex xs8 md6 lg4 class="text-xs-center " fill-height pl-2>
-                                    <div style="border: black thin solid" >
-                                        <v-layout row wrap>
+                                    <div style="border: black thin solid">
+                                        <v-layout row wrap fill-height>
                                         <v-flex fill-height >
                                                 <v-card-title style="color: blue" class=" font-weight-bold justify-center">Location : </v-card-title>
                                             </v-flex>
@@ -85,12 +86,12 @@
 
                                 <v-flex xs4 md4 lg2 class="text-xs-center " fill-height pl-2>
                                     <div style="border: black thin solid">
-                                        <v-layout row>
+                                        <v-layout row fill-height>
                                             <v-flex xs5 fill-height >
                                              <v-card-title class="red--text font-weight-bold justify-center">Discount rates :</v-card-title>
                                             </v-flex>
                                             <v-flex xs5 fill-height >
-                                             <v-card-text class="font-weight-bold justify-center">Up to  {{this.maxDiscount}}  %%</v-card-text>
+                                             <v-card-text class="font-weight-bold justify-center">Max {{this.maxDiscount}} %</v-card-text>
                                             </v-flex>
                                             <v-flex xs2 fill-height>
                                              <discount-rules-modal
@@ -107,7 +108,7 @@
 
                                 <v-flex xs4 md4 lg1 class="text-xs-center " fill-height pl-2>
                                 <div style="border: black thin solid">
-                                    <v-layout row>
+                                    <v-layout row fill-height>
                                         <v-flex fill-height >
                                             <v-card-title class="blue-grey--text font-weight-bold justify-center">Delivery :</v-card-title>
                                         </v-flex>
@@ -124,10 +125,10 @@
 
                             </v-layout>
 
-                            <v-layout row wrap>
+                            <v-layout row wrap fill-height>
                                 <v-flex xs12 md8 lg5 fill-height my-3 pl-3>
                                     <div style="border: black thin solid">
-                                        <v-layout row>
+                                        <v-layout row fill-height >
                                             <v-textarea label="Short description" :value="shop.shortDescription" v-model="shop.shortDescription" hide-details>
                                                {{shop.shortDescription}}
                                             </v-textarea>
@@ -137,8 +138,8 @@
                             </v-layout>
 
                             <v-divider></v-divider>
-                            <v-layout>
-                                <v-flex xs-10 row mt-3>
+                            <v-layout fill-height>
+                                <v-flex xs-10 row mt-3 fill-height>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
                                         <v-btn flat class="grey" @click="onCancel">Cancel</v-btn>

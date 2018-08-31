@@ -1,5 +1,5 @@
 <template >
-    <v-dialog width="50%" v-model="modal" persistent mt3>
+    <v-dialog width="50%" v-model="modal" persistent mt-3 @keydown.esc="modal = false">
 
              <v-btn icon medium slot="activator"> <v-icon rigth>{{icon}}</v-icon> </v-btn>
 

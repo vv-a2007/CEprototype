@@ -1,5 +1,5 @@
 <template >
-    <v-dialog width="65%" v-model="modal" persistent mt3>
+    <v-dialog width="65%" v-model="modal" persistent mt-3 @keydown.esc="modal = false" >
 
              <v-btn icon medium slot="activator" @click="starting"> <v-icon rigth color="yellow darken-2" >{{icon}}</v-icon> </v-btn>
 
@@ -24,8 +24,7 @@
                                       <v-card-title style="color: darkgreen" class=" font-weight-bold "><label style="color: black; margin-right: 3%" > Delivery price: </label> {{zone.bestPrice}} </v-card-title>
                                   </v-flex>
                                   <v-flex xs1 fill-height mt-3 ml-3>
-                                      <v-icon v-if="!!zone.promo" color="red">cake</v-icon>
-                                      <span v-if="!!zone.promo">zone.promoPeriod</span>
+                                      <v-icon v-if="zone.specialDelivery.length>0" color="red">cake</v-icon>
                                       <v-icon v-else color="grey">cake</v-icon>
                                   </v-flex>
                                   <v-flex xs1 class="text-xs-center" mt-1 >
@@ -85,6 +84,7 @@ class Zone {
         this.expDays = -1;
         this.areas = [];
         this.weightAndCosts = [];
+        this.specialDelivery = [];
     }
 }
 
@@ -100,6 +100,14 @@ class ZoneRate {
         this.from = null;
         this.to = null;
         this.price = null;
+    }
+}
+
+class SpecialDelivery {
+    constructor() {
+        this.fromDate = null;
+        this.toDate = null;
+        this.discount = 0;
     }
 }
 
@@ -154,9 +162,8 @@ export default {
                                 this.deliveryZones[i].areas[y].id = this.delivZones[i].areas[y].id;
                                 this.deliveryZones[i].areas[y].name = this.delivZones[i].areas[y].name;
                             }
-                        } else {
-                            this.deliveryZones[i].areas = [];
-                        }
+                        } else {this.deliveryZones[i].areas = [];}
+
                         let ar = this.delivZones[i].weightAndCosts;
                         if (!!ar) {
                             this.deliveryZones[i].weightAndCosts = [];
@@ -167,6 +174,16 @@ export default {
                                 this.deliveryZones[i].weightAndCosts[y].price = ar[y].price;
                             }
                         } else {this.deliveryZones[i].weightAndCosts = [];}
+
+                        let sd = this.delivZones[i].specialDelivery;
+                        if (!!sd) {
+                            for (let y = 0; y < sd.length; y++) {
+                                this.deliveryZones[i].specialDelivery[y] = new SpecialDelivery();
+                                this.deliveryZones[i].specialDelivery[y].fromDate = sd[y].fromDate;
+                                this.deliveryZones[i].specialDelivery[y].toDate = sd[y].toDate;
+                                this.deliveryZones[i].specialDelivery[y].discount = sd[y].discount;
+                            }
+                        } else {this.deliveryZones[i].specialDelivery=[]}
 
                     }
                 }

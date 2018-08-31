@@ -1,5 +1,5 @@
 <template >
-    <v-dialog width="60%" v-model="modal" persistent mt3>
+    <v-dialog width="60%" v-model="modal" persistent mt-3 @keydown.esc="modal = false" >
 
              <v-btn  icon Large slot="activator" @click="started"> <v-icon rigth :color="color" >{{icon}}</v-icon> </v-btn>
 
@@ -82,29 +82,29 @@
                                     </v-flex>
                                 </v-flex>
                                  <v-layout row  v-if="zone.weightAndCosts.length>0" wrap>
-                                    <v-flex my-2  v-for="(cost, index) in zone.weightAndCosts" :key="index">
+                                    <v-flex my-2  v-for="(cost, index) in zone.weightAndCosts" :key="index" >
                                         <v-layout row justify-center >
                                             <v-flex xs2 ml-2>
-                                                <v-text-field type="integer" mask="########" label="From" :value="cost.from" v-model="cost.from"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen">{{cost.from}}</v-text-field>
-                                                <v-text-field type="integer" mask="########" label="From" :value="cost.from" v-model="cost.from"  hide-details outline v-else>{{cost.from}}</v-text-field>
+                                                <v-text-field type="integer" mask="########" label="From" :value="cost.from" v-model="cost.from"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen" @input="optIndex">{{cost.from}}</v-text-field>
+                                                <v-text-field type="integer" mask="########" label="From" :value="cost.from" v-model="cost.from"  hide-details outline v-else @input="optIndex">{{cost.from}}</v-text-field>
                                             </v-flex>
                                             <v-flex xs2 ml-2>
-                                                <v-text-field type="integer" mask="########" label="To" :value="cost.to" v-model="cost.to"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen" >{{cost.to}}</v-text-field>
-                                                <v-text-field type="integer" mask="########" label="To" :value="cost.to" v-model="cost.to"  hide-details outline v-else>{{cost.to}}</v-text-field>
+                                                <v-text-field type="integer" mask="########" label="To" :value="cost.to" v-model="cost.to"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen" @input="optIndex">{{cost.to}}</v-text-field>
+                                                <v-text-field type="integer" mask="########" label="To" :value="cost.to" v-model="cost.to"  hide-details outline v-else @input="optIndex">{{cost.to}}</v-text-field>
                                             </v-flex>
                                             <v-flex xs2 class="text-xs-center" mt-3>
                                                 <span class="font-weight-bold" style="color: darkgreen"> Kg </span>
                                             </v-flex >
                                             <v-flex xs2 ml-2>
-                                                <v-text-field type="integer" mask="#######" label="Delivery price" :value="cost.price" v-model="cost.price"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen">{{cost.price}}</v-text-field>
-                                                <v-text-field type="integer" mask="#######" label="Delivery price" :value="cost.price" v-model="cost.price"  hide-details outline v-else>{{cost.price}}</v-text-field>
+                                                <v-text-field type="integer" mask="#######" label="Delivery price" :value="cost.price" v-model="cost.price"  hide-details outline v-if="index===optimalIndex" style="background-color: palegreen" @input="optIndex">{{cost.price}}</v-text-field>
+                                                <v-text-field type="integer" mask="#######" label="Delivery price" :value="cost.price" v-model="cost.price"  hide-details outline v-else  @input="optIndex">{{cost.price}}</v-text-field>
                                             </v-flex>
                                             <v-flex xs2 class="text-xs-center" mt-3>
                                                 <span class="font-weight-bold"> {{cur}} </span>
                                             </v-flex >
                                             <v-flex xs2 class="text-xs-center" mt-2 >
                                                 <v-card-actions >
-                                                    <v-icon  @click="zone.weightAndCosts.splice(index,1)" color="red">delete_outline</v-icon>
+                                                    <v-icon  @click="delRate(index)" color="red">delete_outline</v-icon>
                                                 </v-card-actions>
                                             </v-flex>
                                         </v-layout>
@@ -259,6 +259,7 @@ export default {
                 modal: false,
                 menu:[[],[]],
                 date: null,
+                optimalIndex:-1,
                 zone:{
                     name:"",
                     expDays:-1,
@@ -283,15 +284,6 @@ export default {
              allOk() {
                 return !!this.zone.name && this.zone.expDays > -1 && this.zone.areas !== [];
                 },
-
-            optimalIndex () {
-                let opt = 999999999999999999; let ind=-1;
-                for (let i=0; i<this.zone.weightAndCosts.length; i++) {
-                    if ((this.zone.weightAndCosts[i].price/this.zone.weightAndCosts[i].to) <= opt) {opt=(this.zone.weightAndCosts[i].price/this.zone.weightAndCosts[i].to); ind=i}
-                }
-                if (ind>-1) {this.zone.bestWeight = this.zone.weightAndCosts[ind].to; this.zone.bestPrice = this.zone.weightAndCosts[ind].price;}
-                return ind;
-            }
 
         },
 
@@ -329,13 +321,24 @@ export default {
                     let sd = this.delivZones[this.index].specialDelivery;
                     if (!!sd) {
                         for (let i = 0; i < sd.length; i++) {
-                            this.zone.specialDelivery[i] = new ZoneRate();
+                            this.zone.specialDelivery[i] = new SpecialDelivery();
                             this.zone.specialDelivery[i].fromDate = sd[i].fromDate;
                             this.zone.specialDelivery[i].toDate = sd[i].toDate;
                             this.zone.specialDelivery[i].discount = sd[i].discount;
                         }
                     }
                 }
+                this.optIndex();
+            },
+
+
+            optIndex () {
+                let opt = 999999999999999999; let ind=-1;
+                for (let i=0; i<this.zone.weightAndCosts.length; i++) {
+                    if ((this.zone.weightAndCosts[i].price/this.zone.weightAndCosts[i].to) <= opt) {opt=(this.zone.weightAndCosts[i].price/this.zone.weightAndCosts[i].to); ind=i}
+                }
+                if (ind>-1) {this.zone.bestWeight = this.zone.weightAndCosts[ind].to; this.zone.bestPrice = this.zone.weightAndCosts[ind].price;}
+                this.optimalIndex = ind;
             },
 
             onCancel () {
@@ -343,9 +346,18 @@ export default {
                 this.modal = false;
             },
 
-            addZoneRate () { this.zone.weightAndCosts.push(new ZoneRate())},
+            addZoneRate () {
+                this.zone.weightAndCosts.push(new ZoneRate());
+                if (this.zone.weightAndCosts.length>1) {this.zone.weightAndCosts[this.zone.weightAndCosts.length-1].from = this.zone.weightAndCosts[this.zone.weightAndCosts.length-2].to}
+
+            },
 
             addSpecialPromo () { this.zone.specialDelivery.push(new SpecialDelivery())},
+
+            delRate (i) {
+                this.zone.weightAndCosts.splice(i,1);
+                this.optIndex();
+            },
 
             formatDate (date) {
                 if (!date) return null;

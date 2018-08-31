@@ -12,6 +12,7 @@ class Shop {
         this.basicLocation = null;
         this.shortDescription = "";
         this.discountRules = [];
+        this.promoRules = [];
         this.deliveryZones = [];
         this.specialDelivery = [];
     }
@@ -74,6 +75,10 @@ export default {
         editDiscountRules (state, payload) {
             state.shop.discountRules = payload
         },
+        editPromoRules (state, payload) {
+            state.shop.promoRules = payload
+        }
+        ,
         addDeliveryZone (state, payload) {
             state.shop.deliveryZones.push(payload)
         },
@@ -100,6 +105,7 @@ export default {
                     shop.shortDescription = shops[key].shortDescription;
                     shop.logoSrc = shops[key].logoSrc;
                     shop.discountRules = !!shops[key].discountRules ? shops[key].discountRules : [];
+                    shop.promoRules = !!shops[key].promoRules ? shops[key].promoRules : [];
                     shop.deliveryZones = !!shops[key].deliveryZones ? shops[key].deliveryZones : [];
                     shop.specialDelivery = !!shops[key].specialDelivery ? shops[key].specialDelivery : [];
                     trShops.push(shop);
@@ -152,6 +158,7 @@ export default {
                     basicLocation:    shop.basicLocation,
                     logoSrc:          shop.logoSrc,
                     discountRules:    shop.discountRules,
+                    promoRules:       shop.promoRules,
                     deliveryZones:    shop.deliveryZones,
                     specialDelivery:  shop.specialDelivery
                 });
@@ -258,6 +265,21 @@ export default {
             }
 
         },
+        async editPromoRules ({commit}, payload){
+            commit('clearError');
+            commit('setLoading', true);
+            try {
+                await fb.database().ref('users/' + payload.idUser + '/tradersShops/' + payload.idShop + '/promoRules').set(payload.promoRules);
+                commit('editPromoRules', payload.promoRules);
+                commit('setLoading', false);
+            }
+            catch (error) {
+                commit('setError',error.message);
+                commit('setLoading', false);
+                throw error
+            }
+
+        },
         async addDeliveryZone ({commit},payload){
             commit('clearError');
             commit('setLoading', true);
@@ -298,6 +320,7 @@ export default {
         currenciesList (state) {return state.currenciesList},
         getShop: state => id=> {return state.shop = state.tradersShops[state.tradersShops.findIndex(i=>i.id===id)]},
         discountRules (state) {return !!state.shop ? state.shop.discountRules : []},
+        promoRules (state) {return !!state.shop ? state.shop.promoRules : []},
         deliveryZones (state) {return !!state.shop ? state.shop.deliveryZones : []}
     }
 }
