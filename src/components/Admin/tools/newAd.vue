@@ -110,12 +110,12 @@
         },
         methods : {
             cancelAd () {
-                title='';
-                campaign='';
-                description='';
-                promo = false;
-                image = null;
-                imgSrc='';
+                this.title='';
+                this.campaign='';
+                this.description='';
+                this.promo = false;
+                this.image = null;
+                this.imgSrc='';
                 this.$router.push("/")
             },
             createAd () {

@@ -43,6 +43,15 @@
                         </v-card-text>
                     </v-flex>
                 </v-layout>
+                <v-layout row>
+                    <v-flex xs-10>
+                        <v-switch
+                                label="Show as promo"
+                                v-model="promo"
+                        ></v-switch>
+                    </v-flex>
+                </v-layout>
+
                 <v-layout>
                     <v-flex xs-10 row>
                         <v-card-actions>
@@ -67,6 +76,7 @@
                 editedTitle: this.ad.title,
                 editedCampaign: this.ad.campaign,
                 editedDescription: this.ad.description,
+                promo:this.ad.promo,
                 id: this.ad.id
             }
         },

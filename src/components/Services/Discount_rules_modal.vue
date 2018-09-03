@@ -146,13 +146,43 @@
                                     </v-layout>
 
                                 <v-layout row >
-                                    <v-flex xs11 row mt-3 ml-2>
+                                    <v-flex xs11 row mb-1 >
                                         <v-card-actions>
                                             <v-btn button small style="color:white; background-color: firebrick" @click="addPromoDisc(index)">Add discount range</v-btn>
                                             <v-spacer></v-spacer>
                                         </v-card-actions>
                                     </v-flex>
                                 </v-layout>
+                                <v-layout row>
+                                    <v-flex xs12>
+                                        <div  >
+                                            <v-autocomplete
+                                                    v-model="promo.promoLocations"
+                                                    :items="arrayItemNames"
+                                                    color="red darken-4"
+                                                    return-object
+                                                    item-text="name"
+                                                    item-value="id"
+                                                    id="id"
+                                                    label="Only in locations"
+                                                    @change=""
+                                                    placeholder="Start enter for looking of location"
+                                                    prepend-inner-icon="youtube_searched_for"
+                                                    autofocus
+                                                    clearable
+                                                    multiple
+                                                    box
+                                                    chips
+                                                    hide-selected
+                                                    deletable-chips
+                                                    no-data-text="loading..."
+                                            >
+                                            </v-autocomplete>
+                                        </div>
+                                    </v-flex>
+
+                                </v-layout>
+
                                 <v-spacer></v-spacer>
                                 </div>
                             </v-flex>
@@ -203,6 +233,7 @@ class Promo {
        this.dateTo = null;
        this.promoDiscounts = [];
        this.campaign = "";
+       this.promoLocations = []
     }
 }
 export default {
@@ -224,7 +255,8 @@ export default {
         computed : {
             ...mapGetters({
                            'discRules':'discountRules',
-                           'promRules':'promoRules'
+                           'promRules':'promoRules',
+                           'arrayItemNames':'allItemNames'
                           }),
 
             cur () {return this.$store.getters.getShop(this.idShop).currency.currName},
@@ -251,6 +283,7 @@ export default {
         methods : {
 
             start() {
+                this.$store.dispatch('getAllItemNames');
                 if (!!this.discRules){
                     this.discountRules=[];
                     for (let i = 0; i < this.discRules.length; i++) {
@@ -268,6 +301,9 @@ export default {
                         pro.fromDate = this.promRules[i].fromDate;
                         pro.toDate = this.promRules[i].toDate;
                         pro.campaign = this.promRules[i].campaign;
+
+                        pro.promoLocations = this.promRules[i].promoLocations;
+
                         for (let y = 0; y < this.promRules[i].promoDiscounts.length; y++) {
                             let prodis = new Discount();
                             prodis.from = this.promRules[i].promoDiscounts[y].from;

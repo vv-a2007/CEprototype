@@ -35,13 +35,13 @@
                                 <v-flex xs6 md4 lg3  fill-height pr-2>
                                     <div style="border: black thin solid" >
                                         <v-layout row no-wrap fill-height>
-                                            <v-flex fill-height >
-                                                <v-card-title style="color: black" class=" font-weight-bold ">Shop name : </v-card-title>
+                                            <v-flex xs2 fill-height >
+                                                <v-card-title style="color: black" class=" font-weight-bold ">Shop name:</v-card-title>
                                             </v-flex>
-                                            <v-flex fill-height>
-                                                 <v-card-text type="text"  :value="shop.name" v-model="shop.name" >
+                                            <v-flex xs10 fill-height pt-1>
+                                                 <v-text-field  type="text"  flat hide-details solo :value="shop.name" v-model="shop.name" >
                                                   {{shop.name}}
-                                                 </v-card-text>
+                                                 </v-text-field>
                                             </v-flex>
                                         </v-layout>
                                     </div>
@@ -86,11 +86,11 @@
 
                                 <v-flex xs4 md4 lg2 class="text-xs-center " fill-height pl-2>
                                     <div style="border: black thin solid">
-                                        <v-layout row fill-height>
-                                            <v-flex xs5 fill-height >
-                                             <v-card-title class="red--text font-weight-bold justify-center">Discount rates :</v-card-title>
+                                        <v-layout row fill-height no-wrap >
+                                            <v-flex xs5 fill-height no-wrap>
+                                             <v-card-title class="red--text font-weight-bold justify-center">Discount rules :</v-card-title>
                                             </v-flex>
-                                            <v-flex xs5 fill-height >
+                                            <v-flex xs5 fill-height no-wrap>
                                              <v-card-text class="font-weight-bold justify-center">Max {{this.maxDiscount}} %</v-card-text>
                                             </v-flex>
                                             <v-flex xs2 fill-height>
@@ -108,9 +108,9 @@
 
                                 <v-flex xs4 md4 lg1 class="text-xs-center " fill-height pl-2>
                                 <div style="border: black thin solid">
-                                    <v-layout row fill-height>
-                                        <v-flex fill-height >
-                                            <v-card-title class="blue-grey--text font-weight-bold justify-center">Delivery :</v-card-title>
+                                    <v-layout row fill-height no-wrap>
+                                        <v-flex fill-height no-wrap>
+                                            <v-card-title class="blue-grey--text font-weight-bold justify-center">Delivery price:</v-card-title>
                                         </v-flex>
                                         <delivery-zones-modal
                                                 :id-user="idUser"

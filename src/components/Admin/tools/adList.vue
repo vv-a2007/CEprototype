@@ -17,7 +17,6 @@
                                 height="250px"
                         >
                         </v-card-media>
-
                         <v-card-title primary-title>
                             <div>
                                 <div class="headline">{{ad.title}}</div>

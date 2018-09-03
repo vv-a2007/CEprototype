@@ -8,20 +8,21 @@
         </v-layout>
 
         <v-layout row wrap v-if="!!tradersShops">
-         <v-flex lg12>
+         <v-flex lg12 >
            <v-card v-for="shop in tradersShops" :key="shop.id">
+            <div style="border: black thin solid">
             <v-layout row wrap>
-             <v-flex lg3>
-                <v-text-field type="text" solo readonly :value="shop.name" v-model="shop.name">
+             <v-flex lg4 my-1>
+                <v-text-field type="text" solo hide-details flat readonly :value="shop.name" v-model="shop.name">
                     {{shop.name}}
                 </v-text-field>
              </v-flex>
-             <v-flex lg4>
-                <v-text-field type="text" solo readonly :value="shop.shortDescription" v-model="shop.shortDescription">
+             <v-flex lg5 my-1>
+                <v-text-field type="text" solo hide-details flat readonly :value="shop.shortDescription" v-model="shop.shortDescription">
                     {{shop.shortDescription}}
                 </v-text-field>
              </v-flex>
-             <v-flex lg1>
+             <v-flex my-1>
                 <shop-modal
                         :id-user="idUser"
                         :id="shop.id"
@@ -29,7 +30,9 @@
                 >
                 </shop-modal>
              </v-flex>
+             <v-spacer></v-spacer>
             </v-layout>
+            </div>
            </v-card>
          </v-flex>
         </v-layout>
